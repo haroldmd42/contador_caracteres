@@ -1,0 +1,90 @@
+/* Ocupa toda la pantalla */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+/* Fondo moderno */
+.app-container {
+  height: 100vh;
+  background: linear-gradient(135deg, #eef2f3, #d9e4f5);
+  display: flex;
+}
+
+/* Limita ancho máximo */
+.content-wrapper {
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* Tarjetas */
+.custom-card {
+  border-radius: 20px;
+  background: white;
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.custom-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Textarea */
+.custom-textarea {
+  border-radius: 15px;
+  resize: none;
+  transition: all 0.3s ease;
+}
+
+.custom-textarea:focus {
+  box-shadow: 0 0 10px rgba(13, 110, 253, 0.4);
+  border-color: #0d6efd;
+}
+
+/* Estadísticas */
+.stat-box {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.stat-box h2 {
+  font-weight: bold;
+  color: #0d6efd;
+}
+
+.progress {
+  height: 10px;
+  border-radius: 10px;
+}
+
+.content-buttons {
+  padding: 10px;
+  margin: 10px;
+}
+.copy-message {
+  position: absolute; 
+  z-index: 9999;
+  margin-top: -10px;
+  margin-left: 130px;
+  background-color: #d1e7dd;
+  color: #0f5132;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: right;
+  animation: fadeInOut 0.3s ease-in-out;
+}
+
+/* Animación suave */
+@keyframes fadeInOut {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
