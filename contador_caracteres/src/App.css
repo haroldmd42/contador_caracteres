@@ -6,20 +6,28 @@ body,
   margin: 0;
 }
 
-/* Fondo moderno */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
 .app-container {
   height: 100vh;
   background: linear-gradient(135deg, #eef2f3, #d9e4f5);
   display: flex;
 }
 
-/* Limita ancho máximo */
+
 .content-wrapper {
   max-width: 1200px;
   margin: auto;
 }
 
-/* Tarjetas */
 .custom-card {
   border-radius: 20px;
   background: white;
@@ -31,7 +39,7 @@ body,
   transform: translateY(-5px);
 }
 
-/* Textarea */
+
 .custom-textarea {
   border-radius: 15px;
   resize: none;
@@ -39,19 +47,28 @@ body,
 }
 
 .custom-textarea:focus {
-  box-shadow: 0 0 10px rgba(13, 110, 253, 0.4);
-  border-color: #0d6efd;
+  box-shadow: 0 0 2px 4px rgba(91, 153, 245, 0.555);
+  border-color: #6498e6;
 }
 
-/* Estadísticas */
+
 .stat-box {
   text-align: center;
   margin-bottom: 20px;
 }
+.input-number {
+  max-width: 300px;
+}
 
 .stat-box h2 {
   font-weight: bold;
+  font-size: 80px;
   color: #0d6efd;
+}
+.stat-box p {
+  font-weight: bold;
+  font-size: 22px;
+  color: #000000;
 }
 
 .progress {
@@ -64,9 +81,9 @@ body,
   margin: 10px;
 }
 .copy-message {
-  position: absolute; 
-  z-index: 9999;
-  margin-top: -10px;
+  position: absolute;
+  z-index: 1000;
+  margin-top: -0px;
   margin-left: 130px;
   background-color: #d1e7dd;
   color: #0f5132;
@@ -76,8 +93,30 @@ body,
   text-align: right;
   animation: fadeInOut 0.3s ease-in-out;
 }
+.btn-caracters {
+  font-weight: 500;
+  background-color: #00378a;
+  color: white;
+}
+.button-generate {
+  font-weight: 500;
+  background-color: #190086;
+  color: white;
+}
+.button-generate1 {
+  font-weight: 500;
+  background-color: #0028d8;
+  color: white;
+}
+.button-generate:hover {
+  background-color: #000744;
+  color: white;
+}
+.button-generate1:hover {
+  background-color: #1400c5;
+  color: white;
+}
 
-/* Animación suave */
 @keyframes fadeInOut {
   from {
     opacity: 0;
@@ -86,5 +125,21 @@ body,
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .copy-message {
+    position: absolute;
+    z-index: 10000;
+    margin-top: 10px;
+    margin-left: 30px;
+    background-color: #d1e7dd;
+
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: right;
+    animation: fadeInOut 0.3s ease-in-out;
   }
 }
