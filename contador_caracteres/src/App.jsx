@@ -64,8 +64,13 @@ export default function ContadorTexto() {
       <div className="container-fluid h-100 d-flex align-items-center justify-content-center">
         <div className="row w-100 content-wrapper g-4">
           <div className="col-md-7">
-            <div className="card shadow-lg p-4 border-0 custom-card">
-              <div className="mb-3 d-flex gap-1">
+            <div className="card shadow-lg p-4 border-0 custom-card ">
+              
+              <h4 className="text-justify mb-4 fw-bold ">
+                Generador de texto
+              </h4>
+              <div className="mb-3 d-flex gap-1 ">
+                
                 <div className="input-group">
                   <input
                     type="number"
@@ -89,13 +94,13 @@ export default function ContadorTexto() {
                   className="btn button-generate"
                   onClick={() => generateText(true)}
                 >
-                  Crear texto con espacios
+                  Generar texto con espacios
                 </button>
                 <button
                   className="btn button-generate1"
                   onClick={() => generateText(false)}
                 >
-                  Crear texto sin espacios
+                  Generar texto sin espacios
                 </button>
               </div>
               <textarea

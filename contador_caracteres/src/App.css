@@ -59,7 +59,11 @@ input[type="number"] {
 .input-number {
   max-width: 300px;
 }
-
+.custom-input-group{
+  box-shadow:  0 5px 9px rgba(0, 0, 0, 0.233);
+  border-radius: 20px;
+  padding: 10px;
+}
 .stat-box h2 {
   font-weight: bold;
   font-size: 80px;
@@ -83,8 +87,8 @@ input[type="number"] {
 .copy-message {
   position: absolute;
   z-index: 1000;
-  margin-top: -0px;
-  margin-left: 130px;
+  margin-top: -80px;
+  margin-left: 100px;
   background-color: #d1e7dd;
   color: #0f5132;
   padding: 8px 12px;
@@ -130,16 +134,8 @@ input[type="number"] {
 
 @media (max-width: 768px) {
   .copy-message {
-    position: absolute;
-    z-index: 10000;
-    margin-top: 10px;
+    margin-top: -110px;
     margin-left: 30px;
-    background-color: #d1e7dd;
-
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    text-align: right;
-    animation: fadeInOut 0.3s ease-in-out;
+  
   }
 }
