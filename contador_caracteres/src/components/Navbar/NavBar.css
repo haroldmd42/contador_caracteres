@@ -1,0 +1,12 @@
+body {
+  padding-top: 0px;
+}
+
+.navbar{
+    margin: 5px 20px;
+    border-radius: 10px;
+}
+.nav-link{
+    color: #ffffff;
+    font-weight: 500;
+}

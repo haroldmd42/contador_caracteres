@@ -1,0 +1,181 @@
+/* quitar flechas del input number */
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+
+/* CONTENEDOR PRINCIPAL */
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+
+/* WRAPPER */
+
+.content-wrapper {
+  max-width: 1300px;
+  width: 100%;
+  margin: auto;
+}
+
+
+/* CARDS */
+
+.custom-card {
+  border-radius: 20px;
+  background: white;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.custom-card:hover {
+  transform: translateY(-5px);
+}
+
+
+/* TEXTAREA */
+
+.custom-textarea {
+  border-radius: 15px;
+  resize: none;
+  transition: all 0.3s ease;
+  min-height: 180px;
+  max-height: 320px;
+}
+
+.custom-textarea:focus {
+  box-shadow: 0 0 2px 4px rgba(91, 153, 245, 0.555);
+  border-color: #6498e6;
+}
+
+
+/* INPUT */
+
+.input-number {
+  max-width: 260px;
+}
+
+
+/* ESTADISTICAS */
+
+.stat-box {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.stat-box h2 {
+  font-weight: bold;
+  font-size: clamp(40px, 6vw, 80px);
+  color: #0d6efd;
+}
+
+.stat-box p {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+
+/* PROGRESS */
+
+.progress {
+  height: 10px;
+  border-radius: 10px;
+}
+
+
+/* BOTONES */
+
+.btn-caracters {
+  font-weight: 500;
+  background-color: #00378a;
+  color: white;
+}
+
+.button-generate {
+  font-weight: 500;
+  background-color: #190086;
+  color: white;
+}
+
+.button-generate1 {
+  font-weight: 500;
+  background-color: #0028d8;
+  color: white;
+}
+
+.button-generate:hover {
+  background-color: #000744;
+  color: white;
+}
+
+.button-generate1:hover {
+  background-color: #1400c5;
+  color: white;
+}
+
+
+/* MENSAJE COPIADO */
+
+.copy-message {
+  position: absolute;
+  margin-top: -70px;
+  margin-left: 120px;
+  background-color: #d1e7dd;
+  color: #0f5132;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  animation: fadeInOut 0.3s ease-in-out;
+}
+
+
+/* ANIMACION */
+
+@keyframes fadeInOut {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 992px) {
+
+  .app-container {
+    align-items: flex-start;
+    padding-top: 40px;
+  }
+
+  .custom-textarea {
+    max-height: none;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .copy-message {
+    margin-left: 30px;
+    margin-top: -90px;
+  }
+
+}
