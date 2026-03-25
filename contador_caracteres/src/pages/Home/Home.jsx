@@ -7,13 +7,32 @@ export default function Home() {
         {
             title: "Contador de caracteres",
             description: "Cuenta caracteres, palabras y analiza tus textos.",
-            link: "/contador"
+            link: "/contador",
+            icon: "bi-textarea-t",
+            color: "blue"
         },
         {
             title: "Biblioteca de archivos",
             description: "Encuentra archivos de prueba con diferentes tamaños.",
-            link: "/generador"
+            link: "/generador",
+            icon: "bi-folder",
+            color: "green"
         },
+        {
+            title: "Encoder / Decoder",
+            description: "Codifica y decodifica texto fácilmente.",
+            link: "/encoder",
+            icon: "bi-code-slash",
+            color: "red"
+
+        },
+        {
+            title: "Imagen → Base64",
+            description: "Convierte imágenes a Base64 y viceversa.",
+            link: "/image-tools",
+            icon: "bi-image",
+            color: "orange"
+        }
     ];
 
     return (
@@ -26,7 +45,7 @@ export default function Home() {
                     {/* TEXTO */}
                     <div className="col-md-5 intro-section">
 
-                        <h1>Bienvenido a QA Tools</h1>
+                        <h1>Bienvenido a <p className="fontext">QATOOLS</p></h1>
 
                         <p>
                             Tu espacio con herramientas prácticas para testers.
@@ -51,6 +70,8 @@ export default function Home() {
                                     title={tool.title}
                                     description={tool.description}
                                     link={tool.link}
+                                    icon={tool.icon}
+                                    color={tool.color}
                                 />
                             ))}
 

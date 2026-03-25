@@ -6,8 +6,8 @@ export default function NavBar() {
 
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
             <div className="container-fluid">
-                <Link className="navbar-brand" to="/">
-                    QA Tools
+                <Link className="navbar-brand fontnav " to="/">
+                    QATOOOLS
                 </Link>
 
                 <button
@@ -37,6 +37,15 @@ export default function NavBar() {
                             <Link className="nav-link" to="/generador">
                                 Biblioteca de archivos
                             </Link>
+                        </li>
+                        <li className="nav-item dropdown">
+                            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown"  aria-expanded="false">
+                                Más herramientas
+                            </a>
+                            <div className="dropdown-menu">
+                                <Link className="dropdown-item" to={"/encoder"}>Encoder</Link>
+                                <Link className="dropdown-item" to={"/image-tools"}>Imagen Base64</Link>
+                            </div>
                         </li>
                     </ul>
                 </div>

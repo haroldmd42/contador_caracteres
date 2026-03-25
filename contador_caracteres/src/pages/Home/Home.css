@@ -7,7 +7,12 @@
 .intro-section{
     padding-right: 40px;
 }
-
+.fontext {
+    font-family: "Titan One", sans-serif;
+    font-size: 4rem;
+    letter-spacing: 1px;
+    color: #0d6efd;
+}
 h1{
     font-size: 3rem;
     color: #0d6efd;
@@ -32,4 +37,11 @@ p{
     padding: 20px;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
+}
+@media (max-width: 768px) {
+
+  .home-body{
+    margin-top: 90px;
+  }
+
 }
