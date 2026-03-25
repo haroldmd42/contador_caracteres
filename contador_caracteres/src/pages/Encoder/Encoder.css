@@ -112,3 +112,10 @@ button.clear:hover {
 .copy-btn:hover {
     background: #157347;
 }
+button.magic {
+    background: #6f42c1;
+}
+
+button.magic:hover {
+    background: #5a32a3;
+}

@@ -27,7 +27,48 @@ export default function EncoderDecoder() {
       setOutput("Error al codificar");
     }
   };
+  const cleanWeirdJSON = (input) => {
+    try {
+      let cleaned = input.trim();
 
+      // 1. Quitar prefijo tipo "1:"
+      const firstBrace = cleaned.indexOf("{");
+      if (firstBrace !== -1) {
+        cleaned = cleaned.substring(firstBrace);
+      }
+
+      // 2. Intentar parsear
+      let parsed = JSON.parse(cleaned);
+
+      // 3. Arreglar encoding común (latin1 mal interpretado)
+      const fixEncoding = (obj) => {
+        if (typeof obj === "string") {
+          try {
+            return decodeURIComponent(escape(obj));
+          } catch {
+            return obj;
+          }
+        } else if (Array.isArray(obj)) {
+          return obj.map(fixEncoding);
+        } else if (typeof obj === "object" && obj !== null) {
+          const newObj = {};
+          for (let key in obj) {
+            newObj[key] = fixEncoding(obj[key]);
+          }
+          return newObj;
+        }
+        return obj;
+      };
+
+      const fixed = fixEncoding(parsed);
+
+      // 4. Formatear bonito
+      return JSON.stringify(fixed, null, 2);
+
+    } catch {
+      return "Debe ingresar un json válido para limpiar";
+    }
+  };
   const handleDecode = () => {
     try {
       switch (type) {
@@ -103,10 +144,10 @@ export default function EncoderDecoder() {
           <button onClick={handleDecode}>
             <i className="bi bi-unlock"></i> Decode
           </button>
-
-          <button className="clear" onClick={clear}>
-            <i className="bi bi-trash"></i> Limpiar
+          <button className="magic" onClick={() => setOutput(cleanWeirdJSON(input))}>
+            <i className="bi bi-magic"></i> Limpiar JSON
           </button>
+
         </div>
 
         <div className="textarea-group">
@@ -118,12 +159,16 @@ export default function EncoderDecoder() {
             Texto copiado al portapapeles
           </div>
         )}
-        <button className="copy-btn"
-          onClick={copy}
-          disabled={!output}>
-          <i className="bi bi-clipboard"></i> Copiar resultado
-        </button>
-
+        <div className="buttons">
+          <button className="copy-btn"
+            onClick={copy}
+            disabled={!output}>
+            <i className="bi bi-clipboard"></i> Copiar resultado
+          </button>
+          <button className="clear" onClick={clear}>
+            <i className="bi bi-trash"></i> Limpiar
+          </button>
+        </div>
       </div>
 
     </div>
