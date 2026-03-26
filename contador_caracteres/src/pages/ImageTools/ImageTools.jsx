@@ -104,7 +104,7 @@ export default function ImageTools() {
                 )}
 
                 <div className="buttons">
-                    <button onClick={copyToClipboard} disabled={!base64}>
+                    <button className="btn btn-success" onClick={copyToClipboard} disabled={!base64}>
                         <i className="bi bi-clipboard"></i> Copiar
                     </button>
 

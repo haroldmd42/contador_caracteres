@@ -65,8 +65,10 @@ input[type="number"] {
 /* INPUT */
 
 .input-number {
-  max-width: 260px;
+  max-width: 350px;
 }
+
+
 
 
 /* ESTADISTICAS */
@@ -127,22 +129,29 @@ input[type="number"] {
 }
 
 
-/* MENSAJE COPIADO */
+
 
 .copy-message {
-  position: absolute;
-  margin-top: -70px;
-  margin-left: 120px;
-  background-color: #d1e7dd;
-  color: #0f5132;
-  padding: 8px 12px;
-  border-radius: 8px;
+  position: fixed;
+  bottom: 20px;   
+  right: 20px;   
+  z-index: 9999;
+  background-color: #009652;
+  color: #ffffff;
+  padding: 10px 14px;
+  border-radius: 10px;
   font-size: 14px;
+
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+
   animation: fadeInOut 0.3s ease-in-out;
 }
 
+.btn-clear{
+  padding:1px;
+  max-width: 40px;
+}
 
-/* ANIMACION */
 
 @keyframes fadeInOut {
   from {

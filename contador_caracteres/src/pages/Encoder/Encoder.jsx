@@ -137,11 +137,11 @@ export default function EncoderDecoder() {
         </div>
 
         <div className="buttons">
-          <button onClick={handleEncode}>
+          <button className="btn btn-primary" onClick={handleEncode}>
             <i className="bi bi-lock"></i> Encode
           </button>
 
-          <button onClick={handleDecode}>
+          <button className="btn btn-warning" onClick={handleDecode}>
             <i className="bi bi-unlock"></i> Decode
           </button>
           <button className="magic" onClick={() => setOutput(cleanWeirdJSON(input))}>

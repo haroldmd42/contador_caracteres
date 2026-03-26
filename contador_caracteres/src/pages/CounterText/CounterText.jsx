@@ -74,7 +74,11 @@ export default function CounterText() {
 
     return (
         <section className="app-container">
-
+            {copied && (
+                <div className="copy-message">
+                    Texto copiado al portapapeles
+                </div>
+            )}
             <div className="container-fluid">
 
                 <div className="row content-wrapper g-4 align-items-stretch">
@@ -90,9 +94,10 @@ export default function CounterText() {
 
                             <div className="mb-3 d-flex gap-2 flex-wrap">
 
-                                <div className="input-group input-number">
+                                <div className="input-group input-number ">
                                     <input
                                         type="number"
+                                        
                                         className="form-control"
                                         placeholder="Cantidad de caracteres"
                                         value={desiredCharacters}
@@ -103,7 +108,7 @@ export default function CounterText() {
                                     />
 
                                     <button
-                                        className="btn btn-danger"
+                                        className="btn btn-danger btn-clear"
                                         onClick={() => setDesiredCharacters("")}
                                     >
                                         <i className="bi bi-eraser"></i>
@@ -154,11 +159,7 @@ export default function CounterText() {
                                     </button>
                                 </div>
 
-                                {copied && (
-                                    <div className="copy-message">
-                                        Texto copiado al portapapeles
-                                    </div>
-                                )}
+
 
                                 <div className="mt-3">
 
@@ -222,11 +223,10 @@ export default function CounterText() {
                                 <div className="progress">
 
                                     <div
-                                        className={`progress-bar ${
-                                            characterCount > maxCharacters
+                                        className={`progress-bar ${characterCount > maxCharacters
                                                 ? "bg-danger"
                                                 : "bg-primary"
-                                        }`}
+                                            }`}
                                         style={{ width: `${progress}%` }}
                                     ></div>
 
