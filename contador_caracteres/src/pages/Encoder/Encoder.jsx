@@ -1,125 +1,137 @@
-import { useState } from "react";
-import "./Encoder.css";
+import { useState, useCallback } from 'react';
+import useClipboard from '../../hooks/useClipboard';
+import Toast from '../../components/ui/Toast/Toast';
+import './Encoder.css';
 
-export default function EncoderDecoder() {
+/* ── Encoding / Decoding utilities ── */
 
-  const [input, setInput] = useState("");
-  const [output, setOutput] = useState("");
-  const [type, setType] = useState("base64");
-  const [copied, setCopied] = useState(false);
-
-  const handleEncode = () => {
-    try {
-      switch (type) {
-        case "base64":
-          setOutput(btoa(input));
-          break;
-        case "url":
-          setOutput(encodeURIComponent(input));
-          break;
-        case "json":
-          setOutput(JSON.stringify(JSON.parse(input), null, 2));
-          break;
-        default:
-          setOutput("Tipo no soportado");
-      }
-    } catch {
-      setOutput("Error al codificar");
+/**
+ * Encodes text based on the selected type.
+ * @param {string} input - Raw text to encode.
+ * @param {string} type  - One of 'base64', 'url', or 'json'.
+ * @returns {string} Encoded result or error message.
+ */
+function encode(input, type) {
+  try {
+    switch (type) {
+      case 'base64':
+        return btoa(input);
+      case 'url':
+        return encodeURIComponent(input);
+      case 'json':
+        return JSON.stringify(JSON.parse(input), null, 2);
+      default:
+        return 'Tipo no soportado';
     }
-  };
-  const cleanWeirdJSON = (input) => {
-    try {
-      let cleaned = input.trim();
+  } catch {
+    return 'Error al codificar';
+  }
+}
 
-      // 1. Quitar prefijo tipo "1:"
-      const firstBrace = cleaned.indexOf("{");
-      if (firstBrace !== -1) {
-        cleaned = cleaned.substring(firstBrace);
-      }
+/**
+ * Decodes text based on the selected type.
+ * @param {string} input - Encoded text to decode.
+ * @param {string} type  - One of 'base64', 'url', or 'json'.
+ * @returns {string} Decoded result or error message.
+ */
+function decode(input, type) {
+  try {
+    switch (type) {
+      case 'base64':
+        return atob(input);
+      case 'url':
+        return decodeURIComponent(input);
+      case 'json':
+        return JSON.stringify(JSON.parse(input), null, 2);
+      default:
+        return 'Tipo no soportado';
+    }
+  } catch {
+    return 'Error al decodificar';
+  }
+}
 
-      // 2. Intentar parsear
-      let parsed = JSON.parse(cleaned);
+/**
+ * Attempts to clean malformed JSON strings (e.g. with prefix, encoding issues).
+ * @param {string} raw - Raw JSON-like string.
+ * @returns {string} Formatted JSON or error message.
+ */
+function cleanWeirdJSON(raw) {
+  try {
+    let cleaned = raw.trim();
 
-      // 3. Arreglar encoding común (latin1 mal interpretado)
-      const fixEncoding = (obj) => {
-        if (typeof obj === "string") {
-          try {
-            return decodeURIComponent(escape(obj));
-          } catch {
-            return obj;
-          }
-        } else if (Array.isArray(obj)) {
-          return obj.map(fixEncoding);
-        } else if (typeof obj === "object" && obj !== null) {
-          const newObj = {};
-          for (let key in obj) {
-            newObj[key] = fixEncoding(obj[key]);
-          }
-          return newObj;
+    // Strip prefix before first brace (e.g., "1: {...")
+    const firstBrace = cleaned.indexOf('{');
+    if (firstBrace !== -1) {
+      cleaned = cleaned.substring(firstBrace);
+    }
+
+    const parsed = JSON.parse(cleaned);
+
+    // Fix common latin1 → UTF-8 encoding artifacts
+    const fixEncoding = (obj) => {
+      if (typeof obj === 'string') {
+        try {
+          return decodeURIComponent(escape(obj));
+        } catch {
+          return obj;
         }
-        return obj;
-      };
-
-      const fixed = fixEncoding(parsed);
-
-      // 4. Formatear bonito
-      return JSON.stringify(fixed, null, 2);
-
-    } catch {
-      return "Debe ingresar un json válido para limpiar";
-    }
-  };
-  const handleDecode = () => {
-    try {
-      switch (type) {
-        case "base64":
-          setOutput(atob(input));
-          break;
-        case "url":
-          setOutput(decodeURIComponent(input));
-          break;
-        case "json":
-          setOutput(JSON.stringify(JSON.parse(input), null, 2));
-          break;
-        default:
-          setOutput("Tipo no soportado");
       }
-    } catch {
-      setOutput("Error al decodificar");
-    }
-  };
+      if (Array.isArray(obj)) return obj.map(fixEncoding);
+      if (typeof obj === 'object' && obj !== null) {
+        return Object.fromEntries(
+          Object.entries(obj).map(([key, value]) => [key, fixEncoding(value)])
+        );
+      }
+      return obj;
+    };
 
-  const copy = async () => {
-    if (!output) return;
-    await navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    return JSON.stringify(fixEncoding(parsed), null, 2);
+  } catch {
+    return 'Debe ingresar un JSON válido para limpiar';
+  }
+}
 
-  const clear = () => {
-    setInput("");
-    setOutput("");
-  };
+/* ── Component ── */
+
+/**
+ * Encoder/Decoder page — Supports Base64, URL encoding, and JSON formatting.
+ */
+export default function EncoderDecoder() {
+  const [input, setInput] = useState('');
+  const [output, setOutput] = useState('');
+  const [type, setType] = useState('base64');
+  const { copied, copyToClipboard } = useClipboard();
+
+  const handleEncode = useCallback(() => setOutput(encode(input, type)), [input, type]);
+  const handleDecode = useCallback(() => setOutput(decode(input, type)), [input, type]);
+  const handleCleanJSON = useCallback(() => setOutput(cleanWeirdJSON(input)), [input]);
+
+  const clear = useCallback(() => {
+    setInput('');
+    setOutput('');
+  }, []);
 
   return (
     <div className="encoder-container">
-
+      {/* Header */}
       <div className="encoder-header">
-        <i className="bi bi-arrow-repeat icon-main"></i>
-        <h2>Multi Encoder Tool</h2>
-        <p className="subtitle">
+        <i className="bi bi-arrow-repeat encoder-icon-main"></i>
+        <h2 className="encoder-title">Multi Encoder Tool</h2>
+        <p className="encoder-subtitle">
           Codifica y decodifica datos fácilmente (Base64, URL, JSON)
         </p>
       </div>
 
       <div className="encoder-card">
-
-        <div className="top-bar">
+        {/* Type selector */}
+        <div className="encoder-top-bar">
           <i className="bi bi-gear"></i>
           <select
-            className="selector"
+            className="encoder-selector"
             value={type}
             onChange={(e) => setType(e.target.value)}
+            aria-label="Tipo de codificación"
           >
             <option value="base64">Base64</option>
             <option value="url">URL</option>
@@ -127,8 +139,11 @@ export default function EncoderDecoder() {
           </select>
         </div>
 
-        <div className="textarea-group">
-          <label><i className="bi bi-pencil-square"></i> Entrada</label>
+        {/* Input textarea */}
+        <div className="encoder-textarea-group">
+          <label>
+            <i className="bi bi-pencil-square"></i> Entrada
+          </label>
           <textarea
             placeholder="Ingresa el texto..."
             value={input}
@@ -136,41 +151,43 @@ export default function EncoderDecoder() {
           />
         </div>
 
-        <div className="buttons">
-          <button className="btn btn-primary" onClick={handleEncode}>
+        {/* Action buttons */}
+        <div className="encoder-buttons">
+          <button className="encoder-btn encoder-btn--primary" onClick={handleEncode}>
             <i className="bi bi-lock"></i> Encode
           </button>
-
-          <button className="btn btn-warning" onClick={handleDecode}>
+          <button className="encoder-btn encoder-btn--warning" onClick={handleDecode}>
             <i className="bi bi-unlock"></i> Decode
           </button>
-          <button className="magic" onClick={() => setOutput(cleanWeirdJSON(input))}>
+          <button className="encoder-btn encoder-btn--magic" onClick={handleCleanJSON}>
             <i className="bi bi-magic"></i> Limpiar JSON
           </button>
-
         </div>
 
-        <div className="textarea-group">
-          <label><i className="bi bi-code-slash"></i> Resultado</label>
+        {/* Output textarea */}
+        <div className="encoder-textarea-group">
+          <label>
+            <i className="bi bi-code-slash"></i> Resultado
+          </label>
           <textarea value={output} readOnly />
         </div>
-        {copied && (
-          <div className="copy-message">
-            Texto copiado al portapapeles
-          </div>
-        )}
-        <div className="buttons">
-          <button className="copy-btn"
-            onClick={copy}
-            disabled={!output}>
+
+        <Toast message="Texto copiado al portapapeles" visible={copied} />
+
+        {/* Copy & Clear */}
+        <div className="encoder-buttons">
+          <button
+            className="encoder-btn encoder-btn--copy"
+            onClick={() => copyToClipboard(output)}
+            disabled={!output}
+          >
             <i className="bi bi-clipboard"></i> Copiar resultado
           </button>
-          <button className="clear" onClick={clear}>
+          <button className="encoder-btn encoder-btn--clear" onClick={clear}>
             <i className="bi bi-trash"></i> Limpiar
           </button>
         </div>
       </div>
-
     </div>
   );
 }

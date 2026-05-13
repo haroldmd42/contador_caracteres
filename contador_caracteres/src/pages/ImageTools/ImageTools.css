@@ -1,121 +1,148 @@
-.image-container {
-    max-width: 1000px;
-    margin: 6rem auto;
+.imgtools-container {
+  max-width: 1000px;
+  margin: 6rem auto;
+  padding: 0 15px;
 }
 
-/* HEADER */
-.image-header {
-    text-align: center;
-    margin-bottom: 20px;
+/* Header */
+.imgtools-header {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.icon-main {
-    font-size: 2.5rem;
-    color: #0d6efd;
+.imgtools-icon-main {
+  font-size: 2.5rem;
+  color: #0d6efd;
 }
 
-.subtitle {
-    color: #6c757d;
-    font-size: 0.95rem;
+.imgtools-title {
+  color: #0d6efd;
+  margin-top: 10px;
 }
 
-/* CARD */
-.image-card {
-    background: #fff;
-    padding: 25px;
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+.imgtools-subtitle {
+  color: #6c757d;
+  font-size: 0.95rem;
 }
 
-/* UPLOAD BOX */
-.upload-box {
-    border: 2px dashed #0d6efd;
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    margin-bottom: 15px;
-    transition: 0.2s;
+/* Card */
+.imgtools-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
-.upload-box:hover {
-    background: rgba(13,110,253,0.05);
+/* Upload box */
+.imgtools-upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px dashed #0d6efd;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: background 0.2s ease;
 }
 
-.upload-box i {
-    font-size: 2rem;
-    color: #0d6efd;
+.imgtools-upload-box:hover {
+  background: rgba(13, 110, 253, 0.05);
 }
 
-.upload-box span {
-    display: block;
-    margin-top: 5px;
-    font-weight: 500;
+.imgtools-upload-box i {
+  font-size: 2rem;
+  color: #0d6efd;
 }
 
-/* TEXTAREA */
-.textarea-group {
-    margin-bottom: 15px;
+.imgtools-upload-box span {
+  display: block;
+  margin-top: 5px;
+  font-weight: 500;
 }
 
-.textarea-group label {
-    font-size: 0.9rem;
-    margin-bottom: 5px;
-    display: block;
-    color: #495057;
+/* Textarea */
+.imgtools-textarea-group {
+  margin-bottom: 15px;
 }
 
-textarea {
-    width: 100%;
-    min-height: 140px;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    font-family: monospace;
+.imgtools-textarea-group label {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  display: block;
+  color: #495057;
 }
 
-/* PREVIEW */
-.preview {
-    text-align: center;
-    margin-bottom: 15px;
+.imgtools-textarea-group textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-family: monospace;
+  resize: vertical;
 }
 
-.preview img {
-    max-width: 250px;
-    border-radius: 10px;
-    border: 1px solid #eee;
-    transition: 0.3s;
+/* Preview */
+.imgtools-preview {
+  text-align: center;
+  margin-bottom: 15px;
 }
 
-.preview img:hover {
-    transform: scale(1.05);
+.imgtools-preview img {
+  max-width: 250px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  transition: transform 0.3s ease;
 }
 
-/* BUTTONS */
-.buttons {
-    display: flex;
-    gap: 10px;
+.imgtools-preview img:hover {
+  transform: scale(1.05);
 }
 
-button {
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: #0d6efd;
-    color: white;
-    cursor: pointer;
-    transition: 0.2s;
+/* Buttons */
+.imgtools-buttons {
+  display: flex;
+  gap: 10px;
 }
 
-button:hover {
-    background: #0b5ed7;
+.imgtools-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
 
-button.clear {
-    background: #dc3545;
+.imgtools-btn--copy {
+  background: #198754;
 }
 
-button.clear:hover {
-    background: #bb2d3b;
+.imgtools-btn--copy:hover {
+  background: #157347;
+}
+
+.imgtools-btn--download {
+  background: #0d6efd;
+}
+
+.imgtools-btn--download:hover {
+  background: #0b5ed7;
+}
+
+.imgtools-btn--clear {
+  background: #dc3545;
+}
+
+.imgtools-btn--clear:hover {
+  background: #bb2d3b;
+}
+
+.imgtools-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

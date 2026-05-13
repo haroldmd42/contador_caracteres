@@ -1,0 +1,66 @@
+/* Image Resizer page styles */
+
+.resizer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 80px 15px 30px;
+}
+
+.resizer-card {
+  max-width: 900px;
+  width: 100%;
+  border-radius: 20px;
+}
+
+.resizer-title {
+  font-size: 2rem;
+  color: #0d6efd;
+  font-weight: 700;
+}
+
+/* Upload box */
+.resizer-upload-box {
+  border: 2px dashed #0d6efd;
+  padding: 20px;
+  border-radius: 15px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.resizer-upload-box:hover {
+  background-color: #e9f2ff;
+  border-color: #0a58ca;
+}
+
+.resizer-upload-label {
+  cursor: pointer;
+  font-weight: 500;
+  color: #0d6efd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.resizer-upload-label i {
+  font-size: 1.5rem;
+}
+
+.resizer-upload-label p {
+  margin: 0;
+}
+
+/* Image previews */
+.resizer-preview-img {
+  max-height: 200px;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .resizer-container {
+    padding-top: 100px;
+    align-items: flex-start;
+  }
+}

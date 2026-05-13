@@ -1,47 +1,47 @@
-.home-body{
-    min-height: 90vh;
-    display: flex;
-    align-items: center;
+.home-body {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
 }
 
-.intro-section{
-    padding-right: 40px;
+.intro-section {
+  padding-right: 40px;
 }
+
 .fontext {
-    font-family: "Titan One", sans-serif;
-    font-size: 4rem;
-    letter-spacing: 1px;
-    color: #0d6efd;
-}
-h1{
-    font-size: 3rem;
-    color: #0d6efd;
-    margin-bottom: 20px;
+  font-family: "Titan One", sans-serif;
+  font-size: 4rem;
+  letter-spacing: 1px;
+  color: #0d6efd;
 }
 
-p{
-    font-size: 1.2rem;
-    color: #333;
+.home-body h1 {
+  font-size: 3rem;
+  color: #0d6efd;
+  margin-bottom: 20px;
 }
-.tools-section{
-   
-    margin-top: 50px;
-    border-radius: 8px;
+
+.home-body p {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.tools-section {
+  margin-top: 50px;
+  border-radius: 8px;
 }
 
 /* Grid para herramientas */
-
-.tools-grid{
-    width: 100%;
-    display: grid;
-    padding: 20px;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
+.tools-grid {
+  width: 100%;
+  display: grid;
+  padding: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
 }
-@media (max-width: 768px) {
 
-  .home-body{
+@media (max-width: 768px) {
+  .home-body {
     margin-top: 90px;
   }
-
 }

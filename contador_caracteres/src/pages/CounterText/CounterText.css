@@ -1,5 +1,4 @@
-/* quitar flechas del input number */
-
+/* Hide number input spinners */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -10,9 +9,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-
-/* CONTENEDOR PRINCIPAL */
-
+/* Main container */
 .app-container {
   min-height: 100vh;
   display: flex;
@@ -21,18 +18,14 @@ input[type="number"] {
   padding: 20px;
 }
 
-
-/* WRAPPER */
-
+/* Content wrapper */
 .content-wrapper {
   max-width: 1300px;
   width: 100%;
   margin: auto;
 }
 
-
-/* CARDS */
-
+/* Cards */
 .custom-card {
   border-radius: 20px;
   background: white;
@@ -41,13 +34,7 @@ input[type="number"] {
   transition: transform 0.3s ease;
 }
 
-.custom-card:hover {
-  transform: translateY(-5px);
-}
-
-
-/* TEXTAREA */
-
+/* Textarea */
 .custom-textarea {
   border-radius: 15px;
   resize: none;
@@ -61,18 +48,12 @@ input[type="number"] {
   border-color: #6498e6;
 }
 
-
-/* INPUT */
-
+/* Input */
 .input-number {
   max-width: 350px;
 }
 
-
-
-
-/* ESTADISTICAS */
-
+/* Statistics */
 .stat-box {
   text-align: center;
   margin-bottom: 20px;
@@ -89,21 +70,22 @@ input[type="number"] {
   font-size: 20px;
 }
 
-
-/* PROGRESS */
-
-.progress {
+/* Progress */
+.app-container .progress {
   height: 10px;
   border-radius: 10px;
 }
 
-
-/* BOTONES */
-
+/* Buttons */
 .btn-caracters {
   font-weight: 500;
   background-color: #00378a;
   color: white;
+}
+
+.btn-caracters:hover {
+  color: white;
+  background-color: #00255d;
 }
 
 .button-generate {
@@ -112,7 +94,7 @@ input[type="number"] {
   color: white;
 }
 
-.button-generate1 {
+.button-generate-no-spaces {
   font-weight: 500;
   background-color: #0028d8;
   color: white;
@@ -123,52 +105,18 @@ input[type="number"] {
   color: white;
 }
 
-.button-generate1:hover {
+.button-generate-no-spaces:hover {
   background-color: #1400c5;
   color: white;
 }
 
-
-
-
-.copy-message {
-  position: fixed;
-  bottom: 20px;   
-  right: 20px;   
-  z-index: 9999;
-  background-color: #009652;
-  color: #ffffff;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 14px;
-
-  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-
-  animation: fadeInOut 0.3s ease-in-out;
-}
-
-.btn-clear{
-  padding:1px;
+.btn-clear {
+  padding: 1px;
   max-width: 40px;
 }
 
-
-@keyframes fadeInOut {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-/* RESPONSIVE */
-
+/* Responsive */
 @media (max-width: 992px) {
-
   .app-container {
     align-items: flex-start;
     padding-top: 40px;
@@ -177,14 +125,4 @@ input[type="number"] {
   .custom-textarea {
     max-height: none;
   }
-
-}
-
-@media (max-width: 768px) {
-
-  .copy-message {
-    margin-left: 30px;
-    margin-top: -90px;
-  }
-
 }
