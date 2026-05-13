@@ -10,7 +10,7 @@ export const LOREM_SAMPLES = [
   { label: '100', text: BASE_LOREM },
   {
     label: '200',
-    text: `${BASE_LOREM} ${BASE_LOREM.slice(0, 97)}t`,
+    text: `${BASE_LOREM} ${BASE_LOREM.slice(0, 98)}t`,
   },
   {
     label: '300',
