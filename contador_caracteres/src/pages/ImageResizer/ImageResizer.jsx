@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import './ImageResizer.css';
 
 /** Accepted image MIME types */
@@ -19,7 +19,7 @@ const MAX_DIMENSION = 5000;
  * choose output format and quality, then download the result.
  */
 export default function ImageResizer() {
-  const [image, setImage] = useState(null);
+  const [, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [width, setWidth] = useState('');
   const [height, setHeight] = useState('');
@@ -57,13 +57,33 @@ export default function ImageResizer() {
     reader.readAsDataURL(file);
   }, []);
 
-  /** Maintain aspect ratio when width changes */
-  useEffect(() => {
-    if (!lockRatio || !originalSize.w || !width) return;
+  /** Width change handler with aspect ratio lock */
+  const handleWidthChange = useCallback((newWidth) => {
+    setWidth(newWidth);
+    if (lockRatio && originalSize.w && originalSize.h) {
+      const ratio = originalSize.h / originalSize.w;
+      setHeight(Math.round(newWidth * ratio));
+    }
+  }, [lockRatio, originalSize]);
 
-    const ratio = originalSize.h / originalSize.w;
-    setHeight(Math.round(width * ratio));
-  }, [width, lockRatio, originalSize]);
+  /** Height change handler with aspect ratio lock */
+  const handleHeightChange = useCallback((newHeight) => {
+    setHeight(newHeight);
+    if (lockRatio && originalSize.w && originalSize.h) {
+      const ratio = originalSize.w / originalSize.h;
+      setWidth(Math.round(newHeight * ratio));
+    }
+  }, [lockRatio, originalSize]);
+
+  /** Ratio lock checkbox handler */
+  const handleLockRatioChange = useCallback(() => {
+    const nextLock = !lockRatio;
+    setLockRatio(nextLock);
+    if (nextLock && originalSize.w && width) {
+      const ratio = originalSize.h / originalSize.w;
+      setHeight(Math.round(width * ratio));
+    }
+  }, [lockRatio, originalSize, width]);
 
   /** Resize the image using canvas */
   const resizeImage = useCallback(() => {
@@ -170,7 +190,7 @@ export default function ImageResizer() {
                   type="number"
                   className="form-control"
                   value={width}
-                  onChange={(e) => setWidth(Number(e.target.value))}
+                  onChange={(e) => handleWidthChange(Number(e.target.value))}
                 />
               </div>
 
@@ -181,7 +201,7 @@ export default function ImageResizer() {
                   type="number"
                   className="form-control"
                   value={height}
-                  onChange={(e) => setHeight(Number(e.target.value))}
+                  onChange={(e) => handleHeightChange(Number(e.target.value))}
                 />
               </div>
 
@@ -191,7 +211,7 @@ export default function ImageResizer() {
                   className="form-check-input"
                   id="resizer-lock-ratio"
                   checked={lockRatio}
-                  onChange={() => setLockRatio(!lockRatio)}
+                  onChange={handleLockRatioChange}
                 />
                 <label className="form-check-label" htmlFor="resizer-lock-ratio">
                   Mantener proporción

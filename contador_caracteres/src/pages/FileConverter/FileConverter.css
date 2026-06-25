@@ -1,0 +1,213 @@
+.fileconv-container {
+  max-width: 1000px;
+  margin: 6rem auto;
+  padding: 0 15px;
+}
+
+/* Header */
+.fileconv-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.fileconv-icon-main {
+  font-size: 2.5rem;
+  color: #0d6efd;
+}
+
+.fileconv-title {
+  color: #0d6efd;
+  margin-top: 10px;
+}
+
+.fileconv-subtitle {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+/* Card */
+.fileconv-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Upload box */
+.fileconv-upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px dashed #0d6efd;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background 0.2s ease;
+}
+
+.fileconv-upload-box:hover {
+  background: rgba(13, 110, 253, 0.05);
+}
+
+.fileconv-upload-box i {
+  font-size: 2.5rem;
+  color: #0d6efd;
+  margin-bottom: 10px;
+}
+
+.fileconv-upload-box span {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.fileconv-upload-box small {
+  color: #6c757d;
+}
+
+/* File info box */
+.file-info-badge {
+  background: rgba(13, 110, 253, 0.05);
+  border: 1px solid rgba(13, 110, 253, 0.15);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.file-info-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.file-info-details i {
+  font-size: 1.8rem;
+  color: #0d6efd;
+}
+
+.file-info-meta h6 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.file-info-meta span {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* Form Controls */
+.fileconv-form-group {
+  margin-bottom: 20px;
+}
+
+.fileconv-form-group label {
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: block;
+  color: #495057;
+}
+
+/* Actions */
+.fileconv-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.fileconv-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.fileconv-btn:active {
+  transform: scale(0.98);
+}
+
+.fileconv-btn--convert {
+  background: #0d6efd;
+}
+
+.fileconv-btn--convert:hover {
+  background: #0b5ed7;
+}
+
+.fileconv-btn--download {
+  background: #198754;
+}
+
+.fileconv-btn--download:hover {
+  background: #157347;
+}
+
+.fileconv-btn--clear {
+  background: #dc3545;
+}
+
+.fileconv-btn--clear:hover {
+  background: #bb2d3b;
+}
+
+.fileconv-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Conversion status info */
+.conversion-alert {
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.conversion-alert--success {
+  background-color: #d1e7dd;
+  border: 1px solid #badbcc;
+  color: #0f5132;
+}
+
+.conversion-alert--error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c2c7;
+  color: #842029;
+}
+
+/* QA simulated conversion classes */
+.bg-light-warning {
+  background-color: #fffaf0 !important;
+  border: 1px solid #ffe8cc !important;
+  color: #d97706 !important;
+}
+
+.text-warning {
+  color: #d97706 !important;
+}
+
+.btn-warning {
+  background-color: #ff9800 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.btn-warning:hover {
+  background-color: #f57c00 !important;
+}
+

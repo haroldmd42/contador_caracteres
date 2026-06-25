@@ -39,7 +39,11 @@ export default function NavBar() {
                 Contador de caracteres
               </Link>
             </li>
-
+            <li className='nav-item'>
+               <Link className="nav-link" to={ROUTES.HU_GHERKIN}>
+                  Generador de casos
+                </Link>
+            </li>
             <li className="nav-item">
               <Link className="nav-link" to={ROUTES.FILE_LIBRARY}>
                 Biblioteca de archivos
@@ -66,6 +70,20 @@ export default function NavBar() {
                 </Link>
                 <Link className="dropdown-item" to={ROUTES.IMAGE_RESIZER}>
                   Redimensionar imagen
+                </Link>
+                <div className="dropdown-divider"></div>
+                <Link className="dropdown-item" to={ROUTES.FILE_CONVERTER}>
+                  Convertidor de archivos
+                </Link>
+                <Link className="dropdown-item" to={ROUTES.IMAGE_CONVERTER}>
+                  Convertidor de imagen
+                </Link>
+                <Link className="dropdown-item" to={ROUTES.VIDEO_CONVERTER}>
+                  Convertidor de video
+                </Link>
+               
+                <Link className="dropdown-item" to={ROUTES.AUDIO_CONVERTER}>
+                  Convertidor de audio
                 </Link>
               </div>
             </li>

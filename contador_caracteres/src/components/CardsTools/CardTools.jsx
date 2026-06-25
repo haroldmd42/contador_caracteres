@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
 import "./CardTool.css";
 
-export function CardTools({ title, description, link, icon, color }) {
+export function CardTools({ title, description, link, icon, color, badge }) {
     return (
         <div className={`card-tool ${color}`}>
-
+            {badge && (
+                <span className="tool-badge">
+                    {badge}
+                </span>
+            )}
             <div className="icon">
                 <i className={`bi ${icon}`}></i>
             </div>
