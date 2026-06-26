@@ -92,44 +92,45 @@ export default function HUToGherkin() {
                 {/* PANEL IZQUIERDO */}
                 <div className="ai-panel">
 
-                    <div className="panel-header">
-                        Historia de Usuario
+                    <div className="panel-content">
+
+                        <div className="panel-header">
+                            Historia de Usuario
+                        </div>
+
+                        <textarea
+                            className="hu-textarea"
+                            value={userStory}
+                            onChange={(e) => setUserStory(e.target.value)}
+                            placeholder="Pegue aquí la Historia de Usuario..."
+                        />
+
+                        <div className="panel-header mt-3">
+                            Datos Adicionales / Excel
+                        </div>
+
+                        <textarea
+                            className="excel-textarea"
+                            value={additionalData}
+                            onPaste={handleAdditionalPaste}
+                            onChange={(e) => {
+                                setAdditionalData(e.target.value);
+                                setIsExcelData(e.target.value.includes("\t"));
+                            }}
+                            placeholder="Pegue aquí tablas de Excel..."
+                        />
+
+                        {isExcelData && (
+                            <>
+                                <div className="excel-title">
+                                    Vista previa de tabla
+                                </div>
+
+                                {renderExcelPreview()}
+                            </>
+                        )}
+
                     </div>
-
-                    <textarea
-                        className="hu-textarea"
-                        value={userStory}
-                        onChange={(e) => setUserStory(e.target.value)}
-                        placeholder="Pegue aquí la Historia de Usuario..."
-                    />
-
-                    <div className="panel-header mt-3">
-                        Datos Adicionales / Excel
-                    </div>
-
-                    <textarea
-                        className="excel-textarea"
-                        value={additionalData}
-                        onPaste={handleAdditionalPaste}
-                        onChange={(e) => {
-                            setAdditionalData(e.target.value);
-                            setIsExcelData(
-                                e.target.value.includes("\t")
-                            );
-                        }}
-                        placeholder="Pegue aquí tablas de Excel, reglas de negocio, criterios, matrices de datos, etc..."
-                    />
-
-                    {isExcelData && (
-                        <>
-                            <div className="excel-title">
-                                Vista previa de tabla
-                            </div>
-
-                            {renderExcelPreview()}
-                        </>
-                    )}
-
                     <div className="panel-actions">
 
                         <button
@@ -166,11 +167,11 @@ export default function HUToGherkin() {
                         Escenarios Generados
                     </div>
 
-                    <pre className="result-panel">
-                        {result ||
-                            "Aquí aparecerá el resultado generado por la IA"}
-                    </pre>
-
+                    <div className="result-container">
+                        <pre className="result-panel">
+                            {result || "Aquí aparecerá el resultado generado por la IA"}
+                        </pre>
+                    </div>
                     <div className="panel-actions">
 
                         <button
