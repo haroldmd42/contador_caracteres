@@ -35,7 +35,7 @@
 
 .ai-workspace {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 20px;
     height: calc(100vh - 220px);
 }
@@ -55,7 +55,7 @@
     flex-direction: column;
 
     height: 100%;
-    overflow: hidden;
+    
 
     box-shadow:
         0 1px 3px rgba(0, 0, 0, .05),
@@ -78,7 +78,7 @@
 ======================================== */
 
 .hu-textarea {
-    flex: 2;
+    flex: 2 !important;
 
     border: 1px solid #d1d5db;
     border-radius: 12px;
@@ -90,13 +90,13 @@
 
     font-family: Consolas, Monaco, "Courier New", monospace;
 
-    white-space: pre-wrap;
+    white-space: pre-wrap !important;
 
     resize: vertical;
 
     overflow-y: auto;
 
-    min-height: 320px;
+    min-height: 250px;
 }
 
 /* ========================================
@@ -106,11 +106,11 @@
 .excel-textarea {
     border: 1px solid #d1d5db;
     border-radius: 12px;
-
+    flex: 2 ;
     padding: 16px;
 
     font-size: 14px;
-
+    margin-top: 10px;
     font-family: Consolas, Monaco, "Courier New", monospace;
 
     resize: vertical;
@@ -282,43 +282,9 @@ button:disabled {
         width: 100%;
     }
 }
-/* ========================================
-   HISTORIA DE USUARIO
-======================================== */
 
-.hu-textarea {
-    flex: 2 !important;
 
-    min-height: 350px;
 
-    white-space: pre-wrap !important;
-
-    overflow-y: auto;
-
-    resize: vertical;
-
-    font-family: Consolas, Monaco, "Courier New", monospace;
-}
-
-/* ========================================
-   DATOS ADICIONALES
-======================================== */
-
-.excel-textarea {
-    flex: 1 !important;
-
-    min-height: 140px;
-
-    margin-top: 10px;
-
-    resize: vertical;
-
-    font-family: Consolas, Monaco, "Courier New", monospace;
-}
-
-/* ========================================
-   VISTA PREVIA TABLA
-======================================== */
 
 .excel-title {
     margin-top: 15px;

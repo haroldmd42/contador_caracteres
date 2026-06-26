@@ -3,6 +3,7 @@ import useGherkinGenerator from "../../hooks/useGherkinGenerator";
 import "./HUToGherkin.css";
 import Toast from "../../components/ui/Toast/Toast";
 import useClipboard from "../../hooks/useClipboard";
+import { exportToExcel } from "../../utils/exportExcel";
 
 export default function HUToGherkin() {
     const [userStory, setUserStory] = useState("");
@@ -179,6 +180,14 @@ export default function HUToGherkin() {
                         >
                             <i className="bi bi-copy"></i>
                             {" "}Copiar Resultado
+                        </button>
+                        <button
+                            className="btn btn-success"
+                            onClick={() => exportToExcel(result)}
+                            disabled={!result}
+                        >
+                            <i className="bi bi-file-earmark-excel"></i>
+                            {" "}Descargar Excel
                         </button>
 
                         <Toast
