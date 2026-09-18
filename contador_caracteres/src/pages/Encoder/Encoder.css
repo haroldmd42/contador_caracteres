@@ -1,141 +1,149 @@
 .encoder-container {
-  max-width: 900px;
-  margin: 6rem auto;
-  padding: 0 15px;
+  max-width: 920px;
+  margin: 3rem auto;
+  padding: 0 20px;
+  min-height: calc(100vh - 150px);
 }
 
 /* Header */
 .encoder-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .encoder-icon-main {
-  font-size: 2.5rem;
-  color: #0d6efd;
+  font-size: 2.8rem;
+  color: var(--accent-primary);
 }
 
 .encoder-title {
   margin-top: 10px;
-  color: #0d6efd;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 850;
 }
 
 .encoder-subtitle {
-  color: #6c757d;
-  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
 }
 
 /* Card */
 .encoder-card {
-  background: #fff;
-  padding: 25px;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 30px;
+  border-radius: 24px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.35s ease;
 }
 
 /* Top bar */
 .encoder-top-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .encoder-top-bar i {
-  font-size: 1.2rem;
-  color: #0d6efd;
+  font-size: 1.3rem;
+  color: var(--accent-primary);
 }
 
 .encoder-selector {
   flex: 1;
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 0.95rem;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  font-size: 1rem;
 }
 
 /* Textarea */
 .encoder-textarea-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .encoder-textarea-group label {
-  font-size: 0.9rem;
-  margin-bottom: 5px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 8px;
   display: block;
-  color: #495057;
+  color: var(--text-primary);
 }
 
 .encoder-textarea-group textarea {
   width: 100%;
-  min-height: 130px;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  font-family: monospace;
+  min-height: 140px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  font-family: Consolas, Monaco, monospace;
   resize: vertical;
+  transition: all 0.25s ease;
+}
+
+.encoder-textarea-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 4px var(--border-focus);
 }
 
 /* Buttons */
 .encoder-buttons {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .encoder-btn {
   flex: 1;
-  padding: 10px;
-  border-radius: 8px;
+  min-width: 120px;
+  padding: 12px;
+  border-radius: 14px;
   border: none;
   color: white;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .encoder-btn--primary {
-  background: #0d6efd;
-}
-
-.encoder-btn--primary:hover {
-  background: #0b5ed7;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 }
 
 .encoder-btn--warning {
-  background: #ffc107;
-  color: #212529;
-}
-
-.encoder-btn--warning:hover {
-  background: #e0a800;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
 }
 
 .encoder-btn--magic {
-  background: #6f42c1;
-}
-
-.encoder-btn--magic:hover {
-  background: #5a32a3;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
 }
 
 .encoder-btn--copy {
-  background: #198754;
-}
-
-.encoder-btn--copy:hover {
-  background: #157347;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 .encoder-btn--clear {
-  background: #dc3545;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
-.encoder-btn--clear:hover {
-  background: #bb2d3b;
+.encoder-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .encoder-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }

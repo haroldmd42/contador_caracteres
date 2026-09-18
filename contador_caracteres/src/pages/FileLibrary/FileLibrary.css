@@ -1,87 +1,104 @@
 .library-body {
-  padding: 40px 0;
-  margin-top: 50px;
+  padding: 40px 0 80px;
+  min-height: calc(100vh - 100px);
 }
 
 /* Header */
 .header-section h1 {
-  font-size: 2.5rem;
-  color: #0d6efd;
-  font-weight: 700;
+  font-size: 2.8rem;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 850;
+  letter-spacing: -1px;
 }
 
 .library-subtitle {
   max-width: 700px;
   margin: auto;
-  color: #6c757d;
-  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-size: 1.15rem;
 }
 
 /* Cards */
 .drop-files-container {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 26px;
+  box-shadow: var(--card-shadow);
   height: 100%;
+  transition: all 0.35s ease;
+}
+
+.drop-files-container:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--card-shadow-hover);
 }
 
 .drop-files-container .card-header {
-  border-bottom: 1px solid #eee;
-  margin-bottom: 15px;
+  background: transparent !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
 }
 
 .drop-files-container .card-header h3 {
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
 }
 
 /* File list */
 .file-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .file-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 14px 18px;
+  border-radius: 14px;
   text-decoration: none;
-  background: #f8f9fa;
-  color: #333;
-  transition: all 0.2s ease;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: all 0.25s ease;
+  font-weight: 500;
 }
 
 .file-item:hover {
-  background: #0d6efd;
-  color: white;
+  background: var(--accent-primary);
+  color: #ffffff;
+  transform: translateX(4px);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
 }
 
 .file-size {
   font-size: 0.85rem;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .file-item:hover .file-size {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* Colors by file type */
 .excel .card-header {
-  color: #1d6f42;
+  color: #10b981;
 }
 
 .pdf .card-header {
-  color: #c62828;
+  color: #ef4444;
 }
 
 .ppt .card-header {
-  color: #d24726;
+  color: #f59e0b;
 }
 
 .word .card-header {
-  color: #2b579a;
+  color: #3b82f6;
 }

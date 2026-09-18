@@ -1,0 +1,578 @@
+/* =========================================================
+   🎨 Device Simulator (Responsive Multi-Pantalla) Styles
+   Split Layout: Left Sidebar + Right Simulator Canvas
+   ========================================================= */
+
+.device-simulator-app {
+  max-width: 100%;
+  padding-bottom: 2rem;
+}
+
+/* Compact Header */
+.simulator-header-compact {
+  padding: 0.25rem 0;
+}
+
+.header-icon-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  font-size: 1.15rem;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   Main Split Layout
+   ========================================================= */
+.simulator-split-layout {
+  display: flex;
+  gap: 1rem;
+  min-height: calc(100vh - 150px);
+  position: relative;
+  align-items: stretch;
+}
+
+/* Left Sidebar */
+.simulator-sidebar {
+  width: 340px;
+  min-width: 310px;
+  max-width: 360px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: calc(100vh - 160px);
+  position: sticky;
+  top: 80px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  z-index: 20;
+}
+
+.sidebar-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.letter-spacing {
+  letter-spacing: 0.5px;
+}
+
+.btn-icon-round {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.sidebar-content {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.sidebar-group {
+  position: relative;
+}
+
+/* Breakpoint Range Badges */
+.badge-range-mobile {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+.badge-range-tablet {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+.badge-range-desktop {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.badge-range-large {
+  background: #8b5cf6;
+  color: #ffffff;
+}
+
+/* Breakpoint Cards in Sidebar */
+.breakpoint-card {
+  transition: all 0.2s ease;
+}
+
+.breakpoint-card:hover {
+  border-color: var(--border-focus) !important;
+}
+
+.active-range-card {
+  background: rgba(99, 102, 241, 0.05);
+  box-shadow: 0 0 0 1px var(--accent-primary);
+}
+
+/* URL Preset Chips */
+.preset-url-btn {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+  font-weight: 500;
+}
+
+.preset-url-btn:hover {
+  background: var(--accent-primary);
+  color: #ffffff;
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
+}
+
+/* Device Dropdown Menu in Sidebar */
+.dropdown-menu-device-list {
+  max-height: 320px;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+}
+
+.dropdown-menu-device-list .dropdown-item {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.84rem;
+  transition: background 0.15s ease;
+}
+
+.dropdown-menu-device-list .dropdown-item:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.dropdown-menu-device-list .dropdown-item.active {
+  background: var(--accent-primary);
+  color: #ffffff;
+}
+
+.dropdown-menu-device-list .dropdown-item.active .badge {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   Right Main Viewport & Canvas
+   ========================================================= */
+.simulator-main-viewport {
+  flex-grow: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: calc(100vh - 160px);
+  transition: width 0.3s ease;
+}
+
+/* Canvas Header Ribbon */
+.canvas-header-ribbon {
+  background: var(--bg-surface);
+  min-height: 48px;
+  z-index: 10;
+}
+
+.info-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  background: var(--bg-body);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Canvas Scrollable Container */
+.simulator-canvas-container {
+  position: relative;
+  flex-grow: 1;
+  overflow: auto;
+  background: radial-gradient(circle, var(--border-color) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+  background-color: var(--bg-body);
+  padding: 2rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Scaler container */
+.simulator-scaler {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-block;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   Realistic Device Chassis Frames
+   ========================================================= */
+
+.device-chassis {
+  position: relative;
+  box-sizing: content-box;
+  margin: 0 auto;
+  transition: width 0.3s ease, height 0.3s ease, border-radius 0.3s ease;
+}
+
+/* 1. iPhone Frame */
+.chassis-iphone {
+  border: 13px solid #1c1d22;
+  border-radius: 54px;
+  box-shadow: 
+    0 0 0 2px #43444a,
+    0 0 0 4px #121316,
+    0 30px 70px -15px rgba(0, 0, 0, 0.5),
+    0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  background: #000000;
+}
+
+/* 2. Android Frame (Galaxy / Pixel) */
+.chassis-android {
+  border: 12px solid #202226;
+  border-radius: 40px;
+  box-shadow: 
+    0 0 0 2px #383b42,
+    0 30px 65px -15px rgba(0, 0, 0, 0.45);
+  background: #000000;
+}
+
+/* 3. Tablet Frame (iPad) */
+.chassis-tablet {
+  border: 18px solid #181a1f;
+  border-radius: 36px;
+  box-shadow: 
+    0 0 0 2px #33363f,
+    0 35px 80px -20px rgba(0, 0, 0, 0.5);
+  background: #000000;
+}
+
+/* 4. Laptop Frame (Authentic PC / MacBook Laptop Screen) */
+.chassis-laptop {
+  border: 14px solid #1b1c20;
+  border-bottom: 22px solid #23252a;
+  border-radius: 14px 14px 4px 4px;
+  box-shadow: 
+    0 0 0 2px #3a3d45,
+    0 30px 70px -15px rgba(0, 0, 0, 0.6);
+  background: #000000;
+}
+
+.chassis-laptop-bar {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 8px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.laptop-camera {
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle at 40% 40%, #10b981, #064e3b);
+  border-radius: 50%;
+  border: 1px solid #1f2937;
+  box-shadow: 0 0 4px rgba(16, 185, 129, 0.4);
+}
+
+/* Laptop Keyboard & Bottom Base */
+.chassis-laptop-base {
+  position: absolute;
+  bottom: -32px;
+  left: -28px;
+  right: -28px;
+  height: 14px;
+  background: linear-gradient(180deg, #d1d5db 0%, #9ca3af 40%, #6b7280 100%);
+  border-radius: 2px 2px 14px 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 90;
+}
+
+.laptop-notch-indent {
+  width: 90px;
+  height: 5px;
+  background: #374151;
+  border-radius: 0 0 6px 6px;
+}
+
+/* 5. Desktop Monitor Frame (Real Desktop PC Screen with Stand) */
+.chassis-monitor {
+  border: 12px solid #181a20;
+  border-bottom: 22px solid #252830;
+  border-radius: 8px 8px 4px 4px;
+  box-shadow: 
+    0 0 0 2px #374151,
+    0 35px 85px -20px rgba(0, 0, 0, 0.7);
+  background: #000000;
+}
+
+.chassis-monitor-bar {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.monitor-camera {
+  width: 6px;
+  height: 6px;
+  background: #1e293b;
+  border-radius: 50%;
+  border: 1px solid #475569;
+}
+
+/* Monitor Stand Neck & Base */
+.chassis-monitor-stand {
+  position: absolute;
+  bottom: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 80;
+  pointer-events: none;
+}
+
+.monitor-neck {
+  width: 48px;
+  height: 60px;
+  background: linear-gradient(90deg, #64748b 0%, #94a3b8 50%, #475569 100%);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.monitor-foot {
+  width: 280px;
+  height: 18px;
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 60%, #334155 100%);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* 6. Custom & Classic Chassis */
+.chassis-custom,
+.chassis-iphone-classic {
+  border: 14px solid #23262d;
+  border-radius: 28px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45);
+  background: #000000;
+}
+
+.device-chassis {
+  position: relative;
+  box-sizing: content-box;
+  margin: 0 auto;
+  transition: width 0.3s ease, height 0.3s ease, border-radius 0.3s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Screen container inside device */
+.device-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  transition: background-color 0.25s ease;
+  pointer-events: auto !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.device-screen.theme-light {
+  background-color: #ffffff;
+}
+
+.device-screen.theme-dark {
+  background-color: #0b1120;
+}
+
+/* Iframe rendering */
+.device-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  transition: background-color 0.25s ease;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  user-select: auto;
+}
+
+.device-iframe.theme-light {
+  color-scheme: light;
+  background-color: #ffffff;
+}
+
+.device-iframe.theme-dark {
+  color-scheme: dark;
+  background-color: #0b1120;
+}
+
+/* Iframe Loading Overlay */
+.iframe-loader {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  pointer-events: auto;
+}
+
+/* =========================================================
+   Clean Viewport Canvas (No Bezel Mode)
+   ========================================================= */
+.clean-viewport-canvas {
+  position: relative;
+  background: #ffffff;
+  box-shadow: 
+    0 0 0 1px var(--border-color),
+    0 20px 50px -10px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ruler-tag {
+  position: absolute;
+  background: var(--accent-primary);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-family: monospace;
+  padding: 2px 6px;
+  border-radius: 4px;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.ruler-width {
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ruler-height {
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%) rotate(90deg);
+}
+
+/* =========================================================
+   Multi-Device Parallel View Styles
+   ========================================================= */
+.multi-view-container {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.multi-device-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.multi-device-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover) !important;
+}
+
+.multi-screen-container {
+  background: radial-gradient(circle, var(--border-color) 1px, transparent 1px);
+  background-size: 14px 14px;
+  background-color: var(--bg-body);
+  border-radius: 12px;
+  padding: 1.25rem 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  border: 1px solid var(--border-color);
+}
+
+/* =========================================================
+   Scrollbar Display Modes & Proportion Preservation
+   ========================================================= */
+.device-screen.scrollbar-hidden,
+.clean-viewport-canvas.scrollbar-hidden {
+  overflow: hidden !important;
+}
+
+/* Always preserve 100% exact device viewport width with zero offsets so padding and margins match real phones */
+.device-screen .device-iframe,
+.clean-viewport-canvas .device-iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  display: block !important;
+}
+
+/* Slim styled scrollbars for simulator workspace containers */
+.simulator-canvas-container::-webkit-scrollbar,
+.sidebar-content::-webkit-scrollbar,
+.multi-view-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.simulator-canvas-container::-webkit-scrollbar-track,
+.sidebar-content::-webkit-scrollbar-track,
+.multi-view-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.simulator-canvas-container::-webkit-scrollbar-thumb,
+.sidebar-content::-webkit-scrollbar-thumb,
+.multi-view-container::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+
+.simulator-canvas-container::-webkit-scrollbar-thumb:hover,
+.sidebar-content::-webkit-scrollbar-thumb:hover,
+.multi-view-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}

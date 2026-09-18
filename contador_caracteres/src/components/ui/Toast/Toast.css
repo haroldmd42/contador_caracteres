@@ -1,48 +1,69 @@
 .toast-notification {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 9999;
+  bottom: 96px;
+  right: 28px;
+  z-index: 10000;
 
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 
   color: #ffffff;
-  padding: 12px 18px;
-  border-radius: 10px;
+  padding: 12px 20px;
+  border-radius: 16px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.92rem;
+  font-weight: 600;
 
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 
-  animation: toast-slide-in 0.3s ease-in-out;
+  animation: toast-slide-up 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
 }
+
 .toast-success {
-  background-color: #009652;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
 }
+
 .toast-error {
-  background-color: #8f000e;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%);
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.35);
 }
+
 .toast-warning {
-  background-color: #f59e0b;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
 }
+
 .toast-info {
-  background-color: #2563eb;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.35);
 }
 
 .toast-notification i {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
 }
 
-@keyframes toast-slide-in {
+@keyframes toast-slide-up {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .toast-notification {
+    bottom: 82px;
+    right: 20px;
+    left: 20px;
+    justify-content: center;
   }
 }

@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { VIDEO_FORMATS, getFormatConfig, getCompatibleFormats } from '../../constants/formats';
+import { apiVideoConvert } from '../../services/apiService';
 import './VideoConverter.css';
 
 export default function VideoConverter() {
@@ -20,6 +21,19 @@ export default function VideoConverter() {
   const audioCtxRef = useRef(null);
   const streamDestRef = useRef(null);
   const audioSourceNodeRef = useRef(null);
+
+  const HTML5_PREVIEW_EXTS = useMemo(() => ['mp4', 'webm', 'ogv', 'm4v'], []);
+  const [previewError, setPreviewError] = useState(false);
+
+  const activeExt = useMemo(() => {
+    if (convertedUrl) return targetFormat.toLowerCase();
+    if (file) return file.name.split('.').pop().toLowerCase();
+    return '';
+  }, [convertedUrl, targetFormat, file]);
+
+  const isHtml5Playable = useMemo(() => {
+    return HTML5_PREVIEW_EXTS.includes(activeExt) && !previewError;
+  }, [HTML5_PREVIEW_EXTS, activeExt, previewError]);
 
   /** Clean up object URLs when file changes or unmounts */
   useEffect(() => {
@@ -76,6 +90,7 @@ export default function VideoConverter() {
     setConvertedUrl(null);
     setError(null);
     setProgress(0);
+    setPreviewError(false);
 
     const objectUrl = URL.createObjectURL(uploadedFile);
     setFile(uploadedFile);
@@ -117,9 +132,9 @@ export default function VideoConverter() {
     if (!video || !file) return;
 
     setVideoDetails({
-      width: video.videoWidth,
-      height: video.videoHeight,
-      duration: video.duration,
+      width: video.videoWidth || 0,
+      height: video.videoHeight || 0,
+      duration: video.duration || 0,
       size: file.size,
       name: file.name,
     });
@@ -138,6 +153,7 @@ export default function VideoConverter() {
     setError(null);
     setProgress(0);
     setIsConverting(false);
+    setPreviewError(false);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -150,113 +166,37 @@ export default function VideoConverter() {
     setConvertedUrl(null);
     setError(null);
     setProgress(0);
+    setPreviewError(false);
   };
 
-  /** Perform the conversion */
+  /** Perform conversion using backend API */
   const convertVideo = useCallback(async () => {
-    if (!file || !videoDetails) return;
+    if (!file) return;
 
     setIsConverting(true);
-    setProgress(0);
+    setProgress(10);
     setError(null);
     setConvertedUrl(null);
+    setPreviewError(false);
 
-    const video = videoRef.current;
-    if (!video) {
-      setError('El reproductor de video no está listo para realizar el renderizado.');
-      setIsConverting(false);
-      return;
-    }
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => (prev >= 90 ? prev : prev + 5));
+    }, 600);
 
     try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      const audioCtx = audioCtxRef.current;
-      if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
-      }
-
-      // Determine the best supported MIME container for MediaRecorder
-      let selectedMime = `video/${targetFormat}`;
-      if (!MediaRecorder.isTypeSupported(selectedMime)) {
-        if (targetFormat === 'mp4' && MediaRecorder.isTypeSupported('video/mp4')) {
-          selectedMime = 'video/mp4';
-        } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-          selectedMime = 'video/webm;codecs=vp9';
-        } else if (MediaRecorder.isTypeSupported('video/webm')) {
-          selectedMime = 'video/webm';
-        } else {
-          selectedMime = ''; // Browser default fallback
-        }
-      }
-
-      const videoStream = video.captureStream ? video.captureStream(30) : video.mozCaptureStream(30);
-
-      // Connect video sound through Web Audio graph
-      if (!streamDestRef.current) {
-        streamDestRef.current = audioCtx.createMediaStreamDestination();
-      }
-      if (!audioSourceNodeRef.current) {
-        audioSourceNodeRef.current = audioCtx.createMediaElementSource(video);
-        audioSourceNodeRef.current.connect(streamDestRef.current);
-        audioSourceNodeRef.current.connect(audioCtx.destination);
-      }
-
-      const combinedStream = new MediaStream();
-      videoStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
-      streamDestRef.current.stream.getAudioTracks().forEach(track => combinedStream.addTrack(track));
-
-      const options = selectedMime ? { mimeType: selectedMime, videoBitsPerSecond: 2500000 } : undefined;
-      const mediaRecorder = new MediaRecorder(combinedStream, options);
-      recorderRef.current = mediaRecorder;
-
-      const chunks = [];
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          chunks.push(e.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const outputMime = selectedMime || 'video/webm';
-        const blob = new Blob(chunks, { type: outputMime });
-        const resultUrl = URL.createObjectURL(blob);
-        setConvertedUrl(resultUrl);
-        setIsConverting(false);
-        setProgress(100);
-        video.playbackRate = 1.0;
-        video.currentTime = 0;
-      };
-
-      video.currentTime = 0;
-      video.playbackRate = playbackSpeed;
-
-      const intervalId = setInterval(() => {
-        if (video.paused || video.ended) {
-          clearInterval(intervalId);
-          return;
-        }
-        const currProgress = Math.min(99, Math.round((video.currentTime / video.duration) * 100));
-        setProgress(currProgress);
-      }, 300);
-
-      video.onended = () => {
-        clearInterval(intervalId);
-        if (mediaRecorder.state !== 'inactive') {
-          mediaRecorder.stop();
-        }
-      };
-
-      mediaRecorder.start();
-      await video.play();
-
+      const blobResult = await apiVideoConvert(file, targetFormat, playbackSpeed);
+      clearInterval(progressInterval);
+      setProgress(100);
+      const url = URL.createObjectURL(blobResult);
+      setConvertedUrl(url);
     } catch (err) {
+      clearInterval(progressInterval);
       console.error(err);
-      setError(`Error durante el remuestreo de video: ${err.message}. Asegúrate de cargar un contenedor de video soportado por tu navegador.`);
+      setError(`Error durante la conversión de video en el servidor: ${err.message}`);
+    } finally {
       setIsConverting(false);
     }
-  }, [videoDetails, targetFormat, playbackSpeed, file]);
+  }, [file, targetFormat, playbackSpeed]);
 
   /** Force stop recording if user aborts */
   const cancelConversion = useCallback(() => {
@@ -334,20 +274,36 @@ export default function VideoConverter() {
               <span className="badge bg-secondary mb-2">
                 {convertedUrl ? 'Video Convertido' : 'Vista Previa'}
               </span>
-              {videoSrc && (
+              {videoSrc && isHtml5Playable ? (
                 <video
                   ref={videoRef}
+                  key={convertedUrl || videoSrc}
                   src={convertedUrl || videoSrc}
                   className="videoconv-preview-video"
                   controls
                   muted
                   onLoadedMetadata={handleLoadedMetadata}
+                  onError={() => setPreviewError(true)}
                 />
+              ) : (
+                <div className="videoconv-unsupported-preview">
+                  <div className="videoconv-unsupported-icon">
+                    <i className="bi bi-file-earmark-play-fill"></i>
+                  </div>
+                  <div className="videoconv-unsupported-title">
+                    Vista previa no disponible para .{activeExt.toUpperCase()}
+                  </div>
+                  <p className="videoconv-unsupported-text">
+                    {convertedUrl
+                      ? `El video fue convertido a .${activeExt} exitosamente. Los navegadores web no pueden reproducir archivos .${activeExt} nativamente, pero el archivo descargado funcionará en reproductores multimedia como VLC.`
+                      : `Los navegadores web no admiten la reproducción directa de archivos .${activeExt}. La conversión funcionará y podrás descargar tu video normalmente.`}
+                  </p>
+                </div>
               )}
               {videoDetails && (
                 <div className="videoconv-preview-info">
-                  Dimensión: {videoDetails.width} × {videoDetails.height}px |
-                  Duración: {videoDetails.duration ? `${videoDetails.duration.toFixed(1)}s` : 'N/A'} |
+                  {videoDetails.width > 0 ? `Dimensión: ${videoDetails.width} × ${videoDetails.height}px | ` : ''}
+                  {videoDetails.duration > 0 ? `Duración: ${videoDetails.duration.toFixed(1)}s | ` : ''}
                   Peso: {formatSize(videoDetails.size)}
                 </div>
               )}

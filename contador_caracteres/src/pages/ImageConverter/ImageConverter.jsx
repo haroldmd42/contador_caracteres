@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import heic2any from 'heic2any';
 import { IMAGE_FORMATS, getFormatConfig, getCompatibleFormats } from '../../constants/formats';
+import { apiImageConvert } from '../../services/apiService';
 import './ImageConverter.css';
 
 /** Binary scanner to extract embedded JPEG preview from camera RAW files (CR2, CR3, NEF, ARW, DNG, RAF, RW2) */
@@ -191,85 +192,25 @@ export default function ImageConverter() {
     setError(null);
   };
 
-  /** Perform conversion */
+  /** Perform conversion using backend API */
   const convertImage = useCallback(async () => {
-    if (!file || !originalDetails) return;
+    if (!file) return;
 
     setIsConverting(true);
     setError(null);
     setConvertedUrl(null);
 
-    const ext = file.name.split('.').pop().toLowerCase();
-    const targetConfig = getFormatConfig(targetFormat);
-    const targetMime = targetConfig?.mime || 'image/png';
-
     try {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      // Helper to generate DataURL/Blob from canvas
-      const finishConversion = (cvs) => {
-        const resultDataUrl = cvs.toDataURL(targetMime, quality);
-        setConvertedUrl(resultDataUrl);
-        setIsConverting(false);
-      };
-
-      // 1. If input is PDF, render the first page onto the canvas using PDF.js
-      if (ext === 'pdf') {
-        if (!window.pdfjsLib) {
-          const script = document.createElement('script');
-          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js';
-          document.head.appendChild(script);
-          await new Promise((resolve, reject) => {
-            script.onload = resolve;
-            script.onerror = () => reject(new Error("No se pudo cargar la librería PDF.js para renderizar la página."));
-          });
-        }
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
-        const arrayBuffer = await file.arrayBuffer();
-        const pdfDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        const page = await pdfDoc.getPage(1);
-
-        const viewport = page.getViewport({ scale: 2.0 }); // 2x scale for higher quality
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        // White background for PDFs
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-        finishConversion(canvas);
-      } 
-      // 2. Regular image rendering
-      else {
-        const img = new Image();
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-
-          // Set white background for JPEG outputs to prevent black transparencies
-          if (targetFormat === 'jpg' || targetFormat === 'jpeg') {
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-          }
-
-          ctx.drawImage(img, 0, 0);
-          finishConversion(canvas);
-        };
-        img.onerror = () => {
-          setError('No se pudo cargar la imagen para renderizar.');
-          setIsConverting(false);
-        };
-        img.src = previewUrl;
-      }
+      const blobResult = await apiImageConvert(file, targetFormat, quality);
+      const url = URL.createObjectURL(blobResult);
+      setConvertedUrl(url);
     } catch (err) {
       console.error(err);
-      setError(`Error al convertir la imagen: ${err.message}`);
+      setError(`Error al convertir la imagen en el servidor: ${err.message}`);
+    } finally {
       setIsConverting(false);
     }
-  }, [file, previewUrl, originalDetails, targetFormat, quality]);
+  }, [file, targetFormat, quality]);
 
   /** Trigger download of converted image */
   const downloadImage = useCallback(() => {

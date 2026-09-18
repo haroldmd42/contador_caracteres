@@ -1,149 +1,55 @@
 import { useState, useCallback } from 'react';
 import useClipboard from '../../hooks/useClipboard';
 import Toast from '../../components/ui/Toast/Toast';
+import { apiEncoder } from '../../services/apiService';
 import './Encoder.css';
-
-/* ────────────────────────────────────────────── */
-/* Utilities */
-/* ────────────────────────────────────────────── */
-
-function encode(input, type) {
-  try {
-    switch (type) {
-      case 'base64':
-        return btoa(input);
-
-      case 'url':
-        return encodeURIComponent(input);
-
-      case 'json':
-        return JSON.stringify(JSON.parse(input), null, 2);
-
-      default:
-        return 'Tipo no soportado';
-    }
-  } catch {
-    return 'Error al codificar';
-  }
-}
-
-function decode(input, type) {
-  try {
-    switch (type) {
-      case 'base64':
-        return atob(input);
-
-      case 'url':
-        return decodeURIComponent(input);
-
-      case 'json':
-        return JSON.stringify(JSON.parse(input), null, 2);
-
-      default:
-        return 'Tipo no soportado';
-    }
-  } catch {
-    return 'Error al decodificar';
-  }
-}
-
-function fixEncoding(obj) {
-  if (typeof obj === 'string') {
-    try {
-      return decodeURIComponent(escape(obj));
-    } catch {
-      return obj;
-    }
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map(fixEncoding);
-  }
-
-  if (typeof obj === 'object' && obj !== null) {
-    return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [
-        key,
-        fixEncoding(value),
-      ])
-    );
-  }
-
-  return obj;
-}
-
-function cleanWeirdJSON(raw) {
-  try {
-    const input = raw.trim();
-
-    const streamPattern = /^\d+:/m;
-
-    // Detecta respuestas tipo:
-    // 0:{...}
-    // 1:{...}
-    if (streamPattern.test(input)) {
-      const result = {};
-
-      input
-        .split(/\r?\n/)
-        .filter((line) => line.trim())
-        .forEach((line) => {
-          const separator = line.indexOf(':');
-
-          if (separator === -1) return;
-
-          const key = line.substring(0, separator).trim();
-          const value = line.substring(separator + 1).trim();
-
-          try {
-            result[key] = JSON.parse(value);
-          } catch {
-            result[key] = value;
-          }
-        });
-
-      return JSON.stringify(fixEncoding(result), null, 2);
-    }
-
-    // JSON normal
-    let cleaned = input;
-
-    const firstBrace = cleaned.indexOf('{');
-
-    if (firstBrace > 0) {
-      cleaned = cleaned.substring(firstBrace);
-    }
-
-    const parsed = JSON.parse(cleaned);
-
-    return JSON.stringify(fixEncoding(parsed), null, 2);
-  } catch {
-    return 'Debe ingresar una respuesta o JSON válido';
-  }
-}
-
-/* ────────────────────────────────────────────── */
-/* Component */
-/* ────────────────────────────────────────────── */
 
 export default function EncoderDecoder() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [type, setType] = useState('base64');
+  const [isLoading, setIsLoading] = useState(false);
 
   const { copied, copyToClipboard } = useClipboard();
 
-  const handleEncode = useCallback(() => {
-    setOutput(encode(input, type));
+  const handleEncode = useCallback(async () => {
+    if (!input) return;
+    setIsLoading(true);
+    try {
+      const res = await apiEncoder(input, type, 'encode');
+      setOutput(res);
+    } catch (err) {
+      setOutput(`Error: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   }, [input, type]);
 
-  const handleDecode = useCallback(() => {
-    setOutput(decode(input, type));
+  const handleDecode = useCallback(async () => {
+    if (!input) return;
+    setIsLoading(true);
+    try {
+      const res = await apiEncoder(input, type, 'decode');
+      setOutput(res);
+    } catch (err) {
+      setOutput(`Error: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   }, [input, type]);
 
-  const handleFormatResponse = useCallback(() => {
-    setOutput(cleanWeirdJSON(input));
-  }, [input]);
+  const handleFormatResponse = useCallback(async () => {
+    if (!input) return;
+    setIsLoading(true);
+    try {
+      const res = await apiEncoder(input, type, 'format');
+      setOutput(res);
+    } catch (err) {
+      setOutput(`Error: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [input, type]);
 
   const clear = useCallback(() => {
     setInput('');

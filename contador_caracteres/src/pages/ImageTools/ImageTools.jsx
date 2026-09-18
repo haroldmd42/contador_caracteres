@@ -1,35 +1,54 @@
 import { useState, useCallback } from 'react';
 import useClipboard from '../../hooks/useClipboard';
 import Toast from '../../components/ui/Toast/Toast';
+import { apiImageBase64 } from '../../services/apiService';
 import './ImageTools.css';
 
 /**
  * Image ↔ Base64 conversion tool.
- * Upload an image to get its Base64 string, or paste Base64 to preview the image.
+ * Upload an image to get its Base64 string from backend, or paste Base64 to preview.
  */
 export default function ImageTools() {
   const [base64, setBase64] = useState('');
   const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { copied, copyToClipboard } = useClipboard();
 
-  /** Handle image file upload and convert to Base64 */
-  const handleImageUpload = useCallback((e) => {
+  /** Handle image file upload and convert to Base64 via backend */
+  const handleImageUpload = useCallback(async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setBase64(reader.result);
-      setPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setLoading(true);
+    try {
+      const b64Result = await apiImageBase64(file);
+      setBase64(b64Result);
+      setPreview(b64Result);
+    } catch (err) {
+      alert(`Error procesando la imagen en el servidor: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  /** Handle manual Base64 text input */
-  const handleBase64Change = useCallback((e) => {
+  /** Handle manual Base64 text input and send to backend to validate/generate data URL */
+  const handleBase64Change = useCallback(async (e) => {
     const value = e.target.value;
     setBase64(value);
-    setPreview(value.startsWith('data:image') ? value : null);
+    if (!value) {
+      setPreview(null);
+      return;
+    }
+    if (value.startsWith('data:image')) {
+      setPreview(value);
+    } else {
+      try {
+        const b64Result = await apiImageBase64(value);
+        setPreview(b64Result);
+      } catch {
+        setPreview(null);
+      }
+    }
   }, []);
 
   /** Download the previewed image */

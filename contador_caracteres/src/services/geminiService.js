@@ -1,9 +1,17 @@
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:3000'
+    : 'https://contador-back-xeq3.onrender.com');
+
 export async function generateGherkin(
     userStory,
-    additionalData
+    additionalData,
+    mode = "gherkin",
+    framework = "cypress"
 ) {
     const res = await fetch(
-        "https://contador-back-xeq3.onrender.com/api/gemini",
+        `${API_BASE_URL}/api/gemini`,
         {
             method: "POST",
             headers: {
@@ -12,6 +20,8 @@ export async function generateGherkin(
             body: JSON.stringify({
                 userStory,
                 additionalData,
+                mode,
+                framework,
             }),
         }
     );
@@ -23,4 +33,4 @@ export async function generateGherkin(
     }
 
     return data.data;
-}
+}

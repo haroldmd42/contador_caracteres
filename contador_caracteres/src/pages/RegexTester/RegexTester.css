@@ -1,0 +1,23 @@
+.subtitle-text {
+  color: var(--text-secondary, #64748b);
+}
+
+.matches-container {
+  background-color: var(--code-bg, #0f172a);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+.match-item {
+  background-color: rgba(99, 102, 241, 0.1);
+  border: 1px solid var(--border-color, rgba(99, 102, 241, 0.2));
+}
+
+[data-theme="light"] .matches-container {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .match-item {
+  background-color: #e0e7ff;
+  border-color: #c7d2fe;
+}

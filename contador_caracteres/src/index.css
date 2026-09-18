@@ -1,4 +1,88 @@
-/* Global reset & base styles */
+/* 🎨 Global Design System & Theme Engine for QATOOLS */
+
+:root, [data-theme="light"] {
+  --bg-body: #f8fafc;
+  --bg-gradient: radial-gradient(circle at top right, #f1f5f9 0%, #e2e8f0 100%);
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-card: #ffffff;
+  --bg-hero: linear-gradient(180deg, #e0e7ff 0%, #f8fafc 100%);
+  --hero-text: #0f172a;
+  --hero-subtitle: #475569;
+  --hero-search-bg: #ffffff;
+  --hero-search-border: #cbd5e1;
+  --hero-search-text: #0f172a;
+  --hero-search-placeholder: #94a3b8;
+  --hero-badge-bg: rgba(79, 70, 229, 0.08);
+  --hero-badge-border: rgba(79, 70, 229, 0.25);
+  --hero-badge-text: #4f46e5;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: rgba(15, 23, 42, 0.08);
+  --border-focus: rgba(99, 102, 241, 0.4);
+  --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  --card-shadow-hover: 0 20px 45px rgba(15, 23, 42, 0.08);
+  --accent-primary: #4f46e5;
+  --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-text: #0f172a;
+  --navbar-bg: rgba(15, 23, 42, 0.95);
+  --navbar-text: #f8fafc;
+  --footer-bg: #0f172a;
+  --footer-text: #94a3b8;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --bg-toggle: rgba(255, 255, 255, 0.9);
+  --toggle-glow: rgba(99, 102, 241, 0.25);
+  --toggle-glow-active: rgba(99, 102, 241, 0.45);
+  --code-bg: #1e293b;
+  --code-text: #f8fafc;
+}
+
+[data-theme="dark"] {
+  --bg-body: #090d16;
+  --bg-gradient: radial-gradient(circle at top right, #0f172a 0%, #090d16 100%);
+  --bg-surface: #111827;
+  --bg-surface-elevated: #1e293b;
+  --bg-card: rgba(19, 28, 46, 0.85);
+  --bg-hero: linear-gradient(180deg, #0f172a 0%, #090d16 100%);
+  --hero-text: #ffffff;
+  --hero-subtitle: #94a3b8;
+  --hero-search-bg: rgba(255, 255, 255, 0.06);
+  --hero-search-border: rgba(255, 255, 255, 0.12);
+  --hero-search-text: #f8fafc;
+  --hero-search-placeholder: #64748b;
+  --hero-badge-bg: rgba(99, 102, 241, 0.2);
+  --hero-badge-border: rgba(129, 140, 248, 0.3);
+  --hero-badge-text: #818cf8;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(129, 140, 248, 0.5);
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --card-shadow-hover: 0 20px 45px rgba(0, 0, 0, 0.5);
+  --accent-primary: #6366f1;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #38bdf8 100%);
+  --input-bg: rgba(15, 23, 42, 0.7);
+  --input-border: rgba(255, 255, 255, 0.12);
+  --input-text: #f8fafc;
+  --navbar-bg: rgba(9, 13, 22, 0.92);
+  --navbar-text: #f8fafc;
+  --footer-bg: #050811;
+  --footer-text: #64748b;
+  --glass-bg: rgba(17, 24, 39, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --bg-toggle: rgba(19, 28, 46, 0.9);
+  --toggle-glow: rgba(245, 158, 11, 0.3);
+  --toggle-glow-active: rgba(245, 158, 11, 0.5);
+  --code-bg: #050811;
+  --code-text: #38bdf8;
+}
+
+/* 🌐 Base resets & Smooth Theme Switching */
 *,
 *::before,
 *::after {
@@ -7,8 +91,212 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-body);
+  background-image: var(--bg-gradient);
+  color: var(--text-primary);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.35s ease, color 0.35s ease;
+  min-height: 100vh;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-body);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 6px;
+  border: 2px solid var(--bg-body);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+/* 🎴 Global Bootstrap Card & Container Overrides */
+.card, .custom-card {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--card-shadow) !important;
+  border-radius: 20px !important;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* 📝 Global Form Control Overrides */
+.form-control, .form-select {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border: 1px solid var(--input-border) !important;
+  border-radius: 12px !important;
+  padding: 12px 16px;
+  transition: all 0.25s ease;
+}
+
+.form-select {
+  padding-right: 40px !important;
+}
+
+
+.form-control::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 4px var(--border-focus) !important;
+  color: var(--input-text) !important;
+}
+
+/* 🔘 Universal Button Rules (Ensures 100% border-radius & padding consistency) */
+.btn, 
+.btn-primary, 
+.btn-success, 
+.btn-danger, 
+.btn-warning, 
+.btn-info, 
+.btn-secondary,
+.encoder-btn,
+.imgtools-btn,
+.fileconv-btn,
+.imgconv-btn,
+.videoconv-btn,
+.audioconv-btn,
+.filter-btn,
+.button-generate,
+.button-generate-no-spaces {
+  border-radius: 14px !important;
+  font-weight: 600 !important;
+  padding: 10px 20px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  outline: none !important;
+}
+
+.btn-primary,
+.encoder-btn--primary,
+.fileconv-btn--convert {
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.25) !important;
+}
+
+.btn-primary:hover,
+.encoder-btn--primary:hover,
+.fileconv-btn--convert:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4) !important;
+  color: #ffffff !important;
+}
+
+.btn-success,
+.encoder-btn--copy,
+.imgtools-btn--copy,
+.fileconv-btn--download,
+.imgconv-btn--download,
+.videoconv-btn--download,
+.audioconv-btn--convert {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25) !important;
+}
+
+.btn-success:hover,
+.encoder-btn--copy:hover,
+.imgtools-btn--copy:hover,
+.fileconv-btn--download:hover,
+.imgconv-btn--download:hover,
+.videoconv-btn--download:hover,
+.audioconv-btn--convert:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4) !important;
+  color: #ffffff !important;
+}
+
+.btn-danger,
+.encoder-btn--clear,
+.imgtools-btn--clear,
+.fileconv-btn--clear,
+.imgconv-btn--clear,
+.videoconv-btn--convert,
+.audioconv-btn--clear {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25) !important;
+}
+
+.btn-danger:hover,
+.encoder-btn--clear:hover,
+.imgtools-btn--clear:hover,
+.fileconv-btn--clear:hover,
+.imgconv-btn--clear:hover,
+.videoconv-btn--convert:hover,
+.audioconv-btn--clear:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4) !important;
+  color: #ffffff !important;
+}
+
+.btn-warning,
+.encoder-btn--warning,
+.imgconv-btn--convert {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25) !important;
+}
+
+.btn-warning:hover,
+.encoder-btn--warning:hover,
+.imgconv-btn--convert:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4) !important;
+  color: #ffffff !important;
+}
+
+/* Modal, Dropdown & Table Overrides for Theme Switch */
+.dropdown-menu {
+  background-color: var(--bg-surface-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 10px !important;
+}
+
+.dropdown-item {
+  color: var(--text-primary) !important;
+  border-radius: 10px !important;
+  padding: 8px 16px !important;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+}
+
+.dropdown-divider {
+  border-top-color: var(--border-color) !important;
+}
+
+/* Layout Main Padding */
+main {
+  min-height: calc(100vh - 140px);
 }

@@ -13,5 +13,13 @@ export const ROUTES = {
   IMAGE_CONVERTER: '/convertidor-imagen',
   VIDEO_CONVERTER: '/convertidor-video',
   AUDIO_CONVERTER: '/convertidor-audio',
-  HU_GHERKIN: '/hu-gherkin'
+  HU_GHERKIN: '/hu-gherkin',
+  MOCK_DATA: '/mock-data',
+  DIFF_CHECKER: '/diff-checker',
+  JWT_DECODER: '/jwt-decoder',
+  DATA_CONVERTER: '/convertidor-datos',
+  REGEX_TESTER: '/regex-tester',
+  CONTRAST_CHECKER: '/contrast-checker',
+  DEVICE_SIMULATOR: '/simulador-pantallas',
 };
+

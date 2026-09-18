@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { AUDIO_FORMATS, getFormatConfig, getCompatibleFormats } from '../../constants/formats';
+import { apiAudioConvert } from '../../services/apiService';
 import './AudioConverter.css';
 
 /** Static wave bar heights for visualizer styling */
@@ -210,114 +211,32 @@ export default function AudioConverter() {
     setProgress(0);
   };
 
-  /** Perform audio conversion */
+  /** Perform audio conversion using backend API */
   const convertAudio = useCallback(async () => {
     if (!file) return;
 
     setIsConverting(true);
-    setProgress(0);
+    setProgress(20);
     setError(null);
     setConvertedUrl(null);
     setConvertedBlob(null);
 
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => (prev >= 90 ? prev : prev + 15));
+    }, 200);
+
     try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      const audioCtx = audioCtxRef.current;
-      if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
-      }
-
-      setProgress(10);
-      const arrayBuffer = await file.arrayBuffer();
-      setProgress(35);
-      const decodedBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-      setProgress(50);
-
-      // 1. WAV Conversion: PCM encoder instantly without recording latency
-      if (targetFormat === 'wav') {
-        const blob = bufferToWav(decodedBuffer);
-        const resultUrl = URL.createObjectURL(blob);
-        setConvertedBlob(blob);
-        setConvertedUrl(resultUrl);
-        setProgress(100);
-        setIsConverting(false);
-      } 
-      // 2. Compressed formats: Record using MediaRecorder
-      else {
-        let mime = `audio/${targetFormat}`;
-        if (targetFormat === 'mp3') mime = 'audio/mpeg';
-        if (targetFormat === 'm4a') mime = 'audio/mp4';
-
-        if (!MediaRecorder.isTypeSupported(mime)) {
-          if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-            mime = 'audio/webm;codecs=opus';
-          } else if (MediaRecorder.isTypeSupported('audio/webm')) {
-            mime = 'audio/webm';
-          } else {
-            mime = '';
-          }
-        }
-
-        destStreamRef.current = audioCtx.createMediaStreamDestination();
-        const source = audioCtx.createBufferSource();
-        source.buffer = decodedBuffer;
-        
-        source.connect(destStreamRef.current);
-        source.connect(audioCtx.destination);
-        audioSourceRef.current = source;
-
-        const options = mime ? { mimeType: mime } : undefined;
-        const mediaRecorder = new MediaRecorder(destStreamRef.current.stream, options);
-        recorderRef.current = mediaRecorder;
-
-        const chunks = [];
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data && e.data.size > 0) {
-            chunks.push(e.data);
-          }
-        };
-
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(chunks, { type: mime || 'audio/webm' });
-          const resultUrl = URL.createObjectURL(blob);
-          setConvertedBlob(blob);
-          setConvertedUrl(resultUrl);
-          setIsConverting(false);
-          setProgress(100);
-          setIsPlaying(false);
-        };
-
-        const durationMs = decodedBuffer.duration * 1000;
-        let elapsed = 0;
-        const progressInterval = setInterval(() => {
-          elapsed += 500;
-          const curr = Math.min(99, 50 + Math.round((elapsed / durationMs) * 50));
-          setProgress(curr);
-          if (elapsed >= durationMs) {
-            clearInterval(progressInterval);
-          }
-        }, 500);
-
-        mediaRecorder.start();
-        source.start(0);
-        setIsPlaying(true);
-
-        const timeoutId = setTimeout(() => {
-          clearInterval(progressInterval);
-          if (mediaRecorder.state !== 'inactive') {
-            mediaRecorder.stop();
-            source.stop();
-          }
-        }, durationMs + 200);
-
-        audioSourceRef.current.timeoutId = timeoutId;
-        audioSourceRef.current.intervalId = progressInterval;
-      }
+      const blobResult = await apiAudioConvert(file, targetFormat);
+      clearInterval(progressInterval);
+      setProgress(100);
+      const url = URL.createObjectURL(blobResult);
+      setConvertedBlob(blobResult);
+      setConvertedUrl(url);
     } catch (err) {
+      clearInterval(progressInterval);
       console.error(err);
-      setError(`Error decodificando o convirtiendo el audio: ${err.message}. Asegúrate de cargar un formato de audio reproducible en tu navegador.`);
+      setError(`Error durante la conversión de audio en el servidor: ${err.message}`);
+    } finally {
       setIsConverting(false);
     }
   }, [file, targetFormat]);

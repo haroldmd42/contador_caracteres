@@ -1,0 +1,25 @@
+.subtitle-text {
+  color: var(--text-secondary, #64748b);
+}
+
+.jwt-box {
+  background-color: var(--code-bg, #0f172a);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+.jwt-info-strip {
+  background-color: var(--bg-surface-elevated, #1e293b);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="light"] .jwt-box {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .jwt-info-strip {
+  background-color: #e2e8f0;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}

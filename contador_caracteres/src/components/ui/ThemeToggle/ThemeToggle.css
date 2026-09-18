@@ -1,0 +1,98 @@
+.theme-toggle-floating-container {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+}
+
+.theme-toggle-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+  background: var(--bg-toggle, rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18), 0 0 20px var(--toggle-glow, rgba(99, 102, 241, 0.3));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  outline: none;
+  padding: 0;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.12) translateY(-2px);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25), 0 0 28px var(--toggle-glow-active, rgba(99, 102, 241, 0.5));
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.theme-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.45rem;
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.theme-toggle-btn:hover .theme-icon-wrapper {
+  transform: rotate(25deg);
+}
+
+.sun-icon {
+  color: #f59e0b;
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+}
+
+.moon-icon {
+  color: #6366f1;
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
+}
+
+/* Tooltip on hover */
+.theme-toggle-tooltip {
+  position: absolute;
+  right: 68px;
+  background: var(--bg-card, #1e293b);
+  color: var(--text-primary, #ffffff);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(10px);
+  transition: all 0.25s ease;
+  pointer-events: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+.theme-toggle-btn:hover .theme-toggle-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+  .theme-toggle-floating-container {
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .theme-toggle-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .theme-icon-wrapper {
+    font-size: 1.25rem;
+  }
+}

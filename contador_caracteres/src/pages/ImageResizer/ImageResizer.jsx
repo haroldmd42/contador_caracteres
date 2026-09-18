@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { apiImageResize } from '../../services/apiService';
 import './ImageResizer.css';
 
 /** Accepted image MIME types */
@@ -16,10 +17,10 @@ const MAX_DIMENSION = 5000;
 /**
  * Image Resizer page.
  * Upload an image, adjust dimensions (with optional aspect ratio lock),
- * choose output format and quality, then download the result.
+ * choose output format and quality, then resize using backend API.
  */
 export default function ImageResizer() {
-  const [, setImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [width, setWidth] = useState('');
   const [height, setHeight] = useState('');
@@ -28,6 +29,7 @@ export default function ImageResizer() {
   const [lockRatio, setLockRatio] = useState(true);
   const [format, setFormat] = useState('image/png');
   const [quality, setQuality] = useState(0.9);
+  const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   /** Process uploaded image file */
@@ -40,7 +42,8 @@ export default function ImageResizer() {
       return;
     }
 
-    setImage(file);
+    setImageFile(file);
+    setResized(null);
 
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -85,28 +88,28 @@ export default function ImageResizer() {
     }
   }, [lockRatio, originalSize, width]);
 
-  /** Resize the image using canvas */
-  const resizeImage = useCallback(() => {
-    if (!preview || !width || !height) return;
+  /** Resize the image using backend sharp service */
+  const resizeImage = useCallback(async () => {
+    if ((!imageFile && !preview) || !width || !height) return;
 
     if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
       alert(`Dimensiones demasiado grandes (máximo ${MAX_DIMENSION}px)`);
       return;
     }
 
-    const img = new Image();
-    img.src = preview;
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-
-      setResized(canvas.toDataURL(format, quality));
-    };
-  }, [preview, width, height, format, quality]);
+    setLoading(true);
+    try {
+      const inputTarget = imageFile || preview;
+      const targetFormatStr = format.split('/')[1] || 'png';
+      const blobResult = await apiImageResize(inputTarget, width, height, targetFormatStr, quality, lockRatio);
+      const url = URL.createObjectURL(blobResult);
+      setResized(url);
+    } catch (err) {
+      alert(`Error al redimensionar en el backend: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [imageFile, preview, width, height, format, quality, lockRatio]);
 
   /** Download the resized image */
   const downloadImage = useCallback(() => {
@@ -120,7 +123,7 @@ export default function ImageResizer() {
 
   /** Reset all state */
   const reset = useCallback(() => {
-    setImage(null);
+    setImageFile(null);
     setPreview(null);
     setWidth('');
     setHeight('');

@@ -1,36 +1,42 @@
 .audioconv-container {
-  max-width: 1000px;
-  margin: 6rem auto;
-  padding: 0 15px;
+  max-width: 980px;
+  margin: 3rem auto;
+  padding: 0 20px;
+  min-height: calc(100vh - 150px);
 }
 
 /* Header */
 .audioconv-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .audioconv-icon-main {
-  font-size: 2.5rem;
-  color: #198754;
+  font-size: 2.8rem;
+  color: #10b981;
 }
 
 .audioconv-title {
-  color: #198754;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 850;
   margin-top: 10px;
 }
 
 .audioconv-subtitle {
-  color: #6c757d;
-  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
 }
 
 /* Card */
 .audioconv-card {
-  background: #fff;
-  padding: 25px;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 32px;
+  border-radius: 24px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.35s ease;
 }
 
 /* Upload Box */
@@ -38,40 +44,44 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 2px dashed #198754;
-  border-radius: 12px;
-  padding: 30px;
+  border: 2px dashed #10b981;
+  border-radius: 20px;
+  padding: 35px 20px;
   text-align: center;
   cursor: pointer;
-  margin-bottom: 20px;
-  transition: background 0.2s ease;
+  margin-bottom: 24px;
+  background: var(--input-bg);
+  transition: all 0.3s ease;
 }
 
 .audioconv-upload-box:hover {
-  background: rgba(25, 135, 84, 0.05);
+  background: rgba(16, 185, 129, 0.1);
+  transform: translateY(-2px);
 }
 
 .audioconv-upload-box i {
-  font-size: 2.5rem;
-  color: #198754;
-  margin-bottom: 10px;
+  font-size: 2.8rem;
+  color: #10b981;
+  margin-bottom: 12px;
 }
 
 .audioconv-upload-box span {
-  font-weight: 500;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .audioconv-upload-box small {
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 /* Grid layout for columns */
 .audioconv-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 25px;
+  gap: 24px;
 }
 
 @media (max-width: 768px) {
@@ -83,10 +93,10 @@
 /* Audio preview section */
 .audioconv-preview-panel {
   text-align: center;
-  background: #f8f9fa;
+  background: var(--input-bg);
   padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
+  border-radius: 18px;
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -100,8 +110,8 @@
 }
 
 .audioconv-preview-info {
-  font-size: 0.85rem;
-  color: #6c757d;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
 }
 
 .audioconv-waveform-mock {
@@ -116,7 +126,7 @@
 
 .audioconv-wave-bar {
   flex: 1;
-  background-color: #badbcc;
+  background-color: var(--border-color);
   border-radius: 2px;
   transition: height 0.3s ease;
 }
@@ -127,163 +137,123 @@
 }
 
 .audioconv-wave-bar.active {
-  background-color: #198754;
+  background-color: #10b981;
   animation: wave-bounce 1.2s infinite ease-in-out;
 }
 
 /* Form inputs */
 .audioconv-form-group {
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 }
 
 .audioconv-form-group label {
-  font-weight: 500;
-  margin-bottom: 6px;
+  font-weight: 600;
+  margin-bottom: 8px;
   display: block;
-  color: #495057;
+  color: var(--text-primary);
 }
 
 /* Buttons */
 .audioconv-buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 12px;
+  margin-top: 18px;
 }
 
 .audioconv-btn {
   width: 100%;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 14px;
   border: none;
   color: white;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-.audioconv-btn:active {
-  transform: scale(0.98);
+  transition: all 0.25s ease;
 }
 
 .audioconv-btn--convert {
-  background: #198754;
-}
-
-.audioconv-btn--convert:hover {
-  background: #157347;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 .audioconv-btn--download {
-  background: #0d6efd;
-}
-
-.audioconv-btn--download:hover {
-  background: #0b5ed7;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 }
 
 .audioconv-btn--clear {
-  background: #dc3545;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
-.audioconv-btn--clear:hover {
-  background: #bb2d3b;
+.audioconv-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .audioconv-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none !important;
 }
 
 /* Status alerts */
 .audioconv-alert {
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  margin-bottom: 15px;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  margin-bottom: 18px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  font-weight: 500;
 }
 
 .audioconv-alert--success {
-  background-color: #d1e7dd;
-  border: 1px solid #badbcc;
-  color: #0f5132;
+  background-color: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
 }
 
 .audioconv-alert--error {
-  background-color: #f8d7da;
-  border: 1px solid #f5c2c7;
-  color: #842029;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
 }
 
 .audioconv-alert--warning {
-  background-color: #fff3cd;
-  border: 1px solid #ffe69c;
-  color: #664d03;
-}
-
-.bg-light-warning {
-  background-color: #fffaf0 !important;
-  border: 1px solid #ffe8cc !important;
-  color: #d97706 !important;
-}
-
-.text-warning {
-  color: #d97706 !important;
-}
-
-.btn-warning {
-  background-color: #ff9800 !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-}
-
-.btn-warning:hover {
-  background-color: #f57c00 !important;
-}
-
-.audioconv-raw-placeholder {
-  width: 100%;
-  padding: 40px 15px;
-  border: 1px dashed #ced4da;
-  border-radius: 8px;
-  background-color: #f8f9fa;
+  background-color: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
 }
 
 /* Progress bar */
 .audioconv-progress-container {
-  margin: 15px 0;
+  margin: 18px 0;
   width: 100%;
 }
 
 .audioconv-progress-label {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-bottom: 5px;
-  color: #495057;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
 .audioconv-progress-bar-bg {
-  background-color: #e9ecef;
-  height: 8px;
-  border-radius: 4px;
+  background-color: var(--border-color);
+  height: 10px;
+  border-radius: 10px;
   overflow: hidden;
   width: 100%;
 }
 
 .audioconv-progress-bar-fill {
-  background-color: #198754;
+  background: linear-gradient(90deg, #10b981, #34d399);
   height: 100%;
-  transition: width 0.1s linear;
+  transition: width 0.15s linear;
 }
-
-

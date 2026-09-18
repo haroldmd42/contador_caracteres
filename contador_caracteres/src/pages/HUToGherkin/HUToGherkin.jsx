@@ -4,11 +4,16 @@ import "./HUToGherkin.css";
 import Toast from "../../components/ui/Toast/Toast";
 import useClipboard from "../../hooks/useClipboard";
 import { exportToExcel } from "../../utils/exportExcel";
+import AzureDevOpsModal from "../../components/AzureDevOpsModal/AzureDevOpsModal";
 
 export default function HUToGherkin() {
     const [userStory, setUserStory] = useState("");
     const [additionalData, setAdditionalData] = useState("");
     const [isExcelData, setIsExcelData] = useState(false);
+    const [mode, setMode] = useState("gherkin");
+    const [framework, setFramework] = useState("cypress");
+    const [isAdoModalOpen, setIsAdoModalOpen] = useState(false);
+
 
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
@@ -18,9 +23,15 @@ export default function HUToGherkin() {
         result,
         error,
         generate,
+        clearResult,
     } = useGherkinGenerator();
 
     const { copied, copyToClipboard } = useClipboard();
+
+    const handleModeChange = (newMode) => {
+        setMode(newMode);
+        clearResult();
+    };
 
     const handleAdditionalPaste = (e) => {
         const text = e.clipboardData.getData("text/plain");
@@ -43,7 +54,9 @@ export default function HUToGherkin() {
 
         generate(
             userStory,
-            additionalData
+            additionalData,
+            mode,
+            framework
         );
     };
 
@@ -73,19 +86,70 @@ export default function HUToGherkin() {
         );
     };
 
+    const getDownloadButtonLabel = () => {
+        if (mode === "automation") {
+            return framework === "playwright" ? "Descargar Script (.spec.ts)" : "Descargar Script (.cy.js)";
+        }
+        if (mode === "matrix") {
+            return "Descargar Excel (Matriz)";
+        }
+        return "Descargar Excel (Gherkin)";
+    };
+
     return (
         <div className="ai-container">
 
-            <div className="ai-header mt-5">
+            <div className="ai-header mt-4">
                 <h1>
-                    <i className="bi bi-opencollective"></i>
-                    {" "}HU → Gherkin AI
+                    <i className="bi bi-robot"></i>
+                    {" "}Suite IA para QA (Gherkin, Matrix & Automation)
                 </h1>
 
                 <p>
-                    Convierte historias de usuario en escenarios Gherkin utilizando IA.
+                    Genera escenarios Gherkin, matrices de prueba completas o scripts de automatización Cypress/Playwright usando IA.
                 </p>
             </div>
+
+            {/* Sub-modos Selector */}
+            <div className="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+                <button
+                    className={`btn ${mode === 'gherkin' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => handleModeChange('gherkin')}
+                >
+                    <i className="bi bi-file-code me-1"></i> Escenarios Gherkin
+                </button>
+                <button
+                    className={`btn ${mode === 'matrix' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => handleModeChange('matrix')}
+                >
+                    <i className="bi bi-table me-1"></i> Matriz de Pruebas (Excel)
+                </button>
+                <button
+                    className={`btn ${mode === 'automation' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => handleModeChange('automation')}
+                >
+                    <i className="bi bi-cpu me-1"></i> Script Automatizado
+                </button>
+            </div>
+
+            {mode === 'automation' && (
+                <div className="d-flex justify-content-center align-items-center gap-3 mb-4">
+                    <label className="fw-bold mb-0">Framework Target:</label>
+                    <select
+                        className="form-select"
+                        style={{ maxWidth: '260px' }}
+                        value={framework}
+
+                        onChange={(e) => {
+                            setFramework(e.target.value);
+                            clearResult();
+                        }}
+                    >
+                        <option value="cypress">Cypress (JavaScript)</option>
+                        <option value="playwright">Playwright (TypeScript)</option>
+                    </select>
+                </div>
+            )}
 
             <div className="ai-workspace">
 
@@ -94,9 +158,17 @@ export default function HUToGherkin() {
 
                     <div className="panel-content">
 
-                        <div className="panel-header">
-                            Historia de Usuario
+                        <div className="panel-header d-flex justify-content-between align-items-center">
+                            <span>Historia de Usuario</span>
+                            <button
+                                className="btn btn-sm btn-outline-info"
+                                onClick={() => setIsAdoModalOpen(true)}
+                                title="Importar desde Azure DevOps API"
+                            >
+                                <i className="bi bi-microsoft me-1"></i> Azure DevOps
+                            </button>
                         </div>
+
 
                         <textarea
                             className="hu-textarea"
@@ -134,14 +206,14 @@ export default function HUToGherkin() {
                     <div className="panel-actions">
 
                         <button
-                            className="btn-primary"
+                            className="btn btn-primary"
                             onClick={handleGenerate}
                             disabled={loading}
                         >
-                            <i className="bi bi-opencollective"></i>
+                            <i className="bi bi-cpu-fill"></i>
                             {loading
                                 ? " Generando..."
-                                : " Generar"}
+                                : " Generar Con IA"}
                         </button>
 
                         <button
@@ -150,6 +222,7 @@ export default function HUToGherkin() {
                                 setUserStory("");
                                 setAdditionalData("");
                                 setIsExcelData(false);
+                                clearResult();
                             }}
                         >
                             <i className="bi bi-trash"></i>
@@ -164,7 +237,7 @@ export default function HUToGherkin() {
                 <div className="ai-panel">
 
                     <div className="panel-header">
-                        Escenarios Generados
+                        Resultado Generado ({mode.toUpperCase()})
                     </div>
 
                     <div className="result-container">
@@ -175,7 +248,7 @@ export default function HUToGherkin() {
                     <div className="panel-actions">
 
                         <button
-                            className="btn-success"
+                            className="btn btn-success"
                             onClick={() => copyToClipboard(result)}
                             disabled={!result}
                         >
@@ -184,11 +257,11 @@ export default function HUToGherkin() {
                         </button>
                         <button
                             className="btn btn-success"
-                            onClick={() => exportToExcel(result)}
+                            onClick={() => exportToExcel(result, mode, framework)}
                             disabled={!result}
                         >
-                            <i className="bi bi-file-earmark-excel"></i>
-                            {" "}Descargar Excel
+                            <i className={`bi ${mode === 'automation' ? 'bi-download' : 'bi-file-earmark-excel'}`}></i>
+                            {" "}{getDownloadButtonLabel()}
                         </button>
 
                         <Toast
@@ -214,6 +287,14 @@ export default function HUToGherkin() {
                 </div>
             )}
 
+            <AzureDevOpsModal
+                isOpen={isAdoModalOpen}
+                onClose={() => setIsAdoModalOpen(false)}
+                onImportUserStory={(story, meta) => {
+                    setUserStory(story);
+                    if (meta) setAdditionalData(meta);
+                }}
+            />
         </div>
     );
 }
