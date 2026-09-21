@@ -271,6 +271,49 @@ export default function DeviceSimulator() {
   const [scrollbarMode, setScrollbarMode] = useState('hidden'); // 'hidden' | 'thin' | 'default'
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const mainIframeRef = useRef(null);
+
+  // Helper to send real-time settings updates into the running iframe without full reload
+  const sendIframeSettings = (newScrollbarMode, newTheme) => {
+    try {
+      if (mainIframeRef.current && mainIframeRef.current.contentWindow) {
+        mainIframeRef.current.contentWindow.postMessage(
+          {
+            type: 'QA_UPDATE_SETTINGS',
+            scrollbarMode: newScrollbarMode !== undefined ? newScrollbarMode : scrollbarMode,
+            simulatedTheme: newTheme !== undefined ? newTheme : simulatedTheme,
+          },
+          '*'
+        );
+      }
+    } catch (err) {}
+  };
+
+  // Listen to navigation events from inside the proxied iframe
+  useEffect(() => {
+    function handleWindowMessage(event) {
+      if (!event.data || typeof event.data !== 'object') return;
+      if (event.data.type === 'QA_NAVIGATED') {
+        const navigatedUrl = event.data.url;
+        if (navigatedUrl && typeof navigatedUrl === 'string') {
+          let cleanDisplayUrl = navigatedUrl;
+          try {
+            const parsed = new URL(navigatedUrl, window.location.href);
+            if (parsed.pathname.includes('/api/tools/proxy-frame')) {
+              const realUrl = parsed.searchParams.get('url');
+              if (realUrl) cleanDisplayUrl = realUrl;
+            }
+          } catch (e) {}
+
+          setInputUrl(cleanDisplayUrl);
+          setActiveUrl(cleanDisplayUrl);
+        }
+      }
+    }
+
+    window.addEventListener('message', handleWindowMessage);
+    return () => window.removeEventListener('message', handleWindowMessage);
+  }, []);
 
   // Scaling / Zoom states
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -919,10 +962,7 @@ export default function DeviceSimulator() {
                         className={`btn ${scrollbarMode === 'hidden' ? 'btn-primary' : 'btn-outline-secondary'}`}
                         onClick={() => {
                           setScrollbarMode('hidden');
-                          if (useProxy) {
-                            setIsLoadingIframe(true);
-                            setRefreshKey((prev) => prev + 1);
-                          }
+                          sendIframeSettings('hidden', simulatedTheme);
                         }}
                         title="Oculta (Como en dispositivos móviles reales)"
                       >
@@ -933,10 +973,7 @@ export default function DeviceSimulator() {
                         className={`btn ${scrollbarMode === 'thin' ? 'btn-primary' : 'btn-outline-secondary'}`}
                         onClick={() => {
                           setScrollbarMode('thin');
-                          if (useProxy) {
-                            setIsLoadingIframe(true);
-                            setRefreshKey((prev) => prev + 1);
-                          }
+                          sendIframeSettings('thin', simulatedTheme);
                         }}
                         title="Fina (4px ultra delgada)"
                       >
@@ -947,10 +984,7 @@ export default function DeviceSimulator() {
                         className={`btn ${scrollbarMode === 'default' ? 'btn-primary' : 'btn-outline-secondary'}`}
                         onClick={() => {
                           setScrollbarMode('default');
-                          if (useProxy) {
-                            setIsLoadingIframe(true);
-                            setRefreshKey((prev) => prev + 1);
-                          }
+                          sendIframeSettings('default', simulatedTheme);
                         }}
                         title="Estándar de escritorio"
                       >
@@ -1127,10 +1161,7 @@ export default function DeviceSimulator() {
                 onClick={() => {
                   const nextMode = scrollbarMode === 'hidden' ? 'thin' : scrollbarMode === 'thin' ? 'default' : 'hidden';
                   setScrollbarMode(nextMode);
-                  if (useProxy) {
-                    setIsLoadingIframe(true);
-                    setRefreshKey((prev) => prev + 1);
-                  }
+                  sendIframeSettings(nextMode, simulatedTheme);
                 }}
                 title={`Scrollbar: ${scrollbarMode === 'hidden' ? 'Oculta (Móvil)' : scrollbarMode === 'thin' ? 'Fina (4px)' : 'Estándar'}. Clic para alternar.`}
               >
@@ -1147,8 +1178,7 @@ export default function DeviceSimulator() {
                 onClick={() => {
                   const nextTheme = simulatedTheme === 'dark' ? 'light' : 'dark';
                   setSimulatedTheme(nextTheme);
-                  setIsLoadingIframe(true);
-                  setRefreshKey((prev) => prev + 1);
+                  sendIframeSettings(scrollbarMode, nextTheme);
                 }}
                 title="Alternar tema Claro / Oscuro"
               >
@@ -1232,6 +1262,7 @@ export default function DeviceSimulator() {
                         </div>
                       )}
                       <iframe
+                        ref={mainIframeRef}
                         key={`${refreshKey}-${simulatedTheme}-${enableSandbox}`}
                         src={effectiveUrl}
                         title={`Simulador ${activeWidth}x${activeHeight}`}
@@ -1291,6 +1322,7 @@ export default function DeviceSimulator() {
                       </div>
                     )}
                     <iframe
+                      ref={mainIframeRef}
                       key={`${refreshKey}-${simulatedTheme}-${enableSandbox}`}
                       src={effectiveUrl}
                       title="Simulador Canvas"

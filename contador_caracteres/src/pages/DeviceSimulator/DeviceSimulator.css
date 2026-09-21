@@ -538,6 +538,19 @@
   overflow: hidden !important;
 }
 
+.device-screen.scrollbar-hidden iframe,
+.clean-viewport-canvas.scrollbar-hidden iframe {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.device-screen.scrollbar-hidden iframe::-webkit-scrollbar,
+.clean-viewport-canvas.scrollbar-hidden iframe::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 /* Always preserve 100% exact device viewport width with zero offsets so padding and margins match real phones */
 .device-screen .device-iframe,
 .clean-viewport-canvas .device-iframe {
