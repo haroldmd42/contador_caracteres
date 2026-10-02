@@ -265,6 +265,21 @@ export default function DeviceSimulator() {
   const [showBezel, setShowBezel] = useState(true);
   const [useProxy, setUseProxy] = useState(true);
   const [isMultiView, setIsMultiView] = useState(false);
+
+  // Multi-View Screen Selections
+  const [multiMobileId, setMultiMobileId] = useState('iphone-15-pro');
+  const [multiTabletId, setMultiTabletId] = useState('ipad-air');
+  const [multiDesktopId, setMultiDesktopId] = useState('laptop-hd');
+
+  // Multi-View Zoom & Layout states (null = auto-fit mode)
+  const [multiZoomMobile, setMultiZoomMobile] = useState(null);
+  const [multiZoomTablet, setMultiZoomTablet] = useState(null);
+  const [multiZoomDesktop, setMultiZoomDesktop] = useState(null);
+  const [multiGlobalZoom, setMultiGlobalZoom] = useState(1);
+  const [multiLayoutMode, setMultiLayoutMode] = useState('grid'); // 'grid' | 'scroll' | 'stacked'
+  const [multiViewerHeight, setMultiViewerHeight] = useState(580);
+  const [expandedCardKey, setExpandedCardKey] = useState(null);
+
   const [customWidth, setCustomWidth] = useState(393);
   const [customHeight, setCustomHeight] = useState(852);
   const [isCustomMode, setIsCustomMode] = useState(false);
@@ -499,12 +514,61 @@ export default function DeviceSimulator() {
 
   // Devices for Multi-View mode
   const multiViewDevices = useMemo(() => {
+    const mob = DEVICE_CATALOG.find((d) => d.id === multiMobileId) || DEVICE_CATALOG.find((d) => d.category === 'mobile') || DEVICE_CATALOG[0];
+    const tab = DEVICE_CATALOG.find((d) => d.id === multiTabletId) || DEVICE_CATALOG.find((d) => d.category === 'tablet') || DEVICE_CATALOG[6];
+    const desk = DEVICE_CATALOG.find((d) => d.id === multiDesktopId) || DEVICE_CATALOG.find((d) => d.category === 'desktop') || DEVICE_CATALOG[12];
+
     return [
-      { ...DEVICE_CATALOG.find((d) => d.id === 'iphone-15-pro'), label: 'Mobile' },
-      { ...DEVICE_CATALOG.find((d) => d.id === 'ipad-air'), label: 'Tablet' },
-      { ...DEVICE_CATALOG.find((d) => d.id === 'laptop-hd'), label: 'Desktop (Computador)' },
+      {
+        ...mob,
+        slotKey: 'mobile',
+        label: 'Móvil',
+        icon: 'bi-phone',
+        badgeClass: 'badge-range-mobile',
+        zoom: multiZoomMobile,
+        setZoom: setMultiZoomMobile,
+        setId: setMultiMobileId,
+      },
+      {
+        ...tab,
+        slotKey: 'tablet',
+        label: 'Tablet',
+        icon: 'bi-tablet',
+        badgeClass: 'badge-range-tablet',
+        zoom: multiZoomTablet,
+        setZoom: setMultiZoomTablet,
+        setId: setMultiTabletId,
+      },
+      {
+        ...desk,
+        slotKey: 'desktop',
+        label: 'Desktop (Computador)',
+        icon: 'bi-laptop',
+        badgeClass: 'badge-range-desktop',
+        zoom: multiZoomDesktop,
+        setZoom: setMultiZoomDesktop,
+        setId: setMultiDesktopId,
+      },
     ];
-  }, []);
+  }, [multiMobileId, multiTabletId, multiDesktopId, multiZoomMobile, multiZoomTablet, multiZoomDesktop]);
+
+  // Dynamic Scale calculation for each multi-view device
+  const getDeviceScale = (dev) => {
+    if (dev.zoom !== null && dev.zoom !== undefined) {
+      return Math.max(0.2, Math.min(2.0, Math.round(dev.zoom * 100) / 100));
+    }
+    let baseTargetWidth = 360;
+    if (expandedCardKey === dev.slotKey) {
+      baseTargetWidth = 980;
+    } else if (multiLayoutMode === 'scroll') {
+      baseTargetWidth = 480;
+    } else if (multiLayoutMode === 'stacked') {
+      baseTargetWidth = 940;
+    }
+    const autoScale = Math.min(1, baseTargetWidth / dev.width);
+    const effective = autoScale * multiGlobalZoom;
+    return Math.max(0.2, Math.min(2.0, Math.round(effective * 100) / 100));
+  };
 
   return (
     <div className="device-simulator-app container-fluid py-3 px-3 px-lg-4">
@@ -740,6 +804,150 @@ export default function DeviceSimulator() {
                   </div>
                 )}
               </div>
+
+              {/* SECCIÓN MULTI-PANTALLA: CONTROLES CUANDO ESTÁ ACTIVA LA VISTA PARALELA */}
+              {isMultiView && (
+                <div className="sidebar-group mb-4">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <label className="form-label small fw-bold text-muted text-uppercase mb-0">
+                      <i className="bi bi-display-fill me-1 text-primary"></i> Pantallas Multi-Vista
+                    </label>
+                    <span className="badge bg-info-subtle text-info small">3 Activas</span>
+                  </div>
+
+                  {/* Selector Móvil */}
+                  <div className="p-2 mb-2 rounded border bg-surface">
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <span className="small fw-bold d-flex align-items-center gap-1">
+                        <i className="bi bi-phone text-primary"></i> Móvil
+                      </span>
+                      <span className="badge badge-range-mobile small font-monospace">0 - 767 px</span>
+                    </div>
+                    <select
+                      className="form-select form-select-sm"
+                      value={multiMobileId}
+                      onChange={(e) => setMultiMobileId(e.target.value)}
+                    >
+                      {DEVICE_CATALOG.filter((d) => d.category === 'mobile').map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.name} ({d.width} × {d.height} px)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Selector Tablet */}
+                  <div className="p-2 mb-2 rounded border bg-surface">
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <span className="small fw-bold d-flex align-items-center gap-1">
+                        <i className="bi bi-tablet text-warning"></i> Tablet
+                      </span>
+                      <span className="badge badge-range-tablet small font-monospace">768 - 1023 px</span>
+                    </div>
+                    <select
+                      className="form-select form-select-sm"
+                      value={multiTabletId}
+                      onChange={(e) => setMultiTabletId(e.target.value)}
+                    >
+                      {DEVICE_CATALOG.filter((d) => d.category === 'tablet').map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.name} ({d.width} × {d.height} px)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Selector Desktop */}
+                  <div className="p-2 mb-3 rounded border bg-surface">
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <span className="small fw-bold d-flex align-items-center gap-1">
+                        <i className="bi bi-laptop text-success"></i> Desktop
+                      </span>
+                      <span className="badge badge-range-desktop small font-monospace">1024+ px</span>
+                    </div>
+                    <select
+                      className="form-select form-select-sm"
+                      value={multiDesktopId}
+                      onChange={(e) => setMultiDesktopId(e.target.value)}
+                    >
+                      {DEVICE_CATALOG.filter((d) => d.category === 'desktop').map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.name} ({d.width} × {d.height} px)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Control de Zoom y Escala Multi-Vista */}
+                  <div className="p-2 rounded border bg-surface">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <span className="small fw-bold d-flex align-items-center gap-1">
+                        <i className="bi bi-zoom-in text-primary"></i> Zoom Multi-Pantalla
+                      </span>
+                      <span className="badge bg-secondary-subtle text-secondary font-monospace">
+                        {Math.round(multiGlobalZoom * 100)}%
+                      </span>
+                    </div>
+                    <div className="d-flex align-items-center gap-2 mb-2">
+                      <button
+                        type="button"
+                        className="btn btn-xs btn-outline-secondary"
+                        onClick={() => setMultiGlobalZoom((prev) => Math.max(0.5, Math.round((prev - 0.1) * 10) / 10))}
+                        title="Reducir zoom global"
+                      >
+                        <i className="bi bi-dash"></i>
+                      </button>
+                      <input
+                        type="range"
+                        className="form-range flex-grow-1"
+                        min="0.5"
+                        max="1.6"
+                        step="0.05"
+                        value={multiGlobalZoom}
+                        onChange={(e) => setMultiGlobalZoom(parseFloat(e.target.value))}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-xs btn-outline-secondary"
+                        onClick={() => setMultiGlobalZoom((prev) => Math.min(1.6, Math.round((prev + 0.1) * 10) / 10))}
+                        title="Aumentar zoom global"
+                      >
+                        <i className="bi bi-plus"></i>
+                      </button>
+                    </div>
+                    <div className="d-flex gap-1">
+                      <button
+                        type="button"
+                        className="btn btn-xs btn-outline-secondary flex-grow-1"
+                        onClick={() => {
+                          setMultiGlobalZoom(1);
+                          setMultiZoomMobile(null);
+                          setMultiZoomTablet(null);
+                          setMultiZoomDesktop(null);
+                        }}
+                      >
+                        Auto-Fit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-xs btn-outline-secondary flex-grow-1"
+                        onClick={() => setMultiZoomDesktop(0.75)}
+                        title="Zoom 75% en Desktop"
+                      >
+                        Desktop 75%
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-xs btn-outline-secondary flex-grow-1"
+                        onClick={() => setMultiZoomDesktop(1.0)}
+                        title="Zoom 100% en Desktop"
+                      >
+                        Desktop 100%
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* 2. SECCIÓN: RANGOS RESPONSIVE (BREAKPOINTS EXACTOS) */}
               {!isMultiView && (
@@ -1121,26 +1329,49 @@ export default function DeviceSimulator() {
                 </button>
               )}
 
-              {/* Range Badge from Table */}
-              <span className={`badge ${activeBreakpointRange.badgeClass} d-flex align-items-center gap-1`}>
-                <i className={`bi ${activeBreakpointRange.icon}`}></i>
-                <span>{activeBreakpointRange.name}</span>
-                <span className="opacity-75">({activeBreakpointRange.range})</span>
-              </span>
+              {!isMultiView ? (
+                <>
+                  {/* Range Badge from Table */}
+                  <span className={`badge ${activeBreakpointRange.badgeClass} d-flex align-items-center gap-1`}>
+                    <i className={`bi ${activeBreakpointRange.icon}`}></i>
+                    <span>{activeBreakpointRange.name}</span>
+                    <span className="opacity-75">({activeBreakpointRange.range})</span>
+                  </span>
 
-              {/* Exact Dimensions Chip */}
-              <span className="info-chip">
-                <i className="bi bi-aspect-ratio text-primary me-1"></i>
-                <strong>{activeWidth} × {activeHeight} px</strong>
-              </span>
+                  {/* Exact Dimensions Chip */}
+                  <span className="info-chip">
+                    <i className="bi bi-aspect-ratio text-primary me-1"></i>
+                    <strong>{activeWidth} × {activeHeight} px</strong>
+                  </span>
 
-              <span className="info-chip d-none d-sm-inline-flex">
-                Ratio: {(activeWidth / activeHeight).toFixed(2)} ({activeWidth > activeHeight ? 'Horizontal' : 'Vertical'})
-              </span>
+                  <span className="info-chip d-none d-sm-inline-flex">
+                    Ratio: {(activeWidth / activeHeight).toFixed(2)} ({activeWidth > activeHeight ? 'Horizontal' : 'Vertical'})
+                  </span>
 
-              <span className="info-chip font-monospace d-none d-lg-inline-flex">
-                @media (max-width: {activeWidth}px)
-              </span>
+                  <span className="info-chip font-monospace d-none d-lg-inline-flex">
+                    @media (max-width: {activeWidth}px)
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="badge bg-info text-dark d-flex align-items-center gap-1">
+                    <i className="bi bi-columns-gap"></i>
+                    <span>Vista Paralela (3 Pantallas)</span>
+                  </span>
+                  <span className="info-chip">
+                    <i className="bi bi-phone text-primary me-1"></i>
+                    <strong>{multiViewDevices[0]?.name?.split(' ')[0]}: {multiViewDevices[0]?.width}px</strong>
+                  </span>
+                  <span className="info-chip">
+                    <i className="bi bi-tablet text-warning me-1"></i>
+                    <strong>{multiViewDevices[1]?.name?.split(' ')[0]}: {multiViewDevices[1]?.width}px</strong>
+                  </span>
+                  <span className="info-chip">
+                    <i className="bi bi-laptop text-success me-1"></i>
+                    <strong>Desktop: {multiViewDevices[2]?.width}px</strong>
+                  </span>
+                </>
+              )}
 
               {/* Touch & Drag Active Badge */}
               <span className="badge bg-success-subtle text-success border border-success-subtle d-flex align-items-center gap-1" title="Toques táctiles, deslizamiento horizontal y clics habilitados">
@@ -1345,59 +1576,333 @@ export default function DeviceSimulator() {
           ) : (
             /* Multi-Device Parallel View inside Right Canvas */
             <div className="multi-view-container p-3">
-              <div className="row g-3 justify-content-center">
-                {multiViewDevices.map((dev) => (
-                  <div key={dev.id} className="col-12 col-xl-4 col-lg-6 d-flex flex-column align-items-center">
-                    <div className="multi-device-card w-100 p-3 rounded shadow-sm">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <div className="d-flex align-items-center gap-2">
-                          <i className={`bi ${dev.icon} text-primary fs-5`}></i>
-                          <div>
-                            <div className="fw-bold small">{dev.label}</div>
-                            <div className="small text-muted">{dev.name}</div>
-                          </div>
-                        </div>
-                        <span className="badge bg-dark-subtle text-body font-monospace">
-                          {dev.width} × {dev.height} px
-                        </span>
-                      </div>
+              {/* Multi-View Toolbar: Global Zoom & Layout Controls */}
+              <div className="multi-view-toolbar p-2 px-3 mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                {/* Global Zoom controls */}
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                  <span className="small fw-bold text-muted d-flex align-items-center gap-1">
+                    <i className="bi bi-zoom-in text-primary"></i> Zoom Multi-Pantalla:
+                  </span>
+                  <div className="btn-group btn-group-sm" role="group">
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => setMultiGlobalZoom((prev) => Math.max(0.4, Math.round((prev - 0.1) * 10) / 10))}
+                      title="Reducir zoom global"
+                    >
+                      <i className="bi bi-dash"></i>
+                    </button>
+                    <span className="input-group-text bg-body-tertiary px-2 py-0 small font-monospace d-flex align-items-center">
+                      {Math.round(multiGlobalZoom * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => setMultiGlobalZoom((prev) => Math.min(2.0, Math.round((prev + 0.1) * 10) / 10))}
+                      title="Aumentar zoom global"
+                    >
+                      <i className="bi bi-plus"></i>
+                    </button>
+                  </div>
 
-                      <div
-                        className="multi-screen-container"
-                        style={{
-                          height: '520px',
-                          overflow: 'hidden',
-                          position: 'relative',
-                        }}
+                  {/* Preset quick buttons */}
+                  <div className="btn-group btn-group-xs" role="group">
+                    {[
+                      {
+                        label: 'Auto-Fit',
+                        action: () => {
+                          setMultiGlobalZoom(1);
+                          setMultiZoomMobile(null);
+                          setMultiZoomTablet(null);
+                          setMultiZoomDesktop(null);
+                        },
+                      },
+                      { label: 'Desktop 50%', action: () => setMultiZoomDesktop(0.5) },
+                      { label: 'Desktop 75%', action: () => setMultiZoomDesktop(0.75) },
+                      { label: 'Desktop 100%', action: () => setMultiZoomDesktop(1.0) },
+                    ].map((preset) => (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        className="btn btn-xs btn-outline-secondary"
+                        onClick={preset.action}
                       >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Layout and Height controls */}
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                  {/* Layout Mode */}
+                  <div className="d-flex align-items-center gap-1">
+                    <span className="small text-muted d-none d-md-inline">Diseño:</span>
+                    <div className="btn-group btn-group-sm" role="group">
+                      <button
+                        type="button"
+                        className={`btn ${multiLayoutMode === 'grid' ? 'btn-primary' : 'btn-outline-secondary'} btn-sm`}
+                        onClick={() => setMultiLayoutMode('grid')}
+                        title="3 Columnas en Cuadrícula"
+                      >
+                        <i className="bi bi-grid-3x3-gap me-1"></i>
+                        <span className="d-none d-lg-inline">Grid</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`btn ${multiLayoutMode === 'scroll' ? 'btn-primary' : 'btn-outline-secondary'} btn-sm`}
+                        onClick={() => setMultiLayoutMode('scroll')}
+                        title="Tarjetas amplias con desplazamiento horizontal"
+                      >
+                        <i className="bi bi-arrows-expand me-1"></i>
+                        <span className="d-none d-lg-inline">Scroll Amplio</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`btn ${multiLayoutMode === 'stacked' ? 'btn-primary' : 'btn-outline-secondary'} btn-sm`}
+                        onClick={() => setMultiLayoutMode('stacked')}
+                        title="Tarjetas apiladas de ancho completo"
+                      >
+                        <i className="bi bi-view-stacked me-1"></i>
+                        <span className="d-none d-lg-inline">Apilado</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Viewer height */}
+                  <div className="d-flex align-items-center gap-1">
+                    <span className="small text-muted d-none d-md-inline">Altura:</span>
+                    <div className="btn-group btn-group-sm" role="group">
+                      {[
+                        { h: 520, label: '520px' },
+                        { h: 660, label: '660px' },
+                        { h: 800, label: '800px' },
+                      ].map((item) => (
+                        <button
+                          key={item.h}
+                          type="button"
+                          className={`btn ${multiViewerHeight === item.h ? 'btn-primary' : 'btn-outline-secondary'} btn-sm`}
+                          onClick={() => setMultiViewerHeight(item.h)}
+                          title={`Ajustar altura a ${item.label}`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Reset defaults button */}
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => {
+                      setMultiMobileId('iphone-15-pro');
+                      setMultiTabletId('ipad-air');
+                      setMultiDesktopId('laptop-hd');
+                      setMultiZoomMobile(null);
+                      setMultiZoomTablet(null);
+                      setMultiZoomDesktop(null);
+                      setMultiGlobalZoom(1);
+                      setMultiLayoutMode('grid');
+                      setMultiViewerHeight(580);
+                      setExpandedCardKey(null);
+                    }}
+                    title="Restablecer pantallas y zoom por defecto"
+                  >
+                    <i className="bi bi-arrow-counterclockwise"></i>
+                  </button>
+                </div>
+              </div>
+
+              {/* Multi-Device Cards */}
+              <div
+                className={
+                  multiLayoutMode === 'scroll'
+                    ? 'multi-layout-scroll-row'
+                    : multiLayoutMode === 'stacked'
+                    ? 'row g-3'
+                    : 'row g-3 justify-content-center'
+                }
+              >
+                {multiViewDevices.map((dev) => {
+                  const scale = getDeviceScale(dev);
+                  const scaledW = Math.round(dev.width * scale);
+                  const scaledH = Math.round(dev.height * scale);
+                  const isExpanded = expandedCardKey === dev.slotKey;
+
+                  let colClass = 'col-12 col-xl-4 col-lg-6 d-flex flex-column align-items-center';
+                  if (multiLayoutMode === 'scroll') {
+                    colClass = 'multi-card-scroll-col d-flex flex-column align-items-center';
+                  } else if (multiLayoutMode === 'stacked') {
+                    colClass = 'col-12 d-flex flex-column align-items-center';
+                  } else if (expandedCardKey) {
+                    colClass = isExpanded
+                      ? 'col-12 d-flex flex-column align-items-center'
+                      : 'col-12 col-md-6 d-flex flex-column align-items-center';
+                  }
+
+                  return (
+                    <div key={dev.slotKey} className={colClass}>
+                      <div className={`multi-device-card w-100 p-3 rounded shadow-sm ${isExpanded ? 'multi-card-expanded' : ''}`}>
+                        {/* Card Header Top Row: Category + Select Dropdown + Dimensions */}
+                        <div className="d-flex justify-content-between align-items-center gap-2 mb-2 flex-wrap">
+                          <div className="d-flex align-items-center gap-2 flex-grow-1 min-w-0">
+                            <i className={`bi ${dev.icon} text-primary fs-5 flex-shrink-0`}></i>
+                            <div className="flex-grow-1 min-w-0">
+                              <select
+                                className="form-select form-select-sm multi-device-select"
+                                value={dev.id}
+                                onChange={(e) => dev.setId(e.target.value)}
+                                aria-label={`Seleccionar pantalla para ${dev.label}`}
+                              >
+                                <optgroup label="📱 Móviles (0 - 767 px)">
+                                  {DEVICE_CATALOG.filter((d) => d.category === 'mobile').map((d) => (
+                                    <option key={d.id} value={d.id}>
+                                      {d.name} ({d.width} × {d.height} px)
+                                    </option>
+                                  ))}
+                                </optgroup>
+                                <optgroup label="💻 Tablets (768 - 1023 px)">
+                                  {DEVICE_CATALOG.filter((d) => d.category === 'tablet').map((d) => (
+                                    <option key={d.id} value={d.id}>
+                                      {d.name} ({d.width} × {d.height} px)
+                                    </option>
+                                  ))}
+                                </optgroup>
+                                <optgroup label="🖥️ Desktop (1024+ px)">
+                                  {DEVICE_CATALOG.filter((d) => d.category === 'desktop').map((d) => (
+                                    <option key={d.id} value={d.id}>
+                                      {d.name} ({d.width} × {d.height} px)
+                                    </option>
+                                  ))}
+                                </optgroup>
+                              </select>
+                            </div>
+                          </div>
+
+                          <span className="badge bg-dark-subtle text-body font-monospace flex-shrink-0">
+                            {dev.width} × {dev.height} px
+                          </span>
+                        </div>
+
+                        {/* Card Header Second Row: Zoom & Expand Controls */}
+                        <div className="d-flex justify-content-between align-items-center mb-2 px-1">
+                          <div className="d-flex align-items-center gap-1">
+                            <span className="small text-muted me-1" style={{ fontSize: '0.72rem' }}>Zoom:</span>
+                            <div className="btn-group btn-group-xs" role="group">
+                              <button
+                                type="button"
+                                className="btn btn-xs btn-outline-secondary"
+                                onClick={() => {
+                                  const currentScale = getDeviceScale(dev);
+                                  const nextScale = Math.max(0.2, Math.round((currentScale - 0.1) * 10) / 10);
+                                  dev.setZoom(nextScale);
+                                }}
+                                title="Reducir zoom (-10%)"
+                              >
+                                <i className="bi bi-dash"></i>
+                              </button>
+                              <button
+                                type="button"
+                                className={`btn btn-xs ${dev.zoom !== null ? 'btn-primary' : 'btn-outline-secondary'} px-2 font-monospace`}
+                                onClick={() => {
+                                  const currentScale = getDeviceScale(dev);
+                                  if (dev.zoom === null) dev.setZoom(0.5);
+                                  else if (currentScale <= 0.55) dev.setZoom(0.75);
+                                  else if (currentScale <= 0.8) dev.setZoom(1.0);
+                                  else dev.setZoom(null);
+                                }}
+                                title="Clic para alternar presets (Auto / 50% / 75% / 100%)"
+                              >
+                                {dev.zoom === null ? `Auto (${Math.round(scale * 100)}%)` : `${Math.round(scale * 100)}%`}
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-xs btn-outline-secondary"
+                                onClick={() => {
+                                  const currentScale = getDeviceScale(dev);
+                                  const nextScale = Math.min(1.8, Math.round((currentScale + 0.1) * 10) / 10);
+                                  dev.setZoom(nextScale);
+                                }}
+                                title="Aumentar zoom (+10%)"
+                              >
+                                <i className="bi bi-plus"></i>
+                              </button>
+                            </div>
+
+                            {dev.zoom !== null && (
+                              <button
+                                type="button"
+                                className="btn btn-xs btn-outline-info ms-1"
+                                onClick={() => dev.setZoom(null)}
+                                title="Restablecer a Auto-Fit"
+                              >
+                                Auto
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Expand Card Button */}
+                          <button
+                            type="button"
+                            className={`btn btn-xs ${isExpanded ? 'btn-warning' : 'btn-outline-secondary'}`}
+                            onClick={() => setExpandedCardKey(isExpanded ? null : dev.slotKey)}
+                            title={isExpanded ? 'Restaurar ancho normal' : 'Expandir tarjeta a ancho completo'}
+                          >
+                            <i className={`bi ${isExpanded ? 'bi-arrows-angle-contract' : 'bi-arrows-angle-expand'}`}></i>
+                            <span className="ms-1 d-none d-sm-inline">{isExpanded ? 'Contraer' : 'Expandir'}</span>
+                          </button>
+                        </div>
+
+                        {/* Screen Simulation Box */}
                         <div
+                          className="multi-screen-container"
                           style={{
-                            transform: `scale(${Math.min(1, 350 / dev.width)})`,
-                            transformOrigin: 'top center',
-                            width: `${dev.width}px`,
-                            height: `${dev.height}px`,
-                            margin: '0 auto',
+                            height: `${multiViewerHeight}px`,
+                            position: 'relative',
                           }}
                         >
-                          <iframe
-                            key={`${refreshKey}-${dev.id}-${simulatedTheme}-${enableSandbox}`}
-                            src={effectiveUrl}
-                            title={`Multi-View ${dev.name}`}
-                            className={`device-iframe border rounded shadow theme-${simulatedTheme}`}
-                            style={{ width: `${dev.width}px`, height: `${dev.height}px`, colorScheme: simulatedTheme }}
-                            allow="accelerometer; ambient-light-sensor; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; fullscreen; geolocation; gyroscope; microphone; midi; payment; picture-in-picture; usb; wake-lock; screen-wake-lock; web-share"
-                            {...(enableSandbox
-                              ? {
-                                  sandbox:
-                                    'allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads allow-presentation allow-pointer-lock allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-storage-access-by-user-activation',
-                                }
-                              : {})}
-                          />
+                          <div
+                            className="multi-screen-sizer"
+                            style={{
+                              width: `${scaledW}px`,
+                              height: `${scaledH}px`,
+                              margin: '0 auto',
+                              transition: 'width 0.2s ease, height 0.2s ease',
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: `${dev.width}px`,
+                                height: `${dev.height}px`,
+                                transform: `scale(${scale})`,
+                                transformOrigin: 'top left',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                              }}
+                            >
+                              <iframe
+                                key={`${refreshKey}-${dev.id}-${simulatedTheme}-${enableSandbox}`}
+                                src={effectiveUrl}
+                                title={`Multi-View ${dev.name}`}
+                                className={`device-iframe border rounded shadow theme-${simulatedTheme}`}
+                                style={{ width: `${dev.width}px`, height: `${dev.height}px`, colorScheme: simulatedTheme }}
+                                allow="accelerometer; ambient-light-sensor; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; fullscreen; geolocation; gyroscope; microphone; midi; payment; picture-in-picture; usb; wake-lock; screen-wake-lock; web-share"
+                                {...(enableSandbox
+                                  ? {
+                                      sandbox:
+                                        'allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads allow-presentation allow-pointer-lock allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-storage-access-by-user-activation',
+                                    }
+                                  : {})}
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
