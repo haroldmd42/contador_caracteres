@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../../constants/routes';
 import './Footer.css';
 
 /**
- * Floating footer with a link to the developer's LinkedIn profile.
+ * Floating footer branding icon.
  * Renders as a small circular avatar button at the bottom-left.
  */
 export default function Footer() {
@@ -11,10 +12,9 @@ export default function Footer() {
   return (
     <footer className="footer fixed-bottom">
       <Link
-        to="https://www.linkedin.com/in/yan-harold-muñoz-dominguez-44a2a6b9"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Perfil de LinkedIn del desarrollador"
+        to={ROUTES.HOME}
+        aria-label="Ir a Inicio - QATOOLS"
+        title="QATOOLS - Herramientas QA"
       >
         <img className="footer-img" src={logoSrc} alt="QATOOLS Logo" />
       </Link>

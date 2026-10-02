@@ -1,7 +1,38 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { getProxyFrameUrl } from '../../services/apiService';
+import { getProxyFrameUrl, isProxyBackendLocal } from '../../services/apiService';
 import { useTheme } from '../../context/ThemeContext';
 import './DeviceSimulator.css';
+
+/**
+ * Detects if a URL points to localhost or private intranet IP ranges.
+ * This is crucial for multi-company QA testing: external cloud proxies
+ * cannot access local network servers, and sending internal URLs to external proxies
+ * violates corporate data privacy policies.
+ */
+export function isLocalOrIntranetUrl(url) {
+  if (!url) return false;
+  try {
+    const clean = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+    const hostname = new URL(clean).hostname.toLowerCase();
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' || hostname.endsWith('.localhost')) {
+      return true;
+    }
+    if (hostname.endsWith('.local') || hostname.endsWith('.internal') || hostname.endsWith('.test') || hostname.endsWith('.corp')) {
+      return true;
+    }
+    if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+    if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+    const match172 = hostname.match(/^172\.(\d{1,3})\.\d{1,3}\.\d{1,3}$/);
+    if (match172) {
+      const secondOctet = parseInt(match172[1], 10);
+      if (secondOctet >= 16 && secondOctet <= 31) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Standard Responsive Breakpoint Definitions based on QA Specs:
@@ -410,11 +441,19 @@ export default function DeviceSimulator() {
     }
   }, [activeWidth]);
 
+  // Determine if active URL is local / intranet and if proxy backend is local
+  const isTargetLocal = useMemo(() => isLocalOrIntranetUrl(activeUrl), [activeUrl]);
+  const isBackendLocal = useMemo(() => isProxyBackendLocal(), []);
+
   // Compute final effective URL based on direct vs proxy mode
+  // If target URL is local/intranet but proxy backend is remote in the cloud,
+  // we automatically load directly in the browser to avoid timeout and protect internal network privacy.
+  const isProxyApplicable = useProxy && (!isTargetLocal || isBackendLocal);
+
   const effectiveUrl = useMemo(() => {
     if (!activeUrl) return '';
-    return useProxy ? getProxyFrameUrl(activeUrl, simulatedTheme, scrollbarMode) : activeUrl;
-  }, [activeUrl, useProxy, simulatedTheme, scrollbarMode]);
+    return isProxyApplicable ? getProxyFrameUrl(activeUrl, simulatedTheme, scrollbarMode) : activeUrl;
+  }, [activeUrl, isProxyApplicable, simulatedTheme, scrollbarMode]);
 
   // Auto-fit computation (re-runs when sidebar opens/closes, zoom changes, or dimensions change)
   useEffect(() => {
@@ -800,6 +839,18 @@ export default function DeviceSimulator() {
                     </div>
                     <div className="text-muted" style={{ fontSize: '0.72rem' }}>
                       Sitios con <code>X-Frame-Options</code> bloquean iframes. El Proxy QA remueve esa restricción.
+                    </div>
+                  </div>
+                )}
+
+                {/* Localhost / Intranet Notice */}
+                {isTargetLocal && !isBackendLocal && (
+                  <div className="alert alert-info py-2 px-2 small mt-2 mb-0 rounded border-0 shadow-sm">
+                    <div className="fw-bold d-flex align-items-center gap-1 text-info-emphasis mb-1" style={{ fontSize: '0.78rem' }}>
+                      <i className="bi bi-shield-check"></i> Red Local / Intranet detectada
+                    </div>
+                    <div className="text-muted" style={{ fontSize: '0.72rem' }}>
+                      Cargando en <strong>Modo Directo</strong> para proteger la privacidad de tu empresa y porque los servidores en la nube no pueden acceder a tu localhost o red interna.
                     </div>
                   </div>
                 )}
@@ -1379,9 +1430,17 @@ export default function DeviceSimulator() {
                 <span>Touch & Drag Activo</span>
               </span>
 
-              {useProxy && (
+              {isProxyApplicable ? (
                 <span className="badge bg-warning text-dark d-flex align-items-center gap-1">
                   <i className="bi bi-shield-check"></i> Proxy QA + Swipe
+                </span>
+              ) : isTargetLocal ? (
+                <span className="badge bg-info text-dark d-flex align-items-center gap-1" title="Cargando en modo directo local para proteger tu red y permitir acceso a localhost">
+                  <i className="bi bi-hdd-network"></i> Modo Directo (Local)
+                </span>
+              ) : (
+                <span className="badge bg-secondary text-white d-flex align-items-center gap-1" title="Cargando sin proxy">
+                  <i className="bi bi-globe"></i> Modo Directo
                 </span>
               )}
 
