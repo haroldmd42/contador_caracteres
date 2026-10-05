@@ -92,7 +92,7 @@ export async function exportToExcel(textResult, mode = "gherkin", framework = "c
     const rawLine = lines[i];
     const line = rawLine.trim();
 
-    if (!title && (line.includes("Título:") || line.startsWith("# ") || line.startsWith("## ") || line.startsWith("**HU-") || line.startsWith("**US-") || (line.includes(" - ") && !line.includes("|")))) {
+    if (!title && (line.includes("Título:") || line.startsWith("# ") || line.startsWith("## ") || line.startsWith("**HU-") || line.startsWith("**US-") || (line.includes(" - ") && !line.includes("|")) || (line.includes(" — ") && !line.includes("|")))) {
       title = line
         .replace(/^#+\s*/, "")
         .replace(/^-\s*\*\*Título:\*\*\s*/i, "")
@@ -131,11 +131,19 @@ export async function exportToExcel(textResult, mode = "gherkin", framework = "c
         };
         tables.push(currentTable);
       } else {
-        currentTable.rows.push(cells);
+        const cleanCells = cells.map(c => c.replace(/<br\s*\/?>/gi, "\n"));
+        currentTable.rows.push(cleanCells);
       }
     } else {
-      if (currentTable && currentTable.rows.length > 0) {
-        currentTable.isComplete = true;
+      if (line.startsWith("#") || line.startsWith("---") || line.toUpperCase().includes("ENUNCIADOS DE CASOS")) {
+        if (currentTable && currentTable.rows.length > 0) {
+          currentTable.isComplete = true;
+        }
+      } else if (currentTable && currentTable.rows.length > 0 && line.length > 0 && !line.startsWith("|")) {
+        const lastRow = currentTable.rows[currentTable.rows.length - 1];
+        if (lastRow && lastRow.length > 2) {
+          lastRow[2] += "\n" + line.replace(/\|/g, "").trim();
+        }
       }
     }
   }
