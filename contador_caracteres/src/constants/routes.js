@@ -21,5 +21,7 @@ export const ROUTES = {
   REGEX_TESTER: '/regex-tester',
   CONTRAST_CHECKER: '/contrast-checker',
   DEVICE_SIMULATOR: '/simulador-pantallas',
+  COURSES: '/cursos',
+  COURSE_DETAIL: '/cursos/:courseId',
 };
 

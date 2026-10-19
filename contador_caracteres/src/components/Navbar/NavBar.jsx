@@ -50,8 +50,16 @@ export default function NavBar() {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to={ROUTES.FILE_LIBRARY}>
-                <i className="bi bi-folder2-open me-1"></i> Biblioteca
+              <Link className="nav-link" to={ROUTES.DEVICE_SIMULATOR}>
+                <i className="bi bi-phone-landscape me-1"></i> Simulador
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className="nav-link fw-semibold d-flex align-items-center" to={ROUTES.COURSES}>
+                <i className="bi bi-mortarboard-fill me-1 text-info"></i>
+                <span>Cursos QA</span>
+                <span className="badge bg-primary rounded-pill ms-1.5" style={{ fontSize: '0.65rem', padding: '0.2rem 0.45rem' }}>Nuevo</span>
               </Link>
             </li>
 
@@ -66,55 +74,79 @@ export default function NavBar() {
               >
                 <i className="bi bi-grid-3x3-gap me-1"></i> Más herramientas
               </a>
-              <div className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-                <span className="dropdown-header text-uppercase small text-muted fw-bold">Pruebas QA & Datos</span>
-                <Link className="dropdown-item" to={ROUTES.MOCK_DATA}>
-                  <i className="bi bi-person-vcard me-2 text-primary"></i> Generador Datos QA (Faker)
-                </Link>
-                <Link className="dropdown-item" to={ROUTES.DIFF_CHECKER}>
-                  <i className="bi bi-file-diff me-2 text-warning"></i> Comparador Diff (Text/JSON)
-                </Link>
-                <Link className="dropdown-item" to={ROUTES.REGEX_TESTER}>
-                  <i className="bi bi-regex me-2 text-info"></i> Evaluador Regex
-                </Link>
-                <Link className="dropdown-item" to={ROUTES.DEVICE_SIMULATOR}>
-                  <i className="bi bi-phone-landscape me-2 text-primary"></i> Simulador Responsive (Pantallas)
-                </Link>
-                <div className="dropdown-divider"></div>
-                <span className="dropdown-header text-uppercase small text-muted fw-bold">Desarrollo & Seguridad API</span>
-                <Link className="dropdown-item" to={ROUTES.JWT_DECODER}>
-                  <i className="bi bi-key-fill me-2 text-success"></i> Inspector JWT
-                </Link>
-                <Link className="dropdown-item" to={ROUTES.DATA_CONVERTER}>
-                  <i className="bi bi-arrow-left-right me-2 text-primary"></i> Convertidor de Datos (JSON/XML)
-                </Link>
-                <Link className="dropdown-item" to={ROUTES.ENCODER}>
-                  <i className="bi bi-shield-lock me-2 text-danger"></i> Encoder / Decoder
-                </Link>
-                <div className="dropdown-divider"></div>
-                <span className="dropdown-header text-uppercase small text-muted fw-bold">Multimedia & Conversión</span>
-                <Link className="dropdown-item" to={ROUTES.IMAGE_BASE64}>
-                  <i className="bi bi-file-earmark-code me-2 text-warning"></i> Imagen Base64
-                </Link>
-                <Link className="dropdown-item" to={ROUTES.IMAGE_RESIZER}>
-                  <i className="bi bi-aspect-ratio me-2 text-success"></i> Redimensionar Imagen
-                </Link>
-                <Link className="dropdown-item" to={ROUTES.CONTRAST_CHECKER}>
-                  <i className="bi bi-eye me-2 text-info"></i> Accesibilidad WCAG
-                </Link>
-                <div className="dropdown-divider"></div>
-                <Link className="dropdown-item" to={ROUTES.FILE_CONVERTER}>
-                  <i className="bi bi-file-earmark-arrow-up me-2 text-info"></i> Convertidor de archivos
-                </Link>
-                <Link className="dropdown-item" to={ROUTES.IMAGE_CONVERTER}>
-                  <i className="bi bi-image me-2 text-warning"></i> Convertidor de imagen
-                </Link>
-                <Link className="dropdown-item" to={ROUTES.VIDEO_CONVERTER}>
-                  <i className="bi bi-film me-2 text-danger"></i> Convertidor de video
-                </Link>
-                <Link className="dropdown-item" to={ROUTES.AUDIO_CONVERTER}>
-                  <i className="bi bi-music-note-beamed me-2 text-success"></i> Convertidor de audio
-                </Link>
+              <div className="dropdown-menu dropdown-menu-end navbar-tools-menu shadow-lg" aria-labelledby="navbarDropdownMenuLink">
+                <div className="navbar-tools-grid">
+                  {/* Columna 1: Pruebas QA & Datos + Desarrollo API */}
+                  <div className="navbar-tools-col">
+                    <span className="dropdown-header tools-category-header">
+                      <i className="bi bi-check2-circle me-1 text-primary"></i> Pruebas QA & Datos
+                    </span>
+                    <Link className="dropdown-item fw-semibold" to={ROUTES.COURSES}>
+                      <i className="bi bi-mortarboard-fill me-2 text-info"></i> Academia & Cursos QA (ISTQB)
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.MOCK_DATA}>
+                      <i className="bi bi-person-vcard me-2 text-primary"></i> Generador Datos QA (Faker)
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.DIFF_CHECKER}>
+                      <i className="bi bi-file-diff me-2 text-warning"></i> Comparador Diff (Text/JSON)
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.REGEX_TESTER}>
+                      <i className="bi bi-regex me-2 text-info"></i> Evaluador Regex
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.FILE_LIBRARY}>
+                      <i className="bi bi-folder2-open me-2 text-success"></i> Biblioteca de archivos
+                    </Link>
+
+                    <div className="dropdown-divider"></div>
+
+                    <span className="dropdown-header tools-category-header">
+                      <i className="bi bi-code-slash me-1 text-success"></i> Desarrollo & Seguridad API
+                    </span>
+                    <Link className="dropdown-item" to={ROUTES.JWT_DECODER}>
+                      <i className="bi bi-key-fill me-2 text-success"></i> Inspector JWT
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.DATA_CONVERTER}>
+                      <i className="bi bi-arrow-left-right me-2 text-primary"></i> Convertidor de Datos (JSON/XML)
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.ENCODER}>
+                      <i className="bi bi-shield-lock me-2 text-danger"></i> Encoder / Decoder
+                    </Link>
+                  </div>
+
+                  {/* Columna 2: Multimedia & Conversión */}
+                  <div className="navbar-tools-col">
+                    <span className="dropdown-header tools-category-header">
+                      <i className="bi bi-file-earmark-play me-1 text-warning"></i> Multimedia & Conversión
+                    </span>
+                    <Link className="dropdown-item" to={ROUTES.IMAGE_BASE64}>
+                      <i className="bi bi-file-earmark-code me-2 text-warning"></i> Imagen Base64
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.IMAGE_RESIZER}>
+                      <i className="bi bi-aspect-ratio me-2 text-success"></i> Redimensionar Imagen
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.CONTRAST_CHECKER}>
+                      <i className="bi bi-eye me-2 text-info"></i> Accesibilidad WCAG
+                    </Link>
+
+                    <div className="dropdown-divider"></div>
+
+                    <span className="dropdown-header tools-category-header">
+                      <i className="bi bi-arrow-repeat me-1 text-info"></i> Convertidores de Archivos
+                    </span>
+                    <Link className="dropdown-item" to={ROUTES.FILE_CONVERTER}>
+                      <i className="bi bi-file-earmark-arrow-up me-2 text-info"></i> Convertidor de archivos
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.IMAGE_CONVERTER}>
+                      <i className="bi bi-image me-2 text-warning"></i> Convertidor de imagen
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.VIDEO_CONVERTER}>
+                      <i className="bi bi-film me-2 text-danger"></i> Convertidor de video
+                    </Link>
+                    <Link className="dropdown-item" to={ROUTES.AUDIO_CONVERTER}>
+                      <i className="bi bi-music-note-beamed me-2 text-success"></i> Convertidor de audio
+                    </Link>
+                  </div>
+                </div>
               </div>
             </li>
 

@@ -25,6 +25,8 @@ import DataConverter from './pages/DataConverter/DataConverter';
 import RegexTester from './pages/RegexTester/RegexTester';
 import ContrastChecker from './pages/ContrastChecker/ContrastChecker';
 import DeviceSimulator from './pages/DeviceSimulator/DeviceSimulator';
+import CoursesCatalog from './pages/Courses/CoursesCatalog';
+import CourseViewer from './pages/Courses/CourseViewer';
 
 /**
  * Root application component.
@@ -54,6 +56,8 @@ export default function App() {
             <Route path={ROUTES.REGEX_TESTER} element={<RegexTester />} />
             <Route path={ROUTES.CONTRAST_CHECKER} element={<ContrastChecker />} />
             <Route path={ROUTES.DEVICE_SIMULATOR} element={<DeviceSimulator />} />
+            <Route path={ROUTES.COURSES} element={<CoursesCatalog />} />
+            <Route path={ROUTES.COURSE_DETAIL} element={<CourseViewer />} />
           </Route>
         </Routes>
       </HashRouter>

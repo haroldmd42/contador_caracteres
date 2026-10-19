@@ -1,0 +1,812 @@
+/* 🎓 QATOOLS Academia & Courses Design System */
+/* High-Contrast, Ergonomic Typography & Premium Aesthetic for QA Learning */
+
+.courses-catalog-page {
+  min-height: calc(100vh - 140px);
+  padding-bottom: 60px;
+}
+
+.course-viewer-page {
+  min-height: calc(100vh - 140px);
+  padding-top: 68px;
+  padding-bottom: 60px;
+  background-color: #f1f5f9; /* Subtle contrast so white cards pop */
+  transition: background-color 0.3s ease;
+}
+
+[data-theme="dark"] .course-viewer-page {
+  background-color: #090d16;
+}
+
+/* 🌌 High-Contrast Typography Foundations */
+.body-text {
+  font-size: 0.98rem;
+  line-height: 1.72;
+  margin-bottom: 0.75rem;
+}
+
+[data-theme="light"] .body-text {
+  color: #1e293b !important; /* Deep Slate 800 */
+}
+
+[data-theme="dark"] .body-text {
+  color: #e2e8f0 !important; /* Slate 200 */
+}
+
+.lead-subtext {
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+
+.section-heading {
+  letter-spacing: -0.02em;
+}
+
+[data-theme="light"] .section-heading,
+[data-theme="light"] .text-contrast-primary {
+  color: #0f172a !important; /* Deep Navy Slate */
+}
+
+[data-theme="dark"] .section-heading,
+[data-theme="dark"] .text-contrast-primary {
+  color: #f8fafc !important;
+}
+
+/* 🎯 Hero Section */
+.courses-hero-section {
+  background: var(--bg-hero);
+  border-bottom: 1px solid var(--border-color);
+  padding-top: 100px;
+  padding-bottom: 50px;
+}
+
+.feature-icon-pill {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 🌟 Featured Course Card */
+.featured-course-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+}
+
+[data-theme="dark"] .featured-course-card {
+  border-color: #334155;
+  background: #111827;
+}
+
+.featured-course-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover) !important;
+}
+
+.course-card-accent-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+}
+
+.graphic-icon-ring {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 2px dashed var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 🧭 Top Bar */
+.course-viewer-topbar {
+  background: #ffffff;
+  position: sticky;
+  top: 66px;
+  z-index: 1020;
+  backdrop-filter: blur(12px);
+  border-bottom: 1.5px solid #cbd5e1;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .course-viewer-topbar {
+  background: #111827;
+  border-bottom-color: #334155;
+}
+
+.sticky-sidebar {
+  position: sticky;
+  top: 135px;
+  max-height: calc(100vh - 155px);
+  overflow-y: auto;
+}
+
+/* 📑 Sidebar Styling (High Contrast & Clear Depth) */
+.course-sidebar-card {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="dark"] .course-sidebar-card {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+.sidebar-header {
+  border-bottom: 1.5px solid #cbd5e1 !important;
+}
+
+[data-theme="dark"] .sidebar-header {
+  border-bottom-color: #334155 !important;
+}
+
+.sidebar-header span.fw-bold {
+  color: #0f172a !important;
+  letter-spacing: 0.04em;
+}
+
+[data-theme="dark"] .sidebar-header span.fw-bold {
+  color: #f8fafc !important;
+}
+
+/* Module item in sidebar */
+.module-group {
+  border: 1.5px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .module-group {
+  border-color: #334155 !important;
+  background: #1e293b !important;
+}
+
+.module-group-btn {
+  background: transparent !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+  font-size: 0.92rem;
+  padding: 11px 14px !important;
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .module-group-btn {
+  color: #f1f5f9 !important;
+}
+
+.module-group-btn:hover {
+  background: #eef2ff !important;
+  color: #312e81 !important;
+}
+
+[data-theme="dark"] .module-group-btn:hover {
+  background: #334155 !important;
+  color: #38bdf8 !important;
+}
+
+.module-group-btn.active-module {
+  background: #e0e7ff !important;
+  color: #312e81 !important;
+  border-left: 5px solid #4f46e5 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .module-group-btn.active-module {
+  background: rgba(99, 102, 241, 0.25) !important;
+  color: #818cf8 !important;
+  border-left: 5px solid #818cf8 !important;
+}
+
+/* Topic sub-buttons */
+.topics-sublist {
+  background: #ffffff !important;
+  border-top: 1.5px solid #cbd5e1 !important;
+  padding: 8px !important;
+}
+
+[data-theme="dark"] .topics-sublist {
+  background: #0f172a !important;
+  border-top-color: #334155 !important;
+}
+
+.topic-sub-btn {
+  background: #f8fafc !important;
+  color: #1e293b !important;
+  border: 1px solid #e2e8f0 !important;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  font-weight: 500;
+  margin-bottom: 4px;
+  border-radius: 8px !important;
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .topic-sub-btn {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-color: #334155 !important;
+}
+
+.topic-sub-btn:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .topic-sub-btn:hover {
+  background: #334155 !important;
+  color: #ffffff !important;
+}
+
+.topic-sub-btn.active-topic {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border-color: #4338ca !important;
+  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.3) !important;
+}
+
+.topic-sub-btn.active-topic .bi-circle {
+  color: #ffffff !important;
+}
+
+/* 🏷️ Special Links in Sidebar */
+.sidebar-special-links .module-group-btn {
+  border-radius: 10px !important;
+}
+
+/* 🎛️ Navigation Pills (CRITICAL FIX FOR INVISIBLE TABS) */
+.course-view-tabs {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="dark"] .course-view-tabs {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+/* Force high contrast on ALL nav pills so inactive tabs are NEVER white on light */
+.course-view-tabs .nav-pills .nav-link {
+  color: #1e293b !important; /* Dark Slate */
+  background: #f1f5f9 !important; /* Soft distinct button */
+  border: 1.5px solid #cbd5e1 !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .course-view-tabs .nav-pills .nav-link {
+  color: #e2e8f0 !important;
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.course-view-tabs .nav-pills .nav-link:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .course-view-tabs .nav-pills .nav-link:hover {
+  background: #334155 !important;
+  color: #ffffff !important;
+}
+
+.course-view-tabs .nav-pills .nav-link.active {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border-color: #4338ca !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35) !important;
+}
+
+/* 🎙️ Speech Synthesis Toolbar */
+.course-speech-toolbar {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 40px;
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .course-speech-toolbar {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.course-speech-toolbar.active-reading {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.35) !important;
+  background: rgba(99, 102, 241, 0.12) !important;
+}
+
+.toolbar-title {
+  color: #0f172a !important;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+[data-theme="dark"] .toolbar-title {
+  color: #f8fafc !important;
+}
+
+.toolbar-status {
+  color: #475569 !important;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .toolbar-status {
+  color: #94a3b8 !important;
+}
+
+.soundwave-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+  width: 16px;
+}
+
+.wave-bar {
+  width: 3px;
+  background-color: var(--accent-primary);
+  border-radius: 2px;
+  height: 6px;
+  transition: height 0.2s ease;
+}
+
+.wave-bar.bar-1 { height: 8px; }
+.wave-bar.bar-2 { height: 14px; }
+.wave-bar.bar-3 { height: 10px; }
+
+.wave-bar.anim {
+  animation: soundwave-pulse 0.9s infinite ease-in-out alternate;
+}
+
+.wave-bar.bar-1.anim { animation-delay: 0.1s; }
+.wave-bar.bar-2.anim { animation-delay: 0.3s; }
+.wave-bar.bar-3.anim { animation-delay: 0.2s; }
+
+@keyframes soundwave-pulse {
+  0% { height: 4px; }
+  50% { height: 16px; }
+  100% { height: 8px; }
+}
+
+.control-circle {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 📖 Main Lesson Container */
+.lesson-container {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="dark"] .lesson-container {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+/* 📦 6 Canonical Components Cards (FIXES WHITE-ON-WHITE SCREENSHOT ISSUE) */
+.canonical-component-card {
+  background: #f8fafc !important; /* Visible soft slate contrast */
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+[data-theme="dark"] .canonical-component-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.canonical-component-card:hover {
+  border-color: #818cf8 !important;
+  transform: translateY(-2px);
+}
+
+.canonical-focus-text {
+  color: #0f172a !important; /* Strong dark contrast */
+  font-size: 0.96rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .canonical-focus-text {
+  color: #f8fafc !important;
+}
+
+.canonical-example-box {
+  background: #ffffff !important; /* Crisp white inside soft gray card */
+  border: 1.5px solid #cbd5e1 !important;
+  border-left: 4px solid #4f46e5 !important; /* Indigo accent indicator */
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
+}
+
+[data-theme="dark"] .canonical-example-box {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  border-left-color: #818cf8 !important;
+}
+
+.canonical-example-label {
+  color: #4f46e5 !important;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+[data-theme="dark"] .canonical-example-label {
+  color: #818cf8 !important;
+}
+
+.canonical-example-text {
+  color: #0f172a !important; /* Sharpest dark slate */
+  font-size: 0.94rem;
+  line-height: 1.62;
+  font-weight: 500;
+  font-style: normal !important; /* No faint italics */
+}
+
+[data-theme="dark"] .canonical-example-text {
+  color: #e2e8f0 !important;
+}
+
+/* 💻 High-Contrast Code & Architecture Boxes */
+.arch-flow-box {
+  background: #0f172a !important;
+  border: 1.5px solid #334155 !important;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .arch-flow-box {
+  background: #020617 !important;
+  border-color: #1e293b !important;
+}
+
+.flow-label {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.flow-code-text {
+  color: #38bdf8 !important; /* Vibrant cyan */
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.95rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.vector-code-block {
+  display: block;
+  background: #0f172a !important;
+  color: #38bdf8 !important;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.5;
+  border: 1px solid #334155;
+}
+
+/* 📐 Math Formula Display */
+.formula-container {
+  background: #0f172a !important;
+  border: 1.5px solid #334155 !important;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .formula-container {
+  background: #020617 !important;
+  border-color: #1e293b !important;
+}
+
+.formula-badge {
+  background: rgba(99, 102, 241, 0.25);
+  color: #818cf8;
+  border: 1px solid rgba(129, 140, 248, 0.4);
+}
+
+.math-formula-display {
+  color: #38bdf8 !important;
+  font-family: 'Cambria Math', 'Times New Roman', serif;
+  letter-spacing: 0.04em;
+  padding: 8px 0;
+}
+
+.formula-explanation {
+  color: #cbd5e1 !important;
+  line-height: 1.6;
+}
+
+/* 🛡️ Deep Contrast Callouts */
+.callout-warning {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.45) !important;
+}
+
+.callout-warning .callout-title {
+  color: #92400e !important;
+  font-size: 0.98rem;
+}
+
+[data-theme="dark"] .callout-warning .callout-title {
+  color: #fbbf24 !important;
+}
+
+.callout-warning .callout-body {
+  color: #451a03 !important;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+[data-theme="dark"] .callout-warning .callout-body {
+  color: #fef3c7 !important;
+}
+
+/* QA Inspection Callouts */
+.bg-primary-subtle {
+  background-color: rgba(99, 102, 241, 0.10) !important;
+}
+
+.border-primary-subtle {
+  border-color: rgba(99, 102, 241, 0.35) !important;
+}
+
+[data-theme="light"] .arch-qa-list li,
+[data-theme="light"] .callout-body {
+  color: #0f172a !important; /* Deepest contrast */
+}
+
+/* 🏷️ Dimension & Defect Cards */
+.dim-icon-pill {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.defect-item {
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+}
+
+[data-theme="dark"] .defect-item {
+  border-color: #334155;
+  background: #1e293b;
+}
+
+.defect-name {
+  color: #0f172a !important;
+  font-size: 0.95rem;
+}
+
+[data-theme="dark"] .defect-name {
+  color: #f8fafc !important;
+}
+
+.defect-desc {
+  color: #334155 !important;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .defect-desc {
+  color: #cbd5e1 !important;
+}
+
+/* 🔢 Phase Badges & Numbers */
+.phase-number-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.15rem;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+}
+
+.step-circle-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.phase-details-list li {
+  line-height: 1.65;
+}
+
+/* 🏆 Quiz & Exam High-Contrast Elements */
+.question-text {
+  color: #0f172a !important;
+  font-size: 1.12rem;
+  line-height: 1.65;
+}
+
+[data-theme="dark"] .question-text {
+  color: #f8fafc !important;
+}
+
+.option-card {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  cursor: pointer;
+  width: 100%;
+  border: 1.5px solid #cbd5e1 !important;
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+
+[data-theme="dark"] .option-card {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.option-card:hover:not(:disabled) {
+  background: #eef2ff !important;
+  border-color: #818cf8 !important;
+}
+
+.option-card.selected {
+  background: #e0e7ff !important;
+  border-color: #4f46e5 !important;
+  font-weight: 600;
+}
+
+.option-badge-key {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.option-card.selected .option-badge-key {
+  background: #4f46e5;
+  color: #ffffff;
+  border-color: #4f46e5;
+}
+
+.option-card.correct-answer-highlight {
+  background: #ecfdf5 !important;
+  border-color: #059669 !important;
+  color: #064e3b !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .option-card.correct-answer-highlight {
+  background: rgba(16, 185, 129, 0.25) !important;
+  color: #ecfdf5 !important;
+}
+
+.option-card.correct-answer-highlight .option-badge-key {
+  background: #059669 !important;
+  color: #ffffff;
+  border-color: #059669;
+}
+
+.option-card.wrong-answer-highlight {
+  background: #fef2f2 !important;
+  border-color: #dc2626 !important;
+  color: #7f1d1d !important;
+}
+
+[data-theme="dark"] .option-card.wrong-answer-highlight {
+  background: rgba(239, 68, 68, 0.25) !important;
+  color: #fef2f2 !important;
+}
+
+.option-card.wrong-answer-highlight .option-badge-key {
+  background: #dc2626 !important;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+.justification-card {
+  border: 1.5px solid #cbd5e1;
+  font-size: 0.94rem;
+}
+
+.justification-card.justification-correct {
+  background: #f0fdf4 !important;
+  border-color: #86efac !important;
+}
+
+.justification-card.justification-incorrect {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+}
+
+.justification-text {
+  color: #1e293b;
+  font-size: 0.95rem;
+  line-height: 1.68;
+}
+
+[data-theme="dark"] .justification-text {
+  color: #f1f5f9;
+}
+
+/* 📚 Glossary Cards */
+.term-title {
+  color: #0f172a !important;
+  font-size: 1.15rem;
+}
+
+[data-theme="dark"] .term-title {
+  color: #f8fafc !important;
+}
+
+.term-definition {
+  color: #334155 !important;
+  font-size: 0.93rem;
+  line-height: 1.65;
+}
+
+[data-theme="dark"] .term-definition {
+  color: #cbd5e1 !important;
+}
+
+/* 📜 Prologue Banner Component */
+.prologue-banner {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%);
+  border: 1.5px solid rgba(99, 102, 241, 0.25);
+}
+
+.prologue-title {
+  color: #0f172a !important;
+  font-weight: 800;
+}
+
+[data-theme="dark"] .prologue-title {
+  color: #f8fafc !important;
+}

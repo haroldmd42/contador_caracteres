@@ -90,6 +90,13 @@ export const RESPONSIVE_BREAKPOINTS = [
       { label: '1440 px', width: 1440, height: 900, name: 'Monitor 24" (1440 × 900)', frameType: 'monitor' },
       { label: '1920 px', width: 1920, height: 1080, name: 'Full HD 1080p (1920 × 1080)', frameType: 'monitor' },
       { label: '2560 px', width: 2560, height: 1440, name: 'Monitor 2K QHD (2560 × 1440)', frameType: 'monitor' },
+      {
+        label: 'Mi PC',
+        width: typeof window !== 'undefined' && window.screen ? window.screen.width : 1920,
+        height: typeof window !== 'undefined' && window.screen ? window.screen.height : 1080,
+        name: `Tu Monitor PC (${typeof window !== 'undefined' && window.screen ? window.screen.width : 1920} × ${typeof window !== 'undefined' && window.screen ? window.screen.height : 1080})`,
+        frameType: 'monitor',
+      },
     ],
   },
 ];
@@ -267,7 +274,33 @@ export const DEVICE_CATALOG = [
     frameType: 'monitor',
     icon: 'bi-display',
   },
+  {
+    id: 'my-screen-pc',
+    name: `Mi Monitor PC (${typeof window !== 'undefined' && window.screen ? window.screen.width : 1920} × ${typeof window !== 'undefined' && window.screen ? window.screen.height : 1080})`,
+    category: 'desktop',
+    width: typeof window !== 'undefined' && window.screen ? window.screen.width : 1920,
+    height: typeof window !== 'undefined' && window.screen ? window.screen.height : 1080,
+    dpr: typeof window !== 'undefined' && window.devicePixelRatio ? window.devicePixelRatio : 1,
+    frameType: 'monitor',
+    icon: 'bi-display-fill',
+  },
 ];
+
+export const getMyScreenDevice = () => {
+  const w = typeof window !== 'undefined' && window.screen ? window.screen.width : 1920;
+  const h = typeof window !== 'undefined' && window.screen ? window.screen.height : 1080;
+  const dpr = typeof window !== 'undefined' && window.devicePixelRatio ? window.devicePixelRatio : 1;
+  return {
+    id: 'my-screen-pc',
+    name: `Mi Monitor PC (${w} × ${h})`,
+    category: 'desktop',
+    width: w,
+    height: h,
+    dpr,
+    frameType: 'monitor',
+    icon: 'bi-display-fill',
+  };
+};
 
 const PRESET_URLS = [
   { label: 'Wikipedia', url: 'https://es.wikipedia.org' },
@@ -286,8 +319,10 @@ export default function DeviceSimulator() {
   const { theme: appTheme, toggleTheme: toggleAppTheme } = useTheme();
   const [simulatedTheme, setSimulatedTheme] = useState(appTheme || 'light');
 
-  // Sidebar visibility state
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Sidebar visibility state (defaults open on screens >= 1100px, collapsed on small screens)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(
+    typeof window !== 'undefined' ? window.innerWidth >= 1100 : true
+  );
 
   // Device & Viewport states
   const [selectedDevice, setSelectedDevice] = useState(DEVICE_CATALOG[0]);
@@ -318,6 +353,13 @@ export default function DeviceSimulator() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const mainIframeRef = useRef(null);
+  const viewportRef = useRef(null);
+
+  // Fullscreen states
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fullscreenFillMode, setFullscreenFillMode] = useState('device'); // 'device' | 'fill-screen'
+  const [returnToMultiViewAfterFullscreen, setReturnToMultiViewAfterFullscreen] = useState(false);
+  const [isHudCollapsed, setIsHudCollapsed] = useState(false);
 
   // Helper to send real-time settings updates into the running iframe without full reload
   const sendIframeSettings = (newScrollbarMode, newTheme) => {
@@ -462,11 +504,14 @@ export default function DeviceSimulator() {
     function calculateFit() {
       if (!canvasContainerRef.current) return;
       const rect = canvasContainerRef.current.getBoundingClientRect();
-      const paddingX = showBezel ? 80 : 40;
-      const paddingY = showBezel ? 90 : 40;
+      const isCompact = typeof window !== 'undefined' && (window.innerWidth < 1400 || window.innerHeight < 800);
+      const paddingX = showBezel ? (isCompact ? 48 : 80) : (isCompact ? 24 : 40);
+      const paddingY = isFullscreen
+        ? (showBezel ? 120 : 96)
+        : showBezel ? (isCompact ? 48 : 90) : (isCompact ? 24 : 40);
 
-      const availWidth = Math.max(200, rect.width - paddingX);
-      const availHeight = Math.max(200, rect.height - paddingY);
+      const availWidth = Math.max(180, rect.width - paddingX);
+      const availHeight = Math.max(180, rect.height - paddingY);
 
       const scaleX = availWidth / activeWidth;
       const scaleY = availHeight / activeHeight;
@@ -482,7 +527,7 @@ export default function DeviceSimulator() {
       clearTimeout(timer);
       window.removeEventListener('resize', calculateFit);
     };
-  }, [activeWidth, activeHeight, isAutoFit, showBezel, isMultiView, isSidebarOpen]);
+  }, [activeWidth, activeHeight, isAutoFit, showBezel, isMultiView, isSidebarOpen, isFullscreen]);
 
   // Handle URL Submission
   const handleLoadUrl = (e) => {
@@ -543,6 +588,267 @@ export default function DeviceSimulator() {
       '_blank',
       `width=${activeWidth},height=${activeHeight},menubar=no,status=no,toolbar=no`
     );
+  };
+
+  // Fullscreen handlers for Single & Multi View
+  const handleEnterDeviceFullscreen = (deviceToView = null) => {
+    if (deviceToView) {
+      if (isMultiView) {
+        setReturnToMultiViewAfterFullscreen(true);
+        setIsMultiView(false);
+      }
+      setSelectedDevice(deviceToView);
+      setIsCustomMode(false);
+      setIsRotated(false);
+      setCustomWidth(deviceToView.width);
+      setCustomHeight(deviceToView.height);
+    } else {
+      setReturnToMultiViewAfterFullscreen(false);
+    }
+
+    const el = viewportRef.current || document.documentElement;
+    if (el) {
+      if (el.requestFullscreen) {
+        el.requestFullscreen().catch(() => {
+          setIsFullscreen(true);
+        });
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      } else {
+        setIsFullscreen(true);
+      }
+    }
+  };
+
+  const handleExitFullscreen = () => {
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+    }
+    setIsFullscreen(false);
+    if (returnToMultiViewAfterFullscreen) {
+      setIsMultiView(true);
+      setReturnToMultiViewAfterFullscreen(false);
+    }
+  };
+
+  const handleToggleAppFullscreen = (deviceToView = null) => {
+    if (isFullscreen && !deviceToView) {
+      handleExitFullscreen();
+    } else {
+      handleEnterDeviceFullscreen(deviceToView);
+    }
+  };
+
+  // Synchronize native fullscreen exit (e.g. user pressed physical Esc)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      const isNative = !!fsEl;
+      if (!isNative && isFullscreen) {
+        setIsFullscreen(false);
+        if (returnToMultiViewAfterFullscreen) {
+          setIsMultiView(true);
+          setReturnToMultiViewAfterFullscreen(false);
+        }
+      } else if (isNative && !isFullscreen) {
+        // Only enter PC Fullscreen if the target is our simulator viewport or root document,
+        // NEVER if it was triggered by an iframe or element inside an iframe!
+        if (fsEl === viewportRef.current || fsEl === document.documentElement) {
+          setIsFullscreen(true);
+        } else {
+          // If something else tried to hijack native fullscreen, exit native fullscreen immediately
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        handleExitFullscreen();
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullscreen, returnToMultiViewAfterFullscreen]);
+
+  // Inject contained fullscreen styles and polyfill for same-origin iframes when loaded directly without proxy
+  const handleIframeLoad = (iframeEl) => {
+    setIsLoadingIframe(false);
+    if (!iframeEl) return;
+    try {
+      const doc = iframeEl.contentDocument || iframeEl.contentWindow?.document;
+      if (!doc || doc.getElementById('qa-device-fullscreen-style')) return;
+
+      const style = doc.createElement('style');
+      style.id = 'qa-device-fullscreen-style';
+      style.textContent = `
+        html.qa-device-fullscreen-active, html.qa-device-fullscreen-active body { overflow: hidden !important; }
+        .qa-device-fullscreen-target {
+          position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+          width: 100vw !important; height: 100vh !important; max-width: 100vw !important; max-height: 100vh !important;
+          min-width: 100vw !important; min-height: 100vh !important; z-index: 2147483647 !important; background-color: #000000 !important;
+          margin: 0 !important; padding: 0 !important; border: none !important; border-radius: 0 !important; box-sizing: border-box !important; transform: none !important;
+        }
+        video.qa-device-fullscreen-target { object-fit: contain !important; }
+        .qa-device-fullscreen-target video { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; object-fit: contain !important; }
+        .qa-device-fullscreen-target.plyr, .qa-device-fullscreen-target.video-js, .qa-device-fullscreen-target .plyr__video-wrapper { height: 100% !important; max-height: 100vh !important; }
+        .qa-device-fullscreen-target [class*="controls"], .qa-device-fullscreen-target [class*="control"], .qa-device-fullscreen-target .plyr__controls, .qa-device-fullscreen-target .vjs-control-bar { z-index: 2147483647 !important; }
+        #qa-fullscreen-exit-btn {
+          position: fixed !important; top: 12px !important; right: 12px !important; z-index: 2147483647 !important;
+          background: rgba(15, 23, 42, 0.85) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.25) !important;
+          border-radius: 9999px !important; padding: 6px 14px !important; font-family: system-ui, sans-serif !important;
+          font-size: 12px !important; font-weight: 600 !important; cursor: pointer !important; display: flex !important;
+          align-items: center !important; gap: 6px !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important;
+          transition: opacity 0.3s ease, transform 0.2s ease !important; opacity: 1 !important; user-select: none !important;
+        }
+        #qa-fullscreen-exit-btn:hover { background: rgba(220, 38, 38, 0.9) !important; border-color: rgba(239, 68, 68, 0.7) !important; transform: scale(1.04) !important; }
+        #qa-fullscreen-exit-btn.qa-btn-faded { opacity: 0 !important; pointer-events: none !important; }
+      `;
+      doc.head.appendChild(style);
+
+      const win = iframeEl.contentWindow;
+      if (!win) return;
+      let currentFullscreenEl = null;
+      let ancestorStylesMap = [];
+      let exitBtnEl = null;
+      let hideBtnTimer = null;
+
+      const createBtn = () => {
+        if (doc.getElementById('qa-fullscreen-exit-btn')) return;
+        const btn = doc.createElement('button');
+        btn.id = 'qa-fullscreen-exit-btn';
+        btn.type = 'button';
+        btn.innerHTML = '✕ Salir (Esc)';
+        btn.title = 'Salir de pantalla completa en el emulador (o presiona Esc)';
+        btn.onclick = (e) => { e.stopPropagation(); e.preventDefault(); exitContained(); };
+        doc.body.appendChild(btn);
+        exitBtnEl = btn;
+        const resetTimer = () => {
+          if (!exitBtnEl) return;
+          exitBtnEl.classList.remove('qa-btn-faded');
+          if (hideBtnTimer) clearTimeout(hideBtnTimer);
+          hideBtnTimer = setTimeout(() => { if (exitBtnEl) exitBtnEl.classList.add('qa-btn-faded'); }, 2500);
+        };
+        win.addEventListener('mousemove', resetTimer, { passive: true });
+        win.addEventListener('touchstart', resetTimer, { passive: true });
+        resetTimer();
+      };
+
+      const removeBtn = () => {
+        if (hideBtnTimer) clearTimeout(hideBtnTimer);
+        const b = doc.getElementById('qa-fullscreen-exit-btn');
+        if (b && b.parentNode) b.parentNode.removeChild(b);
+        exitBtnEl = null;
+      };
+
+      const reqContained = function() {
+        const targetEl = this || doc.documentElement;
+        if (currentFullscreenEl === targetEl) return Promise.resolve();
+        if (currentFullscreenEl) exitContained();
+        currentFullscreenEl = targetEl;
+        ancestorStylesMap = [];
+        let curr = targetEl.parentElement;
+        while (curr && curr !== doc.documentElement) {
+          ancestorStylesMap.push({ element: curr, originalStyle: curr.getAttribute('style') || '' });
+          curr.style.transform = 'none';
+          curr.style.perspective = 'none';
+          curr.style.filter = 'none';
+          curr.style.contain = 'none';
+          curr.style.clipPath = 'none';
+          curr.style.zIndex = '2147483646';
+          curr = curr.parentElement;
+        }
+        targetEl.classList.add('qa-device-fullscreen-target', 'fullscreen', 'is-fullscreen');
+        targetEl.setAttribute('data-fullscreen', 'true');
+        doc.documentElement.classList.add('qa-device-fullscreen-active');
+        if (doc.body) doc.body.classList.add('qa-device-fullscreen-active');
+        if (targetEl.classList.contains('plyr')) targetEl.classList.add('plyr--fullscreen-active');
+        if (targetEl.classList.contains('video-js')) targetEl.classList.add('vjs-fullscreen');
+        createBtn();
+        try {
+          const evt1 = new Event('fullscreenchange', { bubbles: true });
+          targetEl.dispatchEvent(evt1);
+          doc.dispatchEvent(evt1);
+          const evt2 = new Event('webkitfullscreenchange', { bubbles: true });
+          targetEl.dispatchEvent(evt2);
+          doc.dispatchEvent(evt2);
+        } catch(e) {}
+        return Promise.resolve();
+      };
+
+      const exitContained = () => {
+        if (!currentFullscreenEl) return Promise.resolve();
+        const el = currentFullscreenEl;
+        currentFullscreenEl = null;
+        el.classList.remove('qa-device-fullscreen-target', 'fullscreen', 'is-fullscreen');
+        el.removeAttribute('data-fullscreen');
+        if (el.classList.contains('plyr')) el.classList.remove('plyr--fullscreen-active');
+        if (el.classList.contains('video-js')) el.classList.remove('vjs-fullscreen');
+        doc.documentElement.classList.remove('qa-device-fullscreen-active');
+        if (doc.body) doc.body.classList.remove('qa-device-fullscreen-active');
+        ancestorStylesMap.forEach(({ element, originalStyle }) => {
+          if (originalStyle) element.setAttribute('style', originalStyle);
+          else element.removeAttribute('style');
+        });
+        ancestorStylesMap = [];
+        removeBtn();
+        try {
+          const evt1 = new Event('fullscreenchange', { bubbles: true });
+          el.dispatchEvent(evt1);
+          doc.dispatchEvent(evt1);
+          const evt2 = new Event('webkitfullscreenchange', { bubbles: true });
+          el.dispatchEvent(evt2);
+          doc.dispatchEvent(evt2);
+        } catch(e) {}
+        return Promise.resolve();
+      };
+
+      win.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && currentFullscreenEl) {
+          e.stopPropagation(); e.preventDefault(); exitContained();
+        }
+      }, true);
+
+      doc.addEventListener('dblclick', (e) => {
+        const v = e.target?.tagName?.toLowerCase() === 'video' ? e.target : e.target?.closest?.('video');
+        if (v) {
+          if (currentFullscreenEl) exitContained();
+          else reqContained.call(v);
+        }
+      }, true);
+
+      try {
+        win.Element.prototype.requestFullscreen = reqContained;
+        win.Element.prototype.webkitRequestFullscreen = reqContained;
+        if (win.HTMLVideoElement) {
+          win.HTMLVideoElement.prototype.requestFullscreen = reqContained;
+          win.HTMLVideoElement.prototype.webkitRequestFullscreen = reqContained;
+          win.HTMLVideoElement.prototype.webkitEnterFullscreen = reqContained;
+        }
+        win.Document.prototype.exitFullscreen = exitContained;
+        doc.exitFullscreen = exitContained;
+        Object.defineProperty(doc, 'fullscreenElement', { get: () => currentFullscreenEl, configurable: true });
+        Object.defineProperty(doc, 'fullscreenEnabled', { get: () => true, configurable: true });
+      } catch(e) {}
+    } catch(err) {
+      // Cross-origin: security error expected, handled by proxy backend
+    }
   };
 
   // Filtered devices list for dropdown
@@ -610,29 +916,29 @@ export default function DeviceSimulator() {
   };
 
   return (
-    <div className="device-simulator-app container-fluid py-3 px-3 px-lg-4">
+    <div className="device-simulator-app container-fluid px-2 px-md-3 px-lg-4">
       {/* Top compact header */}
-      <div className="simulator-header-compact d-flex align-items-center justify-content-between mb-3">
-        <div className="d-flex align-items-center gap-3">
+      <div className="simulator-header-compact d-flex align-items-center justify-content-between">
+        <div className="d-flex align-items-center gap-2 gap-md-3 min-w-0">
           <div className="header-icon-pill">
             <i className="bi bi-phone-landscape"></i>
           </div>
-          <div>
-            <h1 className="h5 fw-bold mb-0 text-body">Simulador Responsive Multi-Pantalla</h1>
-            <span className="small text-muted">Simula cualquier URL en pantallas reales de computadores, tablets y móviles.</span>
+          <div className="min-w-0">
+            <h1 className="h6 fw-bold mb-0 text-body simulator-title text-truncate">Simulador Responsive Multi-Pantalla</h1>
+            <span className="small text-muted header-subtitle d-none d-md-inline">Simula cualquier URL en pantallas reales de computadores, tablets y móviles.</span>
           </div>
         </div>
 
-        <div className="d-flex align-items-center gap-2">
+        <div className="d-flex align-items-center gap-1.5 gap-md-2 flex-shrink-0">
           {/* Toggle sidebar button if collapsed */}
           {!isSidebarOpen && (
             <button
-              className="btn btn-sm btn-primary d-flex align-items-center gap-2"
+              className="btn btn-sm btn-primary d-flex align-items-center gap-1.5"
               onClick={() => setIsSidebarOpen(true)}
               title="Mostrar panel de opciones"
             >
               <i className="bi bi-layout-sidebar-inset"></i>
-              <span>Opciones</span>
+              <span className="d-none d-sm-inline">Opciones</span>
             </button>
           )}
 
@@ -643,7 +949,18 @@ export default function DeviceSimulator() {
             title="Alternar entre vista de dispositivo individual y vista paralela"
           >
             <i className={`bi ${isMultiView ? 'bi-grid-fill' : 'bi-columns-gap'}`}></i>
-            <span className="d-none d-md-inline">{isMultiView ? 'Vista Individual' : 'Vista Paralela (3 Dispositivos)'}</span>
+            <span className="d-none d-xl-inline">{isMultiView ? 'Vista Individual' : 'Vista Paralela (3 Dispositivos)'}</span>
+            <span className="d-inline d-xl-none">{isMultiView ? 'Individual' : 'Vista 3x'}</span>
+          </button>
+
+          {/* Fullscreen Button */}
+          <button
+            className={`btn btn-sm ${isFullscreen ? 'btn-danger text-white' : 'btn-outline-primary'} d-flex align-items-center gap-1 shadow-sm`}
+            onClick={() => handleToggleAppFullscreen()}
+            title={isFullscreen ? 'Salir de Pantalla Completa (Esc)' : 'Ver en Pantalla Completa de tu PC'}
+          >
+            <i className={`bi ${isFullscreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'}`}></i>
+            <span className="d-none d-lg-inline">{isFullscreen ? 'Salir Fullscreen' : 'Pantalla Completa PC'}</span>
           </button>
 
           {/* Help button */}
@@ -703,9 +1020,9 @@ export default function DeviceSimulator() {
             </div>
 
             {/* Sidebar Content Scrollable */}
-            <div className="sidebar-content p-3">
+            <div className="sidebar-content">
               {/* 1. SECCIÓN: ENLACE / URL */}
-              <div className="sidebar-group mb-4">
+              <div className="sidebar-group mb-3">
                 <label className="form-label small fw-bold text-muted text-uppercase mb-2">
                   <i className="bi bi-link-45deg me-1 text-primary"></i> Enlace Web (URL)
                 </label>
@@ -858,7 +1175,7 @@ export default function DeviceSimulator() {
 
               {/* SECCIÓN MULTI-PANTALLA: CONTROLES CUANDO ESTÁ ACTIVA LA VISTA PARALELA */}
               {isMultiView && (
-                <div className="sidebar-group mb-4">
+                <div className="sidebar-group mb-3">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <label className="form-label small fw-bold text-muted text-uppercase mb-0">
                       <i className="bi bi-display-fill me-1 text-primary"></i> Pantallas Multi-Vista
@@ -1002,7 +1319,7 @@ export default function DeviceSimulator() {
 
               {/* 2. SECCIÓN: RANGOS RESPONSIVE (BREAKPOINTS EXACTOS) */}
               {!isMultiView && (
-                <div className="sidebar-group mb-4">
+                <div className="sidebar-group mb-3">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <label className="form-label small fw-bold text-muted text-uppercase mb-0">
                       <i className="bi bi-rulers me-1 text-primary"></i> Rangos Responsive
@@ -1059,13 +1376,13 @@ export default function DeviceSimulator() {
 
               {/* 3. SECCIÓN: DISPOSITIVOS ESPECÍFICOS */}
               {!isMultiView && (
-                <div className="sidebar-group mb-4">
+                <div className="sidebar-group mb-3">
                   <label className="form-label small fw-bold text-muted text-uppercase mb-2">
                     <i className="bi bi-display me-1 text-primary"></i> Catálogo de Dispositivos
                   </label>
 
                   {/* Category Filter Pills */}
-                  <div className="btn-group btn-group-sm w-100 mb-2" role="group">
+                  <div className="btn-group btn-group-sm w-100 mb-2 sidebar-filter-pills" role="group">
                     {[
                       { id: 'all', label: 'Todos' },
                       { id: 'mobile', label: 'Móvil' },
@@ -1179,7 +1496,7 @@ export default function DeviceSimulator() {
 
               {/* 4. SECCIÓN: ORIENTACIÓN Y APARIENCIA */}
               {!isMultiView && (
-                <div className="sidebar-group mb-4">
+                <div className="sidebar-group mb-3">
                   <label className="form-label small fw-bold text-muted text-uppercase mb-2">
                     <i className="bi bi-aspect-ratio me-1 text-primary"></i> Orientación y Chasis
                   </label>
@@ -1215,7 +1532,7 @@ export default function DeviceSimulator() {
                         {scrollbarMode === 'hidden' ? 'Oculta (Móvil)' : scrollbarMode === 'thin' ? 'Fina (4px)' : 'Estándar'}
                       </span>
                     </div>
-                    <div className="btn-group btn-group-sm w-100" role="group" aria-label="Modo de barra de scroll">
+                    <div className="btn-group btn-group-sm w-100 sidebar-btn-group" role="group" aria-label="Modo de barra de scroll">
                       <button
                         type="button"
                         className={`btn ${scrollbarMode === 'hidden' ? 'btn-primary' : 'btn-outline-secondary'}`}
@@ -1225,7 +1542,7 @@ export default function DeviceSimulator() {
                         }}
                         title="Oculta (Como en dispositivos móviles reales)"
                       >
-                        <i className="bi bi-eye-slash me-1"></i> Oculta
+                        <i className="bi bi-eye-slash"></i> Oculta
                       </button>
                       <button
                         type="button"
@@ -1236,7 +1553,7 @@ export default function DeviceSimulator() {
                         }}
                         title="Fina (4px ultra delgada)"
                       >
-                        <i className="bi bi-distribute-vertical me-1"></i> Fina
+                        <i className="bi bi-distribute-vertical"></i> Fina
                       </button>
                       <button
                         type="button"
@@ -1247,7 +1564,7 @@ export default function DeviceSimulator() {
                         }}
                         title="Estándar de escritorio"
                       >
-                        <i className="bi bi-view-stacked me-1"></i> Normal
+                        <i className="bi bi-view-stacked"></i> Normal
                       </button>
                     </div>
                   </div>
@@ -1316,6 +1633,17 @@ export default function DeviceSimulator() {
                       </button>
                     ))}
                   </div>
+
+                  {/* Pantalla Completa Button in Sidebar */}
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-1.5 mt-2.5"
+                    onClick={() => handleToggleAppFullscreen()}
+                    title="Ver en pantalla completa de tu PC (Esc para salir)"
+                  >
+                    <i className="bi bi-arrows-fullscreen"></i>
+                    <span className="fw-semibold">Pantalla Completa de mi PC</span>
+                  </button>
                 </div>
               )}
 
@@ -1364,136 +1692,364 @@ export default function DeviceSimulator() {
         {/* =========================================================
             RIGHT MAIN VIEWPORT: SIMULATOR CANVAS
             ========================================================= */}
-        <main className="simulator-main-viewport">
-          {/* Canvas Header Ribbon */}
-          <div className="canvas-header-ribbon d-flex flex-wrap align-items-center justify-content-between gap-2 p-2 px-3 border-bottom">
-            <div className="d-flex align-items-center gap-2 flex-wrap">
-              {!isSidebarOpen && (
+        <main className={`simulator-main-viewport ${isFullscreen ? 'is-fullscreen-active' : ''}`} ref={viewportRef}>
+          {/* Floating Heads-Up Display when in Fullscreen */}
+          {isFullscreen && (
+            <header className={`simulator-fullscreen-hud ${isHudCollapsed ? 'is-collapsed' : ''}`}>
+              {/* Left: Device Badge & Exact Resolution */}
+              <div className="hud-section hud-device-info">
+                <span className="badge bg-primary text-white d-flex align-items-center gap-1.5 px-2.5 py-1.5 text-nowrap shadow-sm">
+                  <i className={`bi ${isMultiView ? 'bi-columns-gap' : selectedDevice.icon || 'bi-display'}`}></i>
+                  <span className="fw-bold">
+                    {isMultiView ? 'Vista 3x Paralela' : isCustomMode ? 'Personalizado' : selectedDevice.name.split(' (')[0]}
+                  </span>
+                </span>
+                {!isMultiView && (
+                  <span className="hud-dimension-tag text-nowrap font-monospace">
+                    {activeWidth} × {activeHeight} px
+                  </span>
+                )}
+              </div>
+
+              {!isHudCollapsed && (
+                <>
+                  <div className="hud-divider"></div>
+
+                  {/* Center Controls: Fast Switchers */}
+                  {!isMultiView ? (
+                    <div className="hud-section hud-controls">
+                      {/* Device Preset Switcher */}
+                      <div className="btn-group btn-group-sm hud-btn-group" role="group">
+                        <button
+                          type="button"
+                          className={`btn ${selectedDevice.category === 'mobile' ? 'btn-light text-dark fw-bold' : 'btn-outline-light text-white'}`}
+                          onClick={() => {
+                            const mob = DEVICE_CATALOG.find((d) => d.id === 'iphone-15-pro') || DEVICE_CATALOG[0];
+                            handleDeviceChange(mob);
+                          }}
+                          title="Cambiar a pantalla Móvil (iPhone 15 Pro)"
+                        >
+                          <i className="bi bi-phone"></i>
+                          <span className="d-none d-md-inline ms-1">Móvil</span>
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn ${selectedDevice.category === 'tablet' ? 'btn-light text-dark fw-bold' : 'btn-outline-light text-white'}`}
+                          onClick={() => {
+                            const tab = DEVICE_CATALOG.find((d) => d.id === 'ipad-air') || DEVICE_CATALOG[6];
+                            handleDeviceChange(tab);
+                          }}
+                          title="Cambiar a pantalla Tablet (iPad Air)"
+                        >
+                          <i className="bi bi-tablet"></i>
+                          <span className="d-none d-md-inline ms-1">Tablet</span>
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn ${selectedDevice.category === 'desktop' && selectedDevice.id !== 'my-screen-pc' ? 'btn-light text-dark fw-bold' : 'btn-outline-light text-white'}`}
+                          onClick={() => {
+                            const desk = DEVICE_CATALOG.find((d) => d.id === 'laptop-hd') || DEVICE_CATALOG[12];
+                            handleDeviceChange(desk);
+                          }}
+                          title="Cambiar a pantalla PC / Laptop"
+                        >
+                          <i className="bi bi-laptop"></i>
+                          <span className="d-none d-md-inline ms-1">Laptop</span>
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn ${selectedDevice.id === 'my-screen-pc' ? 'btn-info text-dark fw-bold' : 'btn-outline-info text-white'}`}
+                          onClick={() => {
+                            const myDev = getMyScreenDevice();
+                            handleDeviceChange(myDev);
+                          }}
+                          title={`Resolución de tu PC: ${typeof window !== 'undefined' ? window.screen.width : 1920} × ${typeof window !== 'undefined' ? window.screen.height : 1080} px`}
+                        >
+                          <i className="bi bi-display-fill"></i>
+                          <span className="d-none d-md-inline ms-1">Mi Monitor</span>
+                        </button>
+                      </div>
+
+                      <div className="hud-divider"></div>
+
+                      {/* Display Mode: Centered Device vs Fill Screen */}
+                      <div className="btn-group btn-group-sm hud-btn-group" role="group">
+                        <button
+                          type="button"
+                          className={`btn ${fullscreenFillMode === 'device' ? 'btn-primary text-white' : 'btn-outline-light text-white'}`}
+                          onClick={() => setFullscreenFillMode('device')}
+                          title="Pantalla centrada con dimensiones reales del dispositivo"
+                        >
+                          <i className="bi bi-aspect-ratio"></i>
+                          <span className="d-none d-lg-inline ms-1">Dispositivo</span>
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn ${fullscreenFillMode === 'fill-screen' ? 'btn-primary text-white' : 'btn-outline-light text-white'}`}
+                          onClick={() => setFullscreenFillMode('fill-screen')}
+                          title="Llenar 100% de la pantalla del monitor"
+                        >
+                          <i className="bi bi-arrows-fullscreen"></i>
+                          <span className="d-none d-lg-inline ms-1">Llenar Monitor</span>
+                        </button>
+                      </div>
+
+                      {/* Device Frame & AutoFit (when in device mode) */}
+                      {fullscreenFillMode === 'device' && (
+                        <div className="btn-group btn-group-sm hud-btn-group" role="group">
+                          <button
+                            type="button"
+                            className={`btn ${showBezel ? 'btn-secondary text-white' : 'btn-outline-light text-white'}`}
+                            onClick={() => setShowBezel(!showBezel)}
+                            title={showBezel ? 'Ocultar marco físico' : 'Mostrar marco realista'}
+                          >
+                            <i className={`bi ${showBezel ? 'bi-phone' : 'bi-square'}`}></i>
+                            <span className="d-none d-xl-inline ms-1">{showBezel ? 'Marco' : 'Sin Marco'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            className={`btn ${isAutoFit ? 'btn-info text-dark fw-bold' : 'btn-outline-light text-white'}`}
+                            onClick={() => setIsAutoFit(true)}
+                            title="Auto-Ajustar al tamaño disponible de tu monitor"
+                          >
+                            <i className="bi bi-arrows-angle-expand"></i>
+                            <span className="ms-1">{Math.round(zoomLevel * 100)}%</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* Multi-View HUD Controls */
+                    <div className="hud-section hud-controls">
+                      <span className="small text-white-50 me-1">Zoom:</span>
+                      <div className="btn-group btn-group-sm hud-btn-group" role="group">
+                        <button
+                          type="button"
+                          className="btn btn-outline-light text-white"
+                          onClick={() => setMultiGlobalZoom((prev) => Math.max(0.4, Math.round((prev - 0.1) * 10) / 10))}
+                        >
+                          <i className="bi bi-dash"></i>
+                        </button>
+                        <span className="btn btn-outline-light text-white font-monospace disabled">
+                          {Math.round(multiGlobalZoom * 100)}%
+                        </span>
+                        <button
+                          type="button"
+                          className="btn btn-outline-light text-white"
+                          onClick={() => setMultiGlobalZoom((prev) => Math.min(2.0, Math.round((prev + 0.1) * 10) / 10))}
+                        >
+                          <i className="bi bi-plus"></i>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="hud-divider"></div>
+
+                  {/* Actions: Refresh & Switch 1x/3x */}
+                  <div className="hud-section hud-actions">
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-light text-white"
+                      onClick={handleRefresh}
+                      title="Recargar página"
+                    >
+                      <i className="bi bi-arrow-clockwise"></i>
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${isMultiView ? 'btn-info text-dark fw-bold' : 'btn-outline-light text-white'}`}
+                      onClick={() => setIsMultiView(!isMultiView)}
+                      title={isMultiView ? 'Cambiar a 1 pantalla individual' : 'Cambiar a 3 pantallas paralelas'}
+                    >
+                      <i className={`bi ${isMultiView ? 'bi-phone' : 'bi-columns-gap'}`}></i>
+                      <span className="d-none d-lg-inline ms-1">{isMultiView ? '1x' : '3x'}</span>
+                    </button>
+                  </div>
+                </>
+              )}
+
+              <div className="hud-divider"></div>
+
+              {/* Collapse / Expand Toggle */}
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-light text-white px-1.5"
+                onClick={() => setIsHudCollapsed(!isHudCollapsed)}
+                title={isHudCollapsed ? 'Mostrar barra de herramientas completa' : 'Minimizar barra para ver más pantalla'}
+              >
+                <i className={`bi ${isHudCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'}`}></i>
+              </button>
+
+              {/* Exit Fullscreen Button */}
+              <button
+                type="button"
+                className="btn btn-sm btn-danger d-flex align-items-center gap-1.5 px-3 py-1 shadow fw-bold text-nowrap rounded-pill"
+                onClick={handleExitFullscreen}
+                title="Salir de Pantalla Completa (o presiona tecla Esc)"
+              >
+                <i className="bi bi-fullscreen-exit"></i>
+                <span>Salir <span className="d-none d-sm-inline">(Esc)</span></span>
+              </button>
+            </header>
+          )}
+
+          {/* Canvas Header Ribbon (visible when not in fullscreen) */}
+          {!isFullscreen && (
+            <div className="canvas-header-ribbon border-bottom">
+              <div className="canvas-ribbon-left">
+                {!isSidebarOpen && (
+                  <button
+                    type="button"
+                    className="btn btn-xs btn-outline-primary d-flex align-items-center gap-1"
+                    onClick={() => setIsSidebarOpen(true)}
+                    title="Mostrar panel de configuración"
+                  >
+                    <i className="bi bi-layout-sidebar-inset"></i>
+                    <span className="fw-semibold">Opciones</span>
+                  </button>
+                )}
+
+                {!isMultiView ? (
+                  <>
+                    {/* Range Badge from Table */}
+                    <span className={`badge ${activeBreakpointRange.badgeClass} d-flex align-items-center gap-1`} title={`Rango CSS: ${activeBreakpointRange.range}`}>
+                      <i className={`bi ${activeBreakpointRange.icon}`}></i>
+                      <span>{activeBreakpointRange.name}</span>
+                    </span>
+
+                    {/* Exact Dimensions Chip */}
+                    <span className="info-chip font-monospace">
+                      <i className="bi bi-aspect-ratio text-primary me-1"></i>
+                      <strong>{activeWidth} × {activeHeight}</strong>
+                    </span>
+
+                    <span className="info-chip d-none d-xxl-inline-flex" title={`Ratio de aspecto: ${(activeWidth / activeHeight).toFixed(2)}`}>
+                      Ratio: {(activeWidth / activeHeight).toFixed(2)}
+                    </span>
+
+                    <span className="info-chip font-monospace d-none d-xxl-inline-flex">
+                      @media (max-width: {activeWidth}px)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="badge bg-info text-dark d-flex align-items-center gap-1">
+                      <i className="bi bi-columns-gap"></i>
+                      <span>Vista 3x</span>
+                    </span>
+                    <span className="info-chip">
+                      <i className="bi bi-phone text-primary me-1"></i>
+                      <strong>{multiViewDevices[0]?.name?.split(' ')[0]}: {multiViewDevices[0]?.width}px</strong>
+                    </span>
+                    <span className="info-chip d-none d-lg-inline-flex">
+                      <i className="bi bi-tablet text-warning me-1"></i>
+                      <strong>{multiViewDevices[1]?.name?.split(' ')[0]}: {multiViewDevices[1]?.width}px</strong>
+                    </span>
+                    <span className="info-chip d-none d-xl-inline-flex">
+                      <i className="bi bi-laptop text-success me-1"></i>
+                      <strong>PC: {multiViewDevices[2]?.width}px</strong>
+                    </span>
+                  </>
+                )}
+
+                {/* Touch & Drag Active Badge */}
+                <span className="badge bg-success-subtle text-success border border-success-subtle d-flex align-items-center gap-1" title="Toques táctiles, deslizamiento horizontal y clics habilitados">
+                  <i className="bi bi-hand-index-thumb"></i>
+                  <span className="d-none d-xxl-inline">Touch & Drag Activo</span>
+                  <span className="d-inline d-xxl-none">Touch</span>
+                </span>
+
+                {isProxyApplicable ? (
+                  <span className="badge bg-warning text-dark d-flex align-items-center gap-1" title="Proxy QA activo con bypass de headers CSP y X-Frame-Options">
+                    <i className="bi bi-shield-check"></i>
+                    <span className="d-none d-xxl-inline">Proxy QA + Swipe</span>
+                    <span className="d-inline d-xxl-none">Proxy QA</span>
+                  </span>
+                ) : isTargetLocal ? (
+                  <span className="badge bg-info text-dark d-flex align-items-center gap-1" title="Cargando en modo directo local para proteger tu red">
+                    <i className="bi bi-hdd-network"></i>
+                    <span>Local</span>
+                  </span>
+                ) : (
+                  <span className="badge bg-secondary text-white d-flex align-items-center gap-1" title="Cargando sin proxy">
+                    <i className="bi bi-globe"></i>
+                    <span>Directo</span>
+                  </span>
+                )}
+
+                {/* Fast Scrollbar Switcher in header */}
                 <button
                   type="button"
-                  className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
-                  onClick={() => setIsSidebarOpen(true)}
-                  title="Mostrar panel de configuración"
+                  className="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1 shadow-none"
+                  onClick={() => {
+                    const nextMode = scrollbarMode === 'hidden' ? 'thin' : scrollbarMode === 'thin' ? 'default' : 'hidden';
+                    setScrollbarMode(nextMode);
+                    sendIframeSettings(nextMode, simulatedTheme);
+                  }}
+                  title={`Scrollbar: ${scrollbarMode === 'hidden' ? 'Oculta (Móvil)' : scrollbarMode === 'thin' ? 'Fina (4px)' : 'Estándar'}. Clic para alternar.`}
                 >
-                  <i className="bi bi-layout-sidebar-inset"></i>
-                  <span className="small fw-semibold">Opciones</span>
+                  <i className={`bi ${scrollbarMode === 'hidden' ? 'bi-eye-slash' : scrollbarMode === 'thin' ? 'bi-distribute-vertical' : 'bi-view-stacked'}`}></i>
+                  <span>{scrollbarMode === 'hidden' ? 'Oculto' : scrollbarMode === 'thin' ? 'Fino' : 'Normal'}</span>
                 </button>
-              )}
 
-              {!isMultiView ? (
-                <>
-                  {/* Range Badge from Table */}
-                  <span className={`badge ${activeBreakpointRange.badgeClass} d-flex align-items-center gap-1`}>
-                    <i className={`bi ${activeBreakpointRange.icon}`}></i>
-                    <span>{activeBreakpointRange.name}</span>
-                    <span className="opacity-75">({activeBreakpointRange.range})</span>
-                  </span>
+                {/* Fast Theme Switcher in header */}
+                <button
+                  type="button"
+                  className={`btn btn-xs ${
+                    simulatedTheme === 'dark' ? 'btn-dark text-warning border-secondary' : 'btn-light text-dark border'
+                  } d-flex align-items-center gap-1 shadow-none`}
+                  onClick={() => {
+                    const nextTheme = simulatedTheme === 'dark' ? 'light' : 'dark';
+                    setSimulatedTheme(nextTheme);
+                    sendIframeSettings(scrollbarMode, nextTheme);
+                  }}
+                  title="Alternar tema Claro / Oscuro"
+                >
+                  <i className={`bi ${simulatedTheme === 'dark' ? 'bi-moon-stars-fill' : 'bi-sun-fill'}`}></i>
+                  <span>{simulatedTheme === 'dark' ? 'Oscuro' : 'Claro'}</span>
+                </button>
+              </div>
 
-                  {/* Exact Dimensions Chip */}
-                  <span className="info-chip">
-                    <i className="bi bi-aspect-ratio text-primary me-1"></i>
-                    <strong>{activeWidth} × {activeHeight} px</strong>
-                  </span>
-
-                  <span className="info-chip d-none d-sm-inline-flex">
-                    Ratio: {(activeWidth / activeHeight).toFixed(2)} ({activeWidth > activeHeight ? 'Horizontal' : 'Vertical'})
-                  </span>
-
-                  <span className="info-chip font-monospace d-none d-lg-inline-flex">
-                    @media (max-width: {activeWidth}px)
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="badge bg-info text-dark d-flex align-items-center gap-1">
-                    <i className="bi bi-columns-gap"></i>
-                    <span>Vista Paralela (3 Pantallas)</span>
-                  </span>
-                  <span className="info-chip">
-                    <i className="bi bi-phone text-primary me-1"></i>
-                    <strong>{multiViewDevices[0]?.name?.split(' ')[0]}: {multiViewDevices[0]?.width}px</strong>
-                  </span>
-                  <span className="info-chip">
-                    <i className="bi bi-tablet text-warning me-1"></i>
-                    <strong>{multiViewDevices[1]?.name?.split(' ')[0]}: {multiViewDevices[1]?.width}px</strong>
-                  </span>
-                  <span className="info-chip">
-                    <i className="bi bi-laptop text-success me-1"></i>
-                    <strong>Desktop: {multiViewDevices[2]?.width}px</strong>
-                  </span>
-                </>
-              )}
-
-              {/* Touch & Drag Active Badge */}
-              <span className="badge bg-success-subtle text-success border border-success-subtle d-flex align-items-center gap-1" title="Toques táctiles, deslizamiento horizontal y clics habilitados">
-                <i className="bi bi-hand-index-thumb"></i>
-                <span>Touch & Drag Activo</span>
-              </span>
-
-              {isProxyApplicable ? (
-                <span className="badge bg-warning text-dark d-flex align-items-center gap-1">
-                  <i className="bi bi-shield-check"></i> Proxy QA + Swipe
+              <div className="canvas-ribbon-right">
+                <span className="small text-muted text-truncate ribbon-url" title={effectiveUrl}>
+                  <i className="bi bi-globe me-1"></i>{activeUrl.replace(/^https?:\/\//, '')}
                 </span>
-              ) : isTargetLocal ? (
-                <span className="badge bg-info text-dark d-flex align-items-center gap-1" title="Cargando en modo directo local para proteger tu red y permitir acceso a localhost">
-                  <i className="bi bi-hdd-network"></i> Modo Directo (Local)
-                </span>
-              ) : (
-                <span className="badge bg-secondary text-white d-flex align-items-center gap-1" title="Cargando sin proxy">
-                  <i className="bi bi-globe"></i> Modo Directo
-                </span>
-              )}
-
-              {/* Fast Scrollbar Switcher in header */}
-              <button
-                type="button"
-                className="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1 shadow-none"
-                onClick={() => {
-                  const nextMode = scrollbarMode === 'hidden' ? 'thin' : scrollbarMode === 'thin' ? 'default' : 'hidden';
-                  setScrollbarMode(nextMode);
-                  sendIframeSettings(nextMode, simulatedTheme);
-                }}
-                title={`Scrollbar: ${scrollbarMode === 'hidden' ? 'Oculta (Móvil)' : scrollbarMode === 'thin' ? 'Fina (4px)' : 'Estándar'}. Clic para alternar.`}
-              >
-                <i className={`bi ${scrollbarMode === 'hidden' ? 'bi-eye-slash' : scrollbarMode === 'thin' ? 'bi-distribute-vertical' : 'bi-view-stacked'}`}></i>
-                <span>Scroll: {scrollbarMode === 'hidden' ? 'Oculto' : scrollbarMode === 'thin' ? 'Fino (4px)' : 'Normal'}</span>
-              </button>
-
-              {/* Fast Theme Switcher in header */}
-              <button
-                type="button"
-                className={`btn btn-xs ${
-                  simulatedTheme === 'dark' ? 'btn-dark text-warning border-secondary' : 'btn-light text-dark border'
-                } d-flex align-items-center gap-1 shadow-none`}
-                onClick={() => {
-                  const nextTheme = simulatedTheme === 'dark' ? 'light' : 'dark';
-                  setSimulatedTheme(nextTheme);
-                  sendIframeSettings(scrollbarMode, nextTheme);
-                }}
-                title="Alternar tema Claro / Oscuro"
-              >
-                <i className={`bi ${simulatedTheme === 'dark' ? 'bi-moon-stars-fill' : 'bi-sun-fill'}`}></i>
-                <span>{simulatedTheme === 'dark' ? 'Oscuro' : 'Claro'}</span>
-              </button>
+                <button
+                  type="button"
+                  className="btn btn-xs btn-outline-secondary"
+                  onClick={handleRefresh}
+                  title="Recargar"
+                >
+                  <i className="bi bi-arrow-clockwise"></i>
+                </button>
+              </div>
             </div>
-
-            <div className="d-flex align-items-center gap-2">
-              <span className="small text-muted text-truncate" style={{ maxWidth: '260px' }} title={effectiveUrl}>
-                <i className="bi bi-globe me-1"></i> {activeUrl}
-              </span>
-              <button
-                type="button"
-                className="btn btn-xs btn-outline-secondary"
-                onClick={handleRefresh}
-                title="Recargar"
-              >
-                <i className="bi bi-arrow-clockwise"></i>
-              </button>
-            </div>
-          </div>
+          )}
 
           {/* Simulator Canvas Area */}
           {!isMultiView ? (
+            isFullscreen && fullscreenFillMode === 'fill-screen' ? (
+              <div className="fullscreen-fill-wrapper w-100 h-100 position-relative">
+                {isLoadingIframe && (
+                  <div className="iframe-loader">
+                    <div className="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+                    <span className="small text-muted mb-2">Cargando pantalla completa...</span>
+                  </div>
+                )}
+                <iframe
+                  ref={mainIframeRef}
+                  key={`fullscreen-fill-${refreshKey}`}
+                  src={effectiveUrl}
+                  title={`Simulador QA - Pantalla Completa - ${activeUrl}`}
+                  className={`w-100 h-100 border-0 theme-${simulatedTheme} scrollbar-${scrollbarMode}`}
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-presentation"
+                  allow="geolocation; camera; microphone; payment; display-capture; autoplay; encrypted-media"
+                  loading="eager"
+                  onLoad={(e) => handleIframeLoad(e.target)}
+                />
+              </div>
+            ) : (
             <div className="simulator-canvas-container" ref={canvasContainerRef}>
               <div
                 className="simulator-scaler"
@@ -1558,9 +2114,9 @@ export default function DeviceSimulator() {
                         title={`Simulador ${activeWidth}x${activeHeight}`}
                         className={`device-iframe theme-${simulatedTheme}`}
                         style={{ colorScheme: simulatedTheme }}
-                        onLoad={() => setIsLoadingIframe(false)}
+                        onLoad={(e) => handleIframeLoad(e.target)}
                         onError={() => setIsLoadingIframe(false)}
-                        allow="accelerometer; ambient-light-sensor; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; fullscreen; geolocation; gyroscope; microphone; midi; payment; picture-in-picture; usb; wake-lock; screen-wake-lock; web-share"
+                        allow="accelerometer; ambient-light-sensor; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; geolocation; gyroscope; microphone; midi; payment; picture-in-picture; usb; wake-lock; screen-wake-lock; web-share"
                         {...(enableSandbox
                           ? {
                               sandbox:
@@ -1618,9 +2174,9 @@ export default function DeviceSimulator() {
                       title="Simulador Canvas"
                       className={`device-iframe theme-${simulatedTheme}`}
                       style={{ colorScheme: simulatedTheme }}
-                      onLoad={() => setIsLoadingIframe(false)}
+                      onLoad={(e) => handleIframeLoad(e.target)}
                       onError={() => setIsLoadingIframe(false)}
-                      allow="accelerometer; ambient-light-sensor; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; fullscreen; geolocation; gyroscope; microphone; midi; payment; picture-in-picture; usb; wake-lock; screen-wake-lock; web-share"
+                      allow="accelerometer; ambient-light-sensor; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; geolocation; gyroscope; microphone; midi; payment; picture-in-picture; usb; wake-lock; screen-wake-lock; web-share"
                       {...(enableSandbox
                         ? {
                             sandbox:
@@ -1632,6 +2188,7 @@ export default function DeviceSimulator() {
                 )}
               </div>
             </div>
+            )
           ) : (
             /* Multi-Device Parallel View inside Right Canvas */
             <div className="multi-view-container p-3">
@@ -1770,6 +2327,17 @@ export default function DeviceSimulator() {
                   >
                     <i className="bi bi-arrow-counterclockwise"></i>
                   </button>
+
+                  {/* Fullscreen Multi-View 3x Button */}
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 shadow-sm"
+                    onClick={() => handleToggleAppFullscreen()}
+                    title="Ver las 3 pantallas en Pantalla Completa en tu PC (Esc para salir)"
+                  >
+                    <i className="bi bi-arrows-fullscreen"></i>
+                    <span className="fw-semibold d-none d-sm-inline">Pantalla Completa (3x)</span>
+                  </button>
                 </div>
               </div>
 
@@ -1901,16 +2469,28 @@ export default function DeviceSimulator() {
                             )}
                           </div>
 
-                          {/* Expand Card Button */}
-                          <button
-                            type="button"
-                            className={`btn btn-xs ${isExpanded ? 'btn-warning' : 'btn-outline-secondary'}`}
-                            onClick={() => setExpandedCardKey(isExpanded ? null : dev.slotKey)}
-                            title={isExpanded ? 'Restaurar ancho normal' : 'Expandir tarjeta a ancho completo'}
-                          >
-                            <i className={`bi ${isExpanded ? 'bi-arrows-angle-contract' : 'bi-arrows-angle-expand'}`}></i>
-                            <span className="ms-1 d-none d-sm-inline">{isExpanded ? 'Contraer' : 'Expandir'}</span>
-                          </button>
+                          {/* Action Buttons: Expand and Fullscreen on PC */}
+                          <div className="d-flex align-items-center gap-1">
+                            <button
+                              type="button"
+                              className={`btn btn-xs ${isExpanded ? 'btn-warning' : 'btn-outline-secondary'}`}
+                              onClick={() => setExpandedCardKey(isExpanded ? null : dev.slotKey)}
+                              title={isExpanded ? 'Restaurar ancho normal' : 'Expandir tarjeta a ancho completo'}
+                            >
+                              <i className={`bi ${isExpanded ? 'bi-arrows-angle-contract' : 'bi-arrows-angle-expand'}`}></i>
+                              <span className="ms-1 d-none d-sm-inline">{isExpanded ? 'Contraer' : 'Expandir'}</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn btn-xs btn-primary d-flex align-items-center gap-1 shadow-sm"
+                              onClick={() => handleEnterDeviceFullscreen(dev)}
+                              title={`Ver ${dev.name} en Pantalla Completa de tu PC`}
+                            >
+                              <i className="bi bi-arrows-fullscreen"></i>
+                              <span className="fw-semibold">Pantalla Completa</span>
+                            </button>
+                          </div>
                         </div>
 
                         {/* Screen Simulation Box */}
@@ -1947,7 +2527,8 @@ export default function DeviceSimulator() {
                                 title={`Multi-View ${dev.name}`}
                                 className={`device-iframe border rounded shadow theme-${simulatedTheme}`}
                                 style={{ width: `${dev.width}px`, height: `${dev.height}px`, colorScheme: simulatedTheme }}
-                                allow="accelerometer; ambient-light-sensor; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; fullscreen; geolocation; gyroscope; microphone; midi; payment; picture-in-picture; usb; wake-lock; screen-wake-lock; web-share"
+                                onLoad={(e) => handleIframeLoad(e.target)}
+                                allow="accelerometer; ambient-light-sensor; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; geolocation; gyroscope; microphone; midi; payment; picture-in-picture; usb; wake-lock; screen-wake-lock; web-share"
                                 {...(enableSandbox
                                   ? {
                                       sandbox:
