@@ -40,6 +40,15 @@ export const TOOLS = [
     badge: 'Responsive Testing',
   },
   {
+    title: 'Extractor de Historias Azure DevOps',
+    description: 'Extrae Historias de Usuario por Sprints (selección múltiple), visualiza descripción y criterios de aceptación, y exporta en Excel multi-hoja.',
+    link: ROUTES.AZURE_EXTRACTOR,
+    icon: 'bi-microsoft',
+    color: 'blue',
+    category: 'qa',
+    badge: 'Azure DevOps',
+  },
+  {
     title: 'Generador de Datos (QA Faker CO)',
     description: 'Genera NIT con DV (DIAN Colombia), Cédulas (CC/CE/TI), celulares (+57), tarjetas Luhn y JSON mock masivos.',
     link: ROUTES.MOCK_DATA,

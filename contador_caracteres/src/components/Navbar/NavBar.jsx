@@ -81,6 +81,9 @@ export default function NavBar() {
                     <span className="dropdown-header tools-category-header">
                       <i className="bi bi-check2-circle me-1 text-primary"></i> Pruebas QA & Datos
                     </span>
+                    <Link className="dropdown-item fw-semibold" to={ROUTES.AZURE_EXTRACTOR}>
+                      <i className="bi bi-microsoft me-2 text-primary"></i> Extractor Azure DevOps (HUs)
+                    </Link>
                     <Link className="dropdown-item fw-semibold" to={ROUTES.COURSES}>
                       <i className="bi bi-mortarboard-fill me-2 text-info"></i> Academia & Cursos QA (ISTQB)
                     </Link>

@@ -10,7 +10,7 @@ import './Home.css';
  * Academia & Cursos is placed at the end.
  */
 const CATEGORIES = [
-  { id: 'all', label: 'Ver Todo', icon: 'bi-grid-fill', badge: '18' },
+  { id: 'all', label: 'Ver Todo', icon: 'bi-grid-fill', badge: '19' },
   { id: 'ia', label: 'Inteligencia Artificial', icon: 'bi-robot', badge: 'IA' },
   { id: 'simulators', label: 'Simuladores QA', icon: 'bi-phone-landscape-fill', badge: 'Multi-device' },
   { id: 'qa', label: 'Pruebas & Datos QA', icon: 'bi-patch-check-fill', badge: 'Testing' },

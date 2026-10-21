@@ -27,6 +27,7 @@ import ContrastChecker from './pages/ContrastChecker/ContrastChecker';
 import DeviceSimulator from './pages/DeviceSimulator/DeviceSimulator';
 import CoursesCatalog from './pages/Courses/CoursesCatalog';
 import CourseViewer from './pages/Courses/CourseViewer';
+import AzureExtractor from './pages/AzureExtractor/AzureExtractor';
 
 /**
  * Root application component.
@@ -49,6 +50,7 @@ export default function App() {
             <Route path={ROUTES.VIDEO_CONVERTER} element={<VideoConverter />} />
             <Route path={ROUTES.AUDIO_CONVERTER} element={<AudioConverter />} />
             <Route path={ROUTES.HU_GHERKIN} element={<HUToGherkin />} />
+            <Route path={ROUTES.AZURE_EXTRACTOR} element={<AzureExtractor />} />
             <Route path={ROUTES.MOCK_DATA} element={<DataFaker />} />
             <Route path={ROUTES.DIFF_CHECKER} element={<DiffChecker />} />
             <Route path={ROUTES.JWT_DECODER} element={<JwtDecoder />} />

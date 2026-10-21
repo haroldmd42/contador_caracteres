@@ -23,5 +23,6 @@ export const ROUTES = {
   DEVICE_SIMULATOR: '/simulador-pantallas',
   COURSES: '/cursos',
   COURSE_DETAIL: '/cursos/:courseId',
+  AZURE_EXTRACTOR: '/extractor-azure',
 };
 
