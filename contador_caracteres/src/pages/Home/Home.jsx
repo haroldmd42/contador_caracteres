@@ -10,8 +10,9 @@ import './Home.css';
  * Academia & Cursos is placed at the end.
  */
 const CATEGORIES = [
-  { id: 'all', label: 'Ver Todo', icon: 'bi-grid-fill', badge: '19' },
+  { id: 'all', label: 'Ver Todo', icon: 'bi-grid-fill', badge: '20' },
   { id: 'ia', label: 'Inteligencia Artificial', icon: 'bi-robot', badge: 'IA' },
+  { id: 'automation', label: 'Suite Automatización', icon: 'bi-code-square', badge: 'E2E' },
   { id: 'simulators', label: 'Simuladores QA', icon: 'bi-phone-landscape-fill', badge: 'Multi-device' },
   { id: 'qa', label: 'Pruebas & Datos QA', icon: 'bi-patch-check-fill', badge: 'Testing' },
   { id: 'dev', label: 'Desarrollo & APIs', icon: 'bi-code-slash', badge: 'APIs' },
@@ -23,11 +24,12 @@ const CATEGORIES = [
  * Home page — Highly organized modular dashboard.
  * Order of sections:
  * 1. Inteligencia Artificial para QA
- * 2. Simuladores & Responsive Testing
- * 3. Pruebas QA & Datos de Prueba
- * 4. Desarrollo, APIs & Seguridad
- * 5. Módulos de Conversión & Multimedia
- * 6. Academia & Cursos QA (ISTQB) — At the end
+ * 2. Suite de Pruebas de Automatización (Playwright, Cypress & Selenium)
+ * 3. Simuladores & Responsive Testing
+ * 4. Pruebas QA & Datos de Prueba
+ * 5. Desarrollo, APIs & Seguridad
+ * 6. Módulos de Conversión & Multimedia
+ * 7. Academia & Cursos QA (ISTQB) — At the end
  */
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,6 +54,7 @@ export default function Home() {
   // Group tools by categorized sections for structured display
   const toolsByCategory = useMemo(() => {
     return {
+      automation: TOOLS.filter(t => t.category === 'automation'),
       courses: TOOLS.filter(t => t.category === 'courses'),
       ia: TOOLS.filter(t => t.category === 'ia'),
       simulators: TOOLS.filter(t => t.category === 'simulators'),
@@ -241,7 +244,114 @@ export default function Home() {
               </div>
             </section>
 
-            {/* 2. SECCIÓN: SIMULADORES QA */}
+            {/* SECCIÓN: SUITE DE PRUEBAS DE AUTOMATIZACIÓN (PLAYWRIGHT, CYPRESS & SELENIUM) */}
+            <section className="dashboard-section" id="section-automation">
+              <div className="section-header-box mb-4">
+                <div className="d-flex align-items-center gap-2 mb-1">
+                  <span className="section-icon-badge auto-badge">
+                    <i className="bi bi-code-square"></i>
+                  </span>
+                  <h3 className="section-title-premium mb-0">Suite de Pruebas de Automatización</h3>
+                  <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill ms-2">
+                    Práctica E2E
+                  </span>
+                </div>
+                <p className="section-subtitle-text mb-0">
+                  Laboratorio interactivo para que automatizadores practiquen pruebas reales con Playwright, Cypress y Selenium: formularios, modales, alertas y aserciones.
+                </p>
+              </div>
+
+              <div className="featured-showcase-card automation-showcase">
+                <div className="row align-items-center g-4">
+                  <div className="col-lg-7">
+                    <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
+                      <span className="showcase-pill-badge bg-success-subtle text-success">
+                        <i className="bi bi-play-circle-fill me-1"></i> Playwright Ready
+                      </span>
+                      <span className="showcase-pill-badge bg-info-subtle text-info">
+                        <i className="bi bi-code-slash me-1"></i> Cypress E2E
+                      </span>
+                      <span className="showcase-pill-badge bg-primary-subtle text-primary">
+                        <i className="bi bi-browser-chrome me-1"></i> Selenium WebDriver
+                      </span>
+                    </div>
+
+                    <h4 className="showcase-card-title mb-3">
+                      Entorno de Práctica para Automatizadores de Software
+                    </h4>
+                    <p className="showcase-card-desc mb-4">
+                      Pon a prueba tus scripts y habilidades de automatización en una suite especialmente diseñada con componentes web dinámicos, selectores complejos, esperas asíncronas, tablas paginadas, carga de archivos y validaciones de interfaz.
+                    </p>
+
+                    <div className="showcase-highlights-grid mb-4">
+                      <div className="showcase-highlight-item">
+                        <i className="bi bi-check-circle-fill text-success"></i>
+                        <span>Retos de selectores CSS, XPath y data-testids</span>
+                      </div>
+                      <div className="showcase-highlight-item">
+                        <i className="bi bi-check-circle-fill text-success"></i>
+                        <span>Formularios con validaciones y campos dinámicos</span>
+                      </div>
+                      <div className="showcase-highlight-item">
+                        <i className="bi bi-check-circle-fill text-success"></i>
+                        <span>Interacción con modales, iframes y alertas nativas</span>
+                      </div>
+                      <div className="showcase-highlight-item">
+                        <i className="bi bi-check-circle-fill text-success"></i>
+                        <span>Compatible con Playwright, Cypress, Selenium y Robot</span>
+                      </div>
+                    </div>
+
+                    <div className="d-flex flex-wrap gap-3 mt-4">
+                      <a
+                        href="https://haroldmd42.github.io/automation_suite/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-success px-4 py-2.5 rounded-pill fw-semibold d-inline-flex align-items-center gap-2 shadow-sm"
+                      >
+                        <span>Abrir Suite de Automatización</span>
+                        <i className="bi bi-box-arrow-up-right"></i>
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="col-lg-5">
+                    <div className="showcase-preview-box automation-preview-card text-center p-4">
+                      <div className="automation-frameworks-row d-flex justify-content-center gap-3 mb-3">
+                        <div className="framework-badge-circle bg-success-subtle text-success p-3 rounded-circle shadow-sm">
+                          <i className="bi bi-play-circle-fill fs-3"></i>
+                          <div className="small fw-bold mt-1" style={{ fontSize: '0.72rem' }}>Playwright</div>
+                        </div>
+                        <div className="framework-badge-circle bg-info-subtle text-info p-3 rounded-circle shadow-sm">
+                          <i className="bi bi-code-slash fs-3"></i>
+                          <div className="small fw-bold mt-1" style={{ fontSize: '0.72rem' }}>Cypress</div>
+                        </div>
+                        <div className="framework-badge-circle bg-primary-subtle text-primary p-3 rounded-circle shadow-sm">
+                          <i className="bi bi-browser-chrome fs-3"></i>
+                          <div className="small fw-bold mt-1" style={{ fontSize: '0.72rem' }}>Selenium</div>
+                        </div>
+                      </div>
+                      <h5 className="fw-bold mb-1">Automation Practice Suite</h5>
+                      <span className="small text-muted d-block mb-3">Suite de Pruebas Web en Vivo</span>
+                      <div className="p-2.5 rounded-3 bg-surface border small text-muted mb-3 font-monospace" style={{ fontSize: '0.8rem' }}>
+                        https://haroldmd42.github.io/automation_suite/
+                      </div>
+                      <a
+                        href="https://haroldmd42.github.io/automation_suite/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-sm btn-outline-success w-100 rounded-pill fw-semibold d-flex align-items-center justify-content-center gap-1.5"
+                      >
+                        <span>Ir a la Suite Externa</span>
+                        <i className="bi bi-box-arrow-up-right"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 3. SECCIÓN: SIMULADORES QA */}
             <section className="dashboard-section" id="section-simulators">
               <div className="section-header-box mb-4">
                 <div className="d-flex align-items-center gap-2 mb-1">

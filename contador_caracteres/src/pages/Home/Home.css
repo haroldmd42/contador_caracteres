@@ -231,6 +231,7 @@
 
 .courses-badge { background: rgba(56, 189, 248, 0.15); color: #0284c7; }
 .ai-badge { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.auto-badge { background: rgba(16, 185, 129, 0.15); color: #10b981; }
 .sim-badge { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
 .qa-badge { background: rgba(16, 185, 129, 0.15); color: #10b981; }
 .dev-badge { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
@@ -251,7 +252,7 @@
 }
 
 /* ============================================================
-   FEATURED SHOWCASE CARDS (ACADEMIA, IA, SIMULADORES)
+   FEATURED SHOWCASE CARDS (ACADEMIA, IA, SIMULADORES, AUTOMATION)
    ============================================================ */
 .featured-showcase-card {
   background: var(--bg-card);
@@ -280,7 +281,23 @@
 
 .courses-showcase::before { background: linear-gradient(90deg, #38bdf8, #6366f1); }
 .ai-showcase::before { background: linear-gradient(90deg, #ef4444, #f59e0b); }
+.automation-showcase::before { background: linear-gradient(90deg, #10b981, #06b6d4, #6366f1); }
 .simulator-showcase::before { background: linear-gradient(90deg, #6366f1, #10b981); }
+
+.framework-badge-circle {
+  width: 74px;
+  height: 74px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  cursor: default;
+}
+
+.framework-badge-circle:hover {
+  transform: translateY(-4px) scale(1.05);
+}
 
 .showcase-pill-badge {
   font-size: 0.76rem;

@@ -133,10 +133,11 @@ export default function ModuleRenderer({ activeTopic, speech, childSections = []
                     {sub.cards.map((card, cIdx) => {
                       const cardId = `subcard-${idx}-${cIdx}`;
                       const isPlayingCard = activeSectionId === cardId;
-                      const cardSpeech = `${card.title}. ${card.description}. ${card.bullets.join('. ')}`;
+                      const cardSpeech = `${card.title}. ${card.description || ''}. ${card.bullets ? card.bullets.join('. ') : ''}`;
+                      const colClass = sub.cards.length === 3 ? 'col-12 col-lg-4' : 'col-12 col-md-6';
 
                       return (
-                        <div key={cIdx} className="col-12 col-md-6">
+                        <div key={cIdx} className={colClass}>
                           <div
                             className={`p-4 rounded-3 border bg-surface-elevated h-100 concept-subcard transition-all ${
                               isPlayingCard ? 'audio-section-playing' : ''

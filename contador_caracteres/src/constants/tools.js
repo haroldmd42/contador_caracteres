@@ -13,6 +13,16 @@ import { ROUTES } from './routes';
  */
 export const TOOLS = [
   {
+    title: 'Suite de Pruebas de Automatización',
+    description: 'Entorno interactivo para practicar pruebas con Playwright, Cypress y Selenium: formularios, modales, alertas, tablas dinámicas y aserciones E2E.',
+    link: 'https://haroldmd42.github.io/automation_suite/',
+    icon: 'bi-code-square',
+    color: 'green',
+    category: 'automation',
+    badge: 'Playwright • Cypress • Selenium',
+    isExternal: true,
+  },
+  {
     title: 'Academia & Cursos QA (ISTQB®)',
     description: 'Aprende pruebas de software con cursos interactivos, lectura en voz alta, glosarios y simulacro de certificación.',
     link: ROUTES.COURSES,

@@ -63,6 +63,20 @@ export default function NavBar() {
               </Link>
             </li>
 
+            <li className="nav-item">
+              <a
+                className="nav-link fw-semibold d-flex align-items-center"
+                href="https://haroldmd42.github.io/automation_suite/"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Suite de Prácticas E2E con Playwright, Cypress y Selenium"
+              >
+                <i className="bi bi-code-square me-1 text-success"></i>
+                <span>Suite Automatización</span>
+                <i className="bi bi-box-arrow-up-right ms-1" style={{ fontSize: '0.7rem', opacity: 0.8 }}></i>
+              </a>
+            </li>
+
             <li className="nav-item dropdown">
               <a
                 className="nav-link dropdown-toggle"
@@ -81,6 +95,17 @@ export default function NavBar() {
                     <span className="dropdown-header tools-category-header">
                       <i className="bi bi-check2-circle me-1 text-primary"></i> Pruebas QA & Datos
                     </span>
+                    <a
+                      className="dropdown-item fw-semibold text-success d-flex align-items-center justify-content-between"
+                      href="https://haroldmd42.github.io/automation_suite/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span>
+                        <i className="bi bi-code-square me-2 text-success"></i> Suite Automatización (E2E)
+                      </span>
+                      <i className="bi bi-box-arrow-up-right text-muted small ms-2"></i>
+                    </a>
                     <Link className="dropdown-item fw-semibold" to={ROUTES.AZURE_EXTRACTOR}>
                       <i className="bi bi-microsoft me-2 text-primary"></i> Extractor Azure DevOps (HUs)
                     </Link>

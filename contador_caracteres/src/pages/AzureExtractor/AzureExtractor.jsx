@@ -713,17 +713,25 @@ export default function AzureExtractor() {
                   </div>
 
                   {/* Filter Search */}
-                  <div className="input-group input-group-sm mb-2">
-                    <span className="input-group-text bg-transparent border-end-0 text-muted">
-                      <i className="bi bi-search"></i>
-                    </span>
+                  <div className="azure-search-box azure-search-box-sm mb-2.5">
+                    <i className="bi bi-search azure-search-icon"></i>
                     <input
                       type="text"
-                      className="form-control form-control-sm border-start-0 ps-0"
+                      className="azure-search-field"
                       placeholder="Filtrar sprint..."
                       value={sprintSearch}
                       onChange={(e) => setSprintSearch(e.target.value)}
                     />
+                    {sprintSearch && (
+                      <button
+                        type="button"
+                        className="azure-search-clear"
+                        onClick={() => setSprintSearch('')}
+                        title="Limpiar filtro de sprint"
+                      >
+                        <i className="bi bi-x-lg"></i>
+                      </button>
+                    )}
                   </div>
 
                   {/* Sprints Scroll Area */}
@@ -849,23 +857,23 @@ export default function AzureExtractor() {
                   <div className="filter-row">
                     {/* Search Input */}
                     <div className="filter-search-col">
-                      <div className="input-group input-group-sm">
-                        <span className="input-group-text bg-transparent border-end-0 text-muted">
-                          <i className="bi bi-search"></i>
-                        </span>
+                      <div className="azure-search-box">
+                        <i className="bi bi-search azure-search-icon"></i>
                         <input
                           type="text"
-                          className="form-control border-start-0 ps-0"
+                          className="azure-search-field"
                           placeholder="Buscar por ID, título o responsable..."
                           value={storySearch}
                           onChange={(e) => setStorySearch(e.target.value)}
                         />
                         {storySearch && (
                           <button
-                            className="btn btn-outline-secondary border-start-0"
+                            type="button"
+                            className="azure-search-clear"
                             onClick={() => setStorySearch('')}
+                            title="Limpiar búsqueda"
                           >
-                            <i className="bi bi-x"></i>
+                            <i className="bi bi-x-lg"></i>
                           </button>
                         )}
                       </div>
@@ -1170,20 +1178,23 @@ export default function AzureExtractor() {
 
             {/* Quick Filter Search inside results */}
             <div className="mt-3 pt-2.5 border-top border-subtle d-flex align-items-center justify-content-between flex-wrap gap-2">
-              <div className="input-group input-group-sm" style={{ maxWidth: '420px' }}>
-                <span className="input-group-text bg-transparent text-muted">
-                  <i className="bi bi-search"></i>
-                </span>
+              <div className="azure-search-box" style={{ maxWidth: '420px' }}>
+                <i className="bi bi-search azure-search-icon"></i>
                 <input
                   type="text"
-                  className="form-control"
+                  className="azure-search-field"
                   placeholder="Buscar en resultados (ID, palabra clave, criterio)..."
                   value={resultSearch}
                   onChange={(e) => setResultSearch(e.target.value)}
                 />
                 {resultSearch && (
-                  <button className="btn btn-outline-secondary" onClick={() => setResultSearch('')}>
-                    <i className="bi bi-x"></i>
+                  <button
+                    type="button"
+                    className="azure-search-clear"
+                    onClick={() => setResultSearch('')}
+                    title="Limpiar filtro de resultados"
+                  >
+                    <i className="bi bi-x-lg"></i>
                   </button>
                 )}
               </div>

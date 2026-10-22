@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { getCourseById, getAllCourses } from '../../data/courses';
 import { ROUTES } from '../../constants/routes';
 import { useNaturalSpeech } from '../../hooks/useNaturalSpeech';
@@ -18,6 +18,7 @@ import './Courses.css';
  */
 export default function CourseViewer() {
   const { courseId } = useParams();
+  const [searchParams] = useSearchParams();
   const speech = useNaturalSpeech();
 
   // Find course or fallback to default
@@ -25,13 +26,41 @@ export default function CourseViewer() {
     return getCourseById(courseId) || getAllCourses()[0];
   }, [courseId]);
 
-  // View tabs: 'content' | 'glossary' | 'exam'
-  const [activeTab, setActiveTab] = useState('content');
+  // View tabs: 'content' | 'prologue' | 'glossary' | 'exam'
+  const urlTab = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(() => {
+    return urlTab && ['content', 'prologue', 'glossary', 'exam'].includes(urlTab)
+      ? urlTab
+      : 'content';
+  });
+
   // Current active module and topic
-  const [activeModuleId, setActiveModuleId] = useState(course.modules[0].id);
-  const [activeTopicId, setActiveTopicId] = useState(course.modules[0].topics[0].id);
+  const [activeModuleId, setActiveModuleId] = useState(() => course.modules[0].id);
+  const [activeTopicId, setActiveTopicId] = useState(() => course.modules[0].topics[0].id);
   // Sidebar collapsed state on smaller screens
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Sync tab with URL search parameter if it changes
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['content', 'prologue', 'glossary', 'exam'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
+  // Reset active module, topic, and load progress when course changes
+  useEffect(() => {
+    if (course?.modules?.[0]) {
+      setActiveModuleId(course.modules[0].id);
+      setActiveTopicId(course.modules[0].topics[0].id);
+    }
+    try {
+      const saved = localStorage.getItem(`course_progress_${course.id}`);
+      setCompletedTopics(saved ? JSON.parse(saved) : {});
+    } catch {
+      setCompletedTopics({});
+    }
+  }, [course.id]);
 
   // Local storage for completed topics
   const [completedTopics, setCompletedTopics] = useState(() => {
@@ -127,7 +156,7 @@ export default function CourseViewer() {
               list.push({
                 id: `subcard-${idx}-${cIdx}`,
                 title: card.title,
-                speechText: `${card.title}. ${card.description}. ${card.bullets.join('. ')}`
+                speechText: `${card.title}. ${card.description || ''}. ${card.bullets ? card.bullets.join('. ') : ''}`
               });
             });
           }
@@ -338,6 +367,10 @@ export default function CourseViewer() {
 
                 {course.modules.map((m) => {
                   const isCurrentModule = activeModuleId === m.id && activeTab === 'content';
+                  const completedInModule = m.topics.filter((t) => completedTopics[t.id]).length;
+                  const totalInModule = m.topics.length;
+                  const isModuleFinished = completedInModule === totalInModule && totalInModule > 0;
+
                   return (
                     <div key={m.id} className="module-group rounded-3 border overflow-hidden">
                       <button
@@ -351,10 +384,23 @@ export default function CourseViewer() {
                         }}
                       >
                         <div className="d-flex align-items-center gap-2 text-truncate">
-                          <i className={`bi ${m.icon} text-primary`}></i>
+                          <i className={`bi ${m.icon || 'bi-layers'} text-primary`}></i>
                           <span className="small fw-bold text-truncate">{m.shortTitle}</span>
                         </div>
-                        <i className={`bi ${isCurrentModule ? 'bi-chevron-down' : 'bi-chevron-right'} small text-muted`}></i>
+                        <div className="d-flex align-items-center gap-1.5 ms-auto">
+                          <span
+                            className={`badge ${
+                              isModuleFinished
+                                ? 'bg-success text-white'
+                                : 'bg-surface-elevated text-secondary border'
+                            } rounded-pill px-2 py-0.5`}
+                            style={{ fontSize: '0.72rem' }}
+                            title={`${completedInModule} de ${totalInModule} temas completados`}
+                          >
+                            {completedInModule}/{totalInModule}
+                          </span>
+                          <i className={`bi ${isCurrentModule ? 'bi-chevron-down' : 'bi-chevron-right'} small text-muted`}></i>
+                        </div>
                       </button>
 
                       {/* Topic items within module */}
@@ -399,7 +445,7 @@ export default function CourseViewer() {
                   >
                     <div className="d-flex align-items-center gap-2">
                       <i className="bi bi-book-half text-info"></i>
-                      <span className="small fw-bold">Glosario Técnico (20)</span>
+                      <span className="small fw-bold">Glosario Técnico ({course.glossary?.length || 0})</span>
                     </div>
                     <span className="badge bg-info-subtle text-info rounded-pill small">Syllabus</span>
                   </button>
@@ -412,7 +458,7 @@ export default function CourseViewer() {
                   >
                     <div className="d-flex align-items-center gap-2">
                       <i className="bi bi-award-fill text-warning"></i>
-                      <span className="small fw-bold">Simulacro Examen (10)</span>
+                      <span className="small fw-bold">Simulacro Examen ({course.exam?.length || 0})</span>
                     </div>
                     <span className="badge bg-warning-subtle text-warning-emphasis rounded-pill small">Oficial</span>
                   </button>
@@ -448,7 +494,7 @@ export default function CourseViewer() {
                   }`}
                   onClick={() => setActiveTab('glossary')}
                 >
-                  <i className="bi bi-book me-1"></i> Glosario (20)
+                  <i className="bi bi-book me-1"></i> Glosario ({course.glossary?.length || 0})
                 </button>
                 <button
                   className={`nav-link rounded-pill px-3 py-1.5 small fw-semibold ${
@@ -456,7 +502,7 @@ export default function CourseViewer() {
                   }`}
                   onClick={() => setActiveTab('exam')}
                 >
-                  <i className="bi bi-check2-square me-1"></i> Simulacro Examen (10)
+                  <i className="bi bi-check2-square me-1"></i> Simulacro Examen ({course.exam?.length || 0})
                 </button>
               </div>
 
@@ -476,7 +522,7 @@ export default function CourseViewer() {
                 <div className="prologue-container p-4 p-md-5 rounded-4 shadow-sm border bg-card mb-4">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <span className="badge bg-primary text-white rounded-pill px-3 py-1 fw-bold small">
-                      Manifiesto de Calidad en IA
+                      {course.badge || 'Manifiesto de Calidad'}
                     </span>
                     <SectionAudioButton
                       sectionId="prologue-main"
@@ -580,11 +626,11 @@ export default function CourseViewer() {
               )}
 
               {activeTab === 'glossary' && (
-                <CourseGlossary glossary={course.glossary} speech={speech} />
+                <CourseGlossary glossary={course.glossary} speech={speech} course={course} />
               )}
 
               {activeTab === 'exam' && (
-                <CourseQuiz examQuestions={course.exam} speech={speech} />
+                <CourseQuiz examQuestions={course.exam} speech={speech} course={course} />
               )}
             </div>
           </div>

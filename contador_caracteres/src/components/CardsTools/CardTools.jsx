@@ -17,9 +17,21 @@ export function CardTools({ title, description, link, icon, color, badge }) {
                 <h5>{title}</h5>
                 <p>{description}</p>
 
-                <Link to={link} className="btn-go">
-                    Ir <i className="bi bi-arrow-right"></i>
-                </Link>
+                {link?.startsWith('http') ? (
+                    <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-go"
+                        title="Abrir en nueva pestaña"
+                    >
+                        Abrir <i className="bi bi-box-arrow-up-right"></i>
+                    </a>
+                ) : (
+                    <Link to={link} className="btn-go">
+                        Ir <i className="bi bi-arrow-right"></i>
+                    </Link>
+                )}
             </div>
 
         </div>

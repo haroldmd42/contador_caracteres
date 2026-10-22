@@ -21,6 +21,14 @@ export const genAiLlmCourse = {
   rating: 4.95,
   author: 'Comité de Aseguramiento de Calidad en IA & QATOOLS Education',
   updatedAt: '2026',
+  highlights: [
+    'Metodología integral en 8 fases (RAG y Agentes Autónomos)',
+    'Taxonomía en 4 dimensiones de riesgo y ciberseguridad IA',
+    'Estructura canónica y patrones de prompts para testing',
+    'Oráculos LLM-as-a-judge y calibración Kappa humana',
+    'LLMOps, pipelines CI/CD y monitoreo de deriva (Drift)',
+    '10 preguntas oficiales con justificaciones razonadas'
+  ],
 
   // Prólogo y Filosofía de Calidad
   prologue: {

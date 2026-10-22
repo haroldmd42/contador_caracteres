@@ -1,3 +1,4 @@
+import { fundamentosTestingCourse } from './fundamentos-testing-qa';
 import { genAiLlmCourse } from './genai-llm-qa';
 
 /**
@@ -5,9 +6,8 @@ import { genAiLlmCourse } from './genai-llm-qa';
  * Stored locally in code with clean modular structure.
  */
 export const COURSES = [
+  fundamentosTestingCourse,
   genAiLlmCourse,
-  // Future courses can be added here easily:
-  // e.g. istqbFoundationCourse, cypressPlaywrightCourse, apiTestingCourse
 ];
 
 /**

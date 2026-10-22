@@ -810,3 +810,45 @@
 [data-theme="dark"] .prologue-title {
   color: #f8fafc !important;
 }
+
+/* ✨ Micro-interactions & Visual Polish */
+.hover-lift {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
+  border-color: var(--accent-primary) !important;
+}
+
+[data-theme="dark"] .hover-lift:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+  border-color: var(--accent-primary) !important;
+}
+
+.catalog-toolbar {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+}
+
+[data-theme="dark"] .catalog-toolbar {
+  background: #111827;
+  border-color: #334155;
+}
+
+.course-preview-graphic {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.course-preview-graphic:hover {
+  transform: scale(1.01);
+}
+
+.graphic-icon-ring {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.featured-course-card:hover .graphic-icon-ring {
+  transform: scale(1.08) rotate(4deg);
+}
