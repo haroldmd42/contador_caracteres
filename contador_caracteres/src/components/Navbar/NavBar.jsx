@@ -56,14 +56,6 @@ export default function NavBar() {
             </li>
 
             <li className="nav-item">
-              <Link className="nav-link fw-semibold d-flex align-items-center" to={ROUTES.COURSES}>
-                <i className="bi bi-mortarboard-fill me-1 text-info"></i>
-                <span>Cursos QA</span>
-                <span className="badge bg-primary rounded-pill ms-1.5" style={{ fontSize: '0.65rem', padding: '0.2rem 0.45rem' }}>Nuevo</span>
-              </Link>
-            </li>
-
-            <li className="nav-item">
               <a
                 className="nav-link fw-semibold d-flex align-items-center"
                 href="https://haroldmd42.github.io/automation_suite/"
@@ -109,8 +101,11 @@ export default function NavBar() {
                     <Link className="dropdown-item fw-semibold" to={ROUTES.AZURE_EXTRACTOR}>
                       <i className="bi bi-microsoft me-2 text-primary"></i> Extractor Azure DevOps (HUs)
                     </Link>
-                    <Link className="dropdown-item fw-semibold" to={ROUTES.COURSES}>
-                      <i className="bi bi-mortarboard-fill me-2 text-info"></i> Academia & Cursos QA (ISTQB)
+                    <Link className="dropdown-item fw-semibold d-flex align-items-center justify-content-between" to={ROUTES.COURSES}>
+                      <span>
+                        <i className="bi bi-mortarboard-fill me-2 text-info"></i> Cursos QA (Academia ISTQB)
+                      </span>
+                      <span className="badge bg-primary rounded-pill ms-2" style={{ fontSize: '0.62rem', padding: '0.15rem 0.4rem' }}>Nuevo</span>
                     </Link>
                     <Link className="dropdown-item" to={ROUTES.MOCK_DATA}>
                       <i className="bi bi-person-vcard me-2 text-primary"></i> Generador Datos QA (Faker)

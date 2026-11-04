@@ -316,35 +316,81 @@ export default function Home() {
                   </div>
 
                   <div className="col-lg-5">
-                    <div className="showcase-preview-box automation-preview-card text-center p-4">
-                      <div className="automation-frameworks-row d-flex justify-content-center gap-3 mb-3">
-                        <div className="framework-badge-circle bg-success-subtle text-success p-3 rounded-circle shadow-sm">
-                          <i className="bi bi-play-circle-fill fs-3"></i>
-                          <div className="small fw-bold mt-1" style={{ fontSize: '0.72rem' }}>Playwright</div>
+                    <div className="automation-preview-card shadow-lg">
+                      {/* Browser Window Mockup Topbar */}
+                      <div className="automation-browser-header">
+                        <div className="browser-window-dots">
+                          <span className="browser-dot dot-red"></span>
+                          <span className="browser-dot dot-yellow"></span>
+                          <span className="browser-dot dot-green"></span>
                         </div>
-                        <div className="framework-badge-circle bg-info-subtle text-info p-3 rounded-circle shadow-sm">
-                          <i className="bi bi-code-slash fs-3"></i>
-                          <div className="small fw-bold mt-1" style={{ fontSize: '0.72rem' }}>Cypress</div>
+                        <div className="browser-url-pill">
+                          <i className="bi bi-shield-check text-success me-1"></i>
+                          <span>haroldmd42.github.io/automation_suite</span>
                         </div>
-                        <div className="framework-badge-circle bg-primary-subtle text-primary p-3 rounded-circle shadow-sm">
-                          <i className="bi bi-browser-chrome fs-3"></i>
-                          <div className="small fw-bold mt-1" style={{ fontSize: '0.72rem' }}>Selenium</div>
+                        <div className="browser-live-badge">
+                          <span className="pulse-dot"></span>
+                          <span>En Vivo</span>
                         </div>
                       </div>
-                      <h5 className="fw-bold mb-1">Automation Practice Suite</h5>
-                      <span className="small text-muted d-block mb-3">Suite de Pruebas Web en Vivo</span>
-                      <div className="p-2.5 rounded-3 bg-surface border small text-muted mb-3 font-monospace" style={{ fontSize: '0.8rem' }}>
-                        https://haroldmd42.github.io/automation_suite/
+
+                      {/* Card Content Body */}
+                      <div className="p-3.5 p-md-4 text-center">
+                        {/* 3 Modern Framework Badges */}
+                        <div className="automation-frameworks-grid mb-3">
+                          <div className="framework-card-modern framework-playwright">
+                            <div className="framework-avatar-circle">
+                              <i className="bi bi-play-circle-fill"></i>
+                            </div>
+                            <span className="framework-name">Playwright</span>
+                            <span className="framework-tag">Modern E2E</span>
+                          </div>
+
+                          <div className="framework-card-modern framework-cypress">
+                            <div className="framework-avatar-circle">
+                              <i className="bi bi-code-slash"></i>
+                            </div>
+                            <span className="framework-name">Cypress</span>
+                            <span className="framework-tag">Component</span>
+                          </div>
+
+                          <div className="framework-card-modern framework-selenium">
+                            <div className="framework-avatar-circle">
+                              <i className="bi bi-browser-chrome"></i>
+                            </div>
+                            <span className="framework-name">Selenium</span>
+                            <span className="framework-tag">WebDriver</span>
+                          </div>
+                        </div>
+
+                        <h5 className="fw-bold mb-1">Automation Practice Suite</h5>
+                        <span className="small text-muted d-block mb-3">
+                          Suite Interactiva de Pruebas Automatizadas
+                        </span>
+
+                        {/* Interactive Feature Tags */}
+                        <div className="suite-features-row mb-3">
+                          <span className="suite-feature-tag">
+                            <i className="bi bi-check2-circle text-success"></i> +30 Retos Web
+                          </span>
+                          <span className="suite-feature-tag">
+                            <i className="bi bi-lightning-charge text-warning"></i> Selectores Complejos
+                          </span>
+                          <span className="suite-feature-tag">
+                            <i className="bi bi-arrow-repeat text-info"></i> Auto-waiting
+                          </span>
+                        </div>
+
+                        <a
+                          href="https://haroldmd42.github.io/automation_suite/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn automation-cta-btn w-100 rounded-pill py-2.5 d-flex align-items-center justify-content-center gap-2"
+                        >
+                          <span>Abrir Suite de Prácticas E2E</span>
+                          <i className="bi bi-box-arrow-up-right"></i>
+                        </a>
                       </div>
-                      <a
-                        href="https://haroldmd42.github.io/automation_suite/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-sm btn-outline-success w-100 rounded-pill fw-semibold d-flex align-items-center justify-content-center gap-1.5"
-                      >
-                        <span>Ir a la Suite Externa</span>
-                        <i className="bi bi-box-arrow-up-right"></i>
-                      </a>
                     </div>
                   </div>
                 </div>

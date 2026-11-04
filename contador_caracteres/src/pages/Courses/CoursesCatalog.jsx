@@ -19,6 +19,7 @@ export default function CoursesCatalog() {
   const categories = useMemo(() => {
     const list = [
       { id: 'all', label: 'Todos los Cursos', icon: 'bi-grid-fill' },
+      { id: 'automatizacion', label: 'Automatización & Playwright', icon: 'bi-code-slash' },
       { id: 'fundamentos', label: 'Fundamentos ISTQB®', icon: 'bi-patch-check-fill' },
       { id: 'ia', label: 'Inteligencia Artificial', icon: 'bi-robot' }
     ];

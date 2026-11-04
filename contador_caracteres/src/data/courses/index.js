@@ -1,5 +1,6 @@
 import { fundamentosTestingCourse } from './fundamentos-testing-qa';
 import { genAiLlmCourse } from './genai-llm-qa';
+import { playwrightAutomationCourse } from './playwright-automation';
 
 /**
  * Central registry of all QA courses available in QATOOLS Academia.
@@ -7,6 +8,7 @@ import { genAiLlmCourse } from './genai-llm-qa';
  */
 export const COURSES = [
   fundamentosTestingCourse,
+  playwrightAutomationCourse,
   genAiLlmCourse,
 ];
 

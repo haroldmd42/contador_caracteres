@@ -3,22 +3,46 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 /**
  * Natural Human Speech Synthesis Hook for QATOOLS.
  * 
- * Features:
+ * Features & Browser Hardening:
  * 1. Warm, human-like cadence with natural breathing micro-pauses between sentences.
  * 2. Specialized text normalization for tech & QA (QA -> Q. A., LLM -> L. L. M., CI/CD, etc.).
  * 3. Automatic sentence-chunking (prevents Chromium 15s freeze & long-text cutoffs).
- * 4. Resilient pause/resume: resumes from exact sentence index, avoiding Chromium engine stalls.
- * 5. Global utterance retention: prevents V8 garbage collection dropping audio mid-phrase.
- * 6. Top-tier Human Voice Prioritization:
+ * 4. Safe cancel & unfreeze: resolves Chromium Issue 679437 / Issue 749007 where
+ *    speechSynthesis.cancel() leaves the synthesizer in a permanently paused/dead state.
+ * 5. Global Set retention: completely prevents V8 garbage collection dropping utterances mid-phrase.
+ * 6. Non-cascading cancellation: guarantees that cancelled/interrupted utterances never
+ *    trigger an infinite rapid-skip cascade.
+ * 7. Top-tier Human Voice Prioritization:
  *    Automatically selects "Online (Natural)", "Neural", "Google Español", "Salome", "Jorge".
- * 7. Parent / Child (Padre e Hijos) Architecture:
+ * 8. Parent / Child (Padre e Hijos) Architecture:
  *    Allows playing the full lesson sequentially OR playing individual child subsections separately.
- *    Supports next/previous section jumping from the master parent toolbar.
+ * 9. Heartbeat watchdog & keepalive to resist browser inactivity / tab backgrounding stalls.
  */
 
 // Global window reference to prevent garbage collection of SpeechSynthesisUtterance in V8
 if (typeof window !== 'undefined') {
-  window.__qaUtteranceQueue = [];
+  if (!window.__qaSpeechUtterances) {
+    window.__qaSpeechUtterances = new Set();
+  }
+}
+
+/**
+ * Safely cancels and unpauses the browser's speech synthesis engine.
+ * Solves the critical Chromium bug where cancel() leaves the synthesizer in a permanent paused state.
+ */
+function safeCancelAndUnfreeze() {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  try {
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+    window.speechSynthesis.cancel();
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+  } catch (err) {
+    console.warn('[TTS] Unfreeze warning:', err);
+  }
 }
 
 /**
@@ -87,7 +111,7 @@ function splitIntoSentences(text) {
     const trimmed = part.trim();
     if (!trimmed) continue;
 
-    // Keep sentences between 30 and 150 characters for natural breathing pauses
+    // Keep sentences between 30 and 130 characters for natural breathing pauses
     if ((buffer + ' ' + trimmed).length < 130) {
       buffer = buffer ? buffer + ' ' + trimmed : trimmed;
     } else {
@@ -132,6 +156,31 @@ function rankVoice(v) {
   }
 
   return score;
+}
+
+/**
+ * Finds best available voice dynamically, avoiding stale/detached object references.
+ */
+function getBestAvailableVoice(preferredVoice) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return null;
+  const currentVoices = window.speechSynthesis.getVoices() || [];
+  if (currentVoices.length === 0) return null;
+
+  if (preferredVoice) {
+    const match = currentVoices.find(
+      (v) => (v.voiceURI && v.voiceURI === preferredVoice.voiceURI) || v.name === preferredVoice.name
+    );
+    if (match) return match;
+  }
+
+  const spanish = currentVoices
+    .filter((v) => v.lang.toLowerCase().startsWith('es'))
+    .sort((a, b) => rankVoice(b) - rankVoice(a));
+
+  if (spanish.length > 0) return spanish[0];
+
+  const sorted = [...currentVoices].sort((a, b) => rankVoice(b) - rankVoice(a));
+  return sorted[0] || null;
 }
 
 export function useNaturalSpeech() {
@@ -194,7 +243,6 @@ export function useNaturalSpeech() {
         if (!current && ranked.length > 0) {
           return ranked[0];
         }
-        // If current voice is a low-quality desktop voice and a natural voice just arrived, upgrade:
         if (current && ranked.length > 0) {
           const currentScore = rankVoice(current);
           const topScore = rankVoice(ranked[0]);
@@ -211,38 +259,52 @@ export function useNaturalSpeech() {
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
+    if (window.speechSynthesis.addEventListener) {
+      window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    }
+
+    const t1 = setTimeout(loadVoices, 200);
+    const t2 = setTimeout(loadVoices, 800);
 
     return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      if (window.speechSynthesis.removeEventListener) {
+        window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+      }
       if (interSentenceTimeoutRef.current) {
         clearTimeout(interSentenceTimeoutRef.current);
       }
       if (watchdogTimerRef.current) {
         clearInterval(watchdogTimerRef.current);
       }
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
+      safeCancelAndUnfreeze();
     };
   }, [supported]);
 
-  // Heartbeat watchdog for Chromium engine
+  // Heartbeat watchdog for Chromium engine keepalive
   const startWatchdog = useCallback(() => {
     if (watchdogTimerRef.current) clearInterval(watchdogTimerRef.current);
 
     watchdogTimerRef.current = setInterval(() => {
       if (
-        supported &&
-        window.speechSynthesis &&
-        window.speechSynthesis.speaking &&
-        !window.speechSynthesis.paused &&
-        isPlayingRef.current &&
-        !isPausedRef.current
+        !supported ||
+        !window.speechSynthesis ||
+        !isPlayingRef.current ||
+        isPausedRef.current
       ) {
-        // Subtle pause/resume pulse to keep Chromium speech engine active
+        return;
+      }
+
+      // If browser paused in background, awaken it
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      } else if (window.speechSynthesis.speaking) {
+        // Prevent Chromium 15s engine stall
         window.speechSynthesis.pause();
         window.speechSynthesis.resume();
       }
-    }, 8000);
+    }, 5000);
   }, [supported]);
 
   const stopWatchdog = useCallback(() => {
@@ -260,8 +322,12 @@ export function useNaturalSpeech() {
       interSentenceTimeoutRef.current = null;
     }
     stopWatchdog();
-    window.speechSynthesis.cancel();
-    window.__qaUtteranceQueue = [];
+    safeCancelAndUnfreeze();
+
+    if (typeof window !== 'undefined' && window.__qaSpeechUtterances) {
+      window.__qaSpeechUtterances.clear();
+    }
+
     sentencesQueueRef.current = [];
     fullLessonQueueRef.current = [];
     currentSentenceIdxRef.current = 0;
@@ -298,26 +364,35 @@ export function useNaturalSpeech() {
           currentSentenceIdxRef.current = 0;
           setQueueProgress({ current: nextSecIdx + 1, total: fullLessonQueueRef.current.length });
 
-          // 250ms cadence pause between sections to simulate human speaker transitioning
+          // 220ms cadence pause between sections to simulate human speaker transitioning
           interSentenceTimeoutRef.current = setTimeout(() => {
             playNextSentence();
-          }, 250);
+          }, 220);
           return;
         }
       }
 
-      // Everything finished
+      // Everything finished cleanly
       stop();
       return;
     }
 
     const textChunk = sentences[idx];
+    if (!textChunk || !textChunk.trim()) {
+      currentSentenceIdxRef.current += 1;
+      playNextSentence();
+      return;
+    }
+
     const utterance = new SpeechSynthesisUtterance(textChunk);
 
-    // Keep in global array to prevent V8 garbage-collecting active utterance
-    window.__qaUtteranceQueue = [utterance];
+    // Retain in global Set to prevent V8 garbage-collecting active utterance
+    if (typeof window !== 'undefined' && window.__qaSpeechUtterances) {
+      window.__qaSpeechUtterances.add(utterance);
+    }
 
-    const voice = selectedVoiceRef.current;
+    // Dynamic voice resolution (prevents detached voice objects after browser idle)
+    const voice = getBestAvailableVoice(selectedVoiceRef.current);
     if (voice) {
       utterance.voice = voice;
       utterance.lang = voice.lang;
@@ -325,30 +400,52 @@ export function useNaturalSpeech() {
       utterance.lang = 'es-ES';
     }
 
-    utterance.rate = rateRef.current;
+    utterance.rate = rateRef.current || 1.0;
     utterance.pitch = 1.0;
 
     utterance.onend = () => {
+      if (typeof window !== 'undefined' && window.__qaSpeechUtterances) {
+        window.__qaSpeechUtterances.delete(utterance);
+      }
       if (isPlayingRef.current && !isPausedRef.current) {
         currentSentenceIdxRef.current += 1;
-        // Human breathing micro-pause (130ms) between sentences:
+        // Human breathing micro-pause (120ms) between sentences:
         interSentenceTimeoutRef.current = setTimeout(() => {
           playNextSentence();
-        }, 130);
+        }, 120);
       }
     };
 
     utterance.onerror = (e) => {
-      if (e.error !== 'interrupted' && e.error !== 'canceled') {
-        console.warn('Speech error on sentence:', e);
+      if (typeof window !== 'undefined' && window.__qaSpeechUtterances) {
+        window.__qaSpeechUtterances.delete(utterance);
       }
+
+      // CRITICAL: If intentionally canceled or interrupted, do NOT recurse or advance!
+      if (e.error === 'interrupted' || e.error === 'canceled') {
+        return;
+      }
+
+      console.warn('[TTS] Speech error on sentence chunk:', e.error || e);
       if (isPlayingRef.current && !isPausedRef.current) {
         currentSentenceIdxRef.current += 1;
-        playNextSentence();
+        interSentenceTimeoutRef.current = setTimeout(() => {
+          playNextSentence();
+        }, 80);
       }
     };
 
+    // Ensure engine is unpaused before dispatching speak
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+
     window.speechSynthesis.speak(utterance);
+
+    // Secondary pulse for Chrome if in background
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
   }, [supported, stop]);
 
   /**
@@ -361,26 +458,33 @@ export function useNaturalSpeech() {
       // If already playing this section: toggle pause / resume
       if (activeSectionId === sectionId && isPlayingRef.current) {
         if (isPausedRef.current) {
-          // Resume
           isPausedRef.current = false;
           setIsPaused(false);
+          if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+          }
           startWatchdog();
-          playNextSentence();
+          setTimeout(() => {
+            playNextSentence();
+          }, 40);
         } else {
-          // Pause
           if (interSentenceTimeoutRef.current) clearTimeout(interSentenceTimeoutRef.current);
           isPausedRef.current = true;
           setIsPaused(true);
-          window.speechSynthesis.cancel();
           stopWatchdog();
+          safeCancelAndUnfreeze();
         }
         return;
       }
 
       // Stop previous playback cleanly
       if (interSentenceTimeoutRef.current) clearTimeout(interSentenceTimeoutRef.current);
-      window.speechSynthesis.cancel();
-      window.__qaUtteranceQueue = [];
+      safeCancelAndUnfreeze();
+
+      if (typeof window !== 'undefined' && window.__qaSpeechUtterances) {
+        window.__qaSpeechUtterances.clear();
+      }
+
       fullLessonQueueRef.current = [];
       fullLessonIdxRef.current = 0;
 
@@ -398,8 +502,13 @@ export function useNaturalSpeech() {
       setIsPlaying(true);
       setIsPaused(false);
 
-      startWatchdog();
-      playNextSentence();
+      // 60ms delay ensures Chromium cancellation message completes before new utterance
+      setTimeout(() => {
+        if (isPlayingRef.current && !isPausedRef.current) {
+          startWatchdog();
+          playNextSentence();
+        }
+      }, 60);
     },
     [supported, activeSectionId, startWatchdog, playNextSentence, stopWatchdog]
   );
@@ -411,47 +520,69 @@ export function useNaturalSpeech() {
     (childSections = [], lessonTitle = '', startIdx = 0) => {
       if (!supported || !childSections || childSections.length === 0) return;
 
-      // If already playing full lesson: toggle pause / resume
-      if (fullLessonQueueRef.current.length > 0 && isPlayingRef.current) {
+      const validSections = childSections.filter(
+        (s) => s && ((s.speechText && s.speechText.trim()) || (s.title && s.title.trim()))
+      );
+      if (validSections.length === 0) return;
+
+      // If already playing full lesson and browser is actually speaking or paused: toggle pause / resume
+      const hasActiveSynthesis =
+        window.speechSynthesis &&
+        (window.speechSynthesis.speaking || window.speechSynthesis.pending || isPausedRef.current);
+
+      if (fullLessonQueueRef.current.length > 0 && isPlayingRef.current && hasActiveSynthesis) {
         if (isPausedRef.current) {
           isPausedRef.current = false;
           setIsPaused(false);
+          if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+          }
           startWatchdog();
-          playNextSentence();
+          setTimeout(() => {
+            playNextSentence();
+          }, 40);
         } else {
           if (interSentenceTimeoutRef.current) clearTimeout(interSentenceTimeoutRef.current);
           isPausedRef.current = true;
           setIsPaused(true);
-          window.speechSynthesis.cancel();
           stopWatchdog();
+          safeCancelAndUnfreeze();
         }
         return;
       }
 
       if (interSentenceTimeoutRef.current) clearTimeout(interSentenceTimeoutRef.current);
-      window.speechSynthesis.cancel();
-      window.__qaUtteranceQueue = [];
+      safeCancelAndUnfreeze();
 
-      const targetIdx = Math.max(0, Math.min(startIdx, childSections.length - 1));
-      fullLessonQueueRef.current = childSections;
+      if (typeof window !== 'undefined' && window.__qaSpeechUtterances) {
+        window.__qaSpeechUtterances.clear();
+      }
+
+      const targetIdx = Math.max(0, Math.min(startIdx, validSections.length - 1));
+      fullLessonQueueRef.current = validSections;
       fullLessonIdxRef.current = targetIdx;
 
-      const currentSec = childSections[targetIdx];
+      const currentSec = validSections[targetIdx];
       const sentences = splitIntoSentences(currentSec.speechText || currentSec.title);
       sentencesQueueRef.current = sentences;
       currentSentenceIdxRef.current = 0;
 
       setActiveSectionId(currentSec.id);
       setActiveSectionTitle(currentSec.title || lessonTitle);
-      setQueueProgress({ current: targetIdx + 1, total: childSections.length });
+      setQueueProgress({ current: targetIdx + 1, total: validSections.length });
 
       isPlayingRef.current = true;
       isPausedRef.current = false;
       setIsPlaying(true);
       setIsPaused(false);
 
-      startWatchdog();
-      playNextSentence();
+      // 60ms delay ensures Chromium cancellation message completes before new utterance
+      setTimeout(() => {
+        if (isPlayingRef.current && !isPausedRef.current) {
+          startWatchdog();
+          playNextSentence();
+        }
+      }, 60);
     },
     [supported, startWatchdog, playNextSentence, stopWatchdog]
   );
@@ -482,19 +613,27 @@ export function useNaturalSpeech() {
 
   const pause = useCallback(() => {
     if (!supported || !isPlayingRef.current || isPausedRef.current) return;
-    if (interSentenceTimeoutRef.current) clearTimeout(interSentenceTimeoutRef.current);
+    if (interSentenceTimeoutRef.current) {
+      clearTimeout(interSentenceTimeoutRef.current);
+      interSentenceTimeoutRef.current = null;
+    }
     isPausedRef.current = true;
     setIsPaused(true);
-    window.speechSynthesis.cancel();
     stopWatchdog();
+    safeCancelAndUnfreeze();
   }, [supported, stopWatchdog]);
 
   const resume = useCallback(() => {
     if (!supported || !isPlayingRef.current || !isPausedRef.current) return;
     isPausedRef.current = false;
     setIsPaused(false);
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
     startWatchdog();
-    playNextSentence();
+    setTimeout(() => {
+      playNextSentence();
+    }, 40);
   }, [supported, startWatchdog, playNextSentence]);
 
   /**
@@ -503,7 +642,7 @@ export function useNaturalSpeech() {
   const previewVoice = useCallback(
     (voice) => {
       if (!supported || !voice) return;
-      window.speechSynthesis.cancel();
+      safeCancelAndUnfreeze();
 
       const sample = `Hola, esta es la voz natural ${voice.name.replace(/Microsoft|Google|Desktop|Online|\(Natural\)/gi, '').trim().split(' ')[0]} para tu aprendizaje en QATOOLS.`;
       const utterance = new SpeechSynthesisUtterance(sample);
@@ -511,9 +650,29 @@ export function useNaturalSpeech() {
       utterance.lang = voice.lang;
       utterance.rate = 1.0;
       utterance.pitch = 1.0;
-      window.__qaUtteranceQueue = [utterance];
 
-      window.speechSynthesis.speak(utterance);
+      if (typeof window !== 'undefined' && window.__qaSpeechUtterances) {
+        window.__qaSpeechUtterances.add(utterance);
+      }
+
+      utterance.onend = () => {
+        if (typeof window !== 'undefined' && window.__qaSpeechUtterances) {
+          window.__qaSpeechUtterances.delete(utterance);
+        }
+      };
+
+      utterance.onerror = () => {
+        if (typeof window !== 'undefined' && window.__qaSpeechUtterances) {
+          window.__qaSpeechUtterances.delete(utterance);
+        }
+      };
+
+      setTimeout(() => {
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+        window.speechSynthesis.speak(utterance);
+      }, 50);
     },
     [supported]
   );

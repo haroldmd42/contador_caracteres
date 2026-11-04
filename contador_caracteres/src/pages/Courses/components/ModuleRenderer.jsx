@@ -1,5 +1,169 @@
 import React from 'react';
 import SectionAudioButton from './SectionAudioButton';
+import useClipboard from '../../../hooks/useClipboard';
+
+/**
+ * Terminal command box with one-click clipboard copy
+ */
+function TerminalCommandBox({ command }) {
+  const { copied, copyToClipboard } = useClipboard();
+
+  return (
+    <div className="terminal-command-wrapper position-relative my-2 rounded-3 overflow-hidden border">
+      <div className="terminal-command-header d-flex justify-content-between align-items-center px-3 py-1.5 bg-dark text-white-50 small border-bottom border-secondary">
+        <div className="d-flex align-items-center gap-1.5">
+          <span className="terminal-dot bg-danger rounded-circle d-inline-block"></span>
+          <span className="terminal-dot bg-warning rounded-circle d-inline-block"></span>
+          <span className="terminal-dot bg-success rounded-circle d-inline-block"></span>
+          <span className="ms-2 font-monospace text-muted small">bash / terminal</span>
+        </div>
+        <button
+          type="button"
+          className="btn btn-link btn-sm text-decoration-none text-light py-0 px-2 d-flex align-items-center gap-1 copy-btn"
+          onClick={() => copyToClipboard(command)}
+          title="Copiar comando al portapapeles"
+        >
+          <i className={`bi ${copied ? 'bi-check2 text-success' : 'bi-clipboard'}`}></i>
+          <span className={`small ${copied ? 'text-success fw-bold' : ''}`}>
+            {copied ? '¡Copiado!' : 'Copiar'}
+          </span>
+        </button>
+      </div>
+      <pre className="terminal-command-pre m-0 p-3 bg-dark text-light font-monospace small">
+        <code>{command}</code>
+      </pre>
+    </div>
+  );
+}
+
+/**
+ * Modern syntax code block box with language tag and clipboard copy
+ */
+function CodeBlockBox({ snippet }) {
+  const { copied, copyToClipboard } = useClipboard();
+  if (!snippet) return null;
+  const { title, language = 'typescript', code, description } = snippet;
+
+  return (
+    <div className="course-code-box my-3 rounded-3 overflow-hidden border shadow-sm">
+      <div className="course-code-header d-flex justify-content-between align-items-center px-3 py-2 bg-dark text-white-50 small border-bottom border-secondary">
+        <div className="d-flex align-items-center gap-2">
+          <i className="bi bi-file-earmark-code text-primary fs-6"></i>
+          <span className="font-monospace text-light fw-semibold small">{title || 'Código Fuente'}</span>
+          <span className="badge bg-secondary text-white rounded-pill px-2.5 py-0.5 text-uppercase small">
+            {language}
+          </span>
+        </div>
+        <button
+          type="button"
+          className="btn btn-link btn-sm text-decoration-none text-light py-0 px-2 d-flex align-items-center gap-1 copy-btn"
+          onClick={() => copyToClipboard(code)}
+          title="Copiar código al portapapeles"
+        >
+          <i className={`bi ${copied ? 'bi-check2 text-success' : 'bi-clipboard'}`}></i>
+          <span className={`small ${copied ? 'text-success fw-bold' : ''}`}>
+            {copied ? '¡Copiado!' : 'Copiar'}
+          </span>
+        </button>
+      </div>
+      {description && (
+        <div className="px-3 py-1.5 bg-dark border-bottom border-secondary small text-white-50 fst-italic">
+          {description}
+        </div>
+      )}
+      <pre className="course-code-pre m-0 p-3 bg-dark text-light font-monospace small">
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+}
+
+/**
+ * Interactive Worked Example card with step sequence and audio
+ */
+function WorkedExampleCard({ example, exampleId, speech, activeSectionId }) {
+  const isPlayingWe = activeSectionId === exampleId;
+  const weSpeech = `${example.title}. ${example.description || ''}. ${
+    example.steps
+      ? example.steps
+          .map(
+            (s) =>
+              `Paso ${s.stepNumber || s.step}: ${s.title}. ${s.explanation || ''} ${
+                s.command ? 'Comando: ' + s.command : ''
+              }`
+          )
+          .join('. ')
+      : ''
+  }`;
+
+  return (
+    <div
+      className={`worked-example-card p-4 rounded-4 border bg-surface-elevated transition-all my-3 ${
+        isPlayingWe ? 'audio-section-playing' : ''
+      }`}
+    >
+      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div className="d-flex align-items-center gap-2">
+          <span className="badge bg-success text-white rounded-pill px-3 py-1.5 fw-bold small">
+            {example.badge || 'Ejemplo Práctico'}
+          </span>
+          <h4 className="fw-bold mb-0 text-contrast-primary fs-5">{example.title}</h4>
+        </div>
+        <SectionAudioButton
+          sectionId={exampleId}
+          speechText={weSpeech}
+          sectionTitle={example.title}
+          speech={speech}
+          label="Escuchar Ejemplo"
+        />
+      </div>
+
+      {example.description && <p className="body-text mb-3">{example.description}</p>}
+
+      {example.steps && (
+        <div className="example-steps-list d-flex flex-column gap-3">
+          {example.steps.map((st, sIdx) => (
+            <div key={sIdx} className="example-step-item p-3 rounded-3 border bg-card">
+              <div className="d-flex align-items-center gap-2 mb-2">
+                <span className="step-number-pill bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold small">
+                  {st.stepNumber || sIdx + 1}
+                </span>
+                <strong className="text-contrast-primary">{st.title}</strong>
+              </div>
+
+              {st.explanation && <p className="body-text small mb-2">{st.explanation}</p>}
+
+              {st.command && <TerminalCommandBox command={st.command} />}
+
+              {st.options && (
+                <div className="step-options-box p-2.5 rounded-3 border bg-surface-elevated my-2">
+                  <span className="small text-muted fw-bold d-block mb-1.5">
+                    <i className="bi bi-list-check me-1 text-primary"></i> Respuestas del asistente interactivo:
+                  </span>
+                  <ul className="list-unstyled mb-0 ps-1 d-flex flex-column gap-1">
+                    {st.options.map((opt, oIdx) => (
+                      <li key={oIdx} className="small font-monospace d-flex align-items-start gap-1.5">
+                        <i className="bi bi-arrow-right-short text-primary fs-6 mt-n0.5"></i>
+                        <span>{opt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {st.note && (
+                <div className="step-note-box d-flex align-items-start gap-2 small text-muted mt-2 pt-2 border-top">
+                  <i className="bi bi-info-circle text-primary mt-0.5"></i>
+                  <span>{st.note}</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /**
  * ModuleRenderer component:
@@ -35,6 +199,8 @@ export default function ModuleRenderer({ activeTopic, speech, childSections = []
         speech.playFullLesson(childSections, title);
       } else if (speechText) {
         speech.playSection(`topic-${activeTopic.id}`, speechText, title);
+      } else {
+        speech.playSection(`topic-${activeTopic.id}`, title, title);
       }
     }
   };
@@ -102,6 +268,53 @@ export default function ModuleRenderer({ activeTopic, speech, childSections = []
 
                 {sub.body && <p className="body-text mb-3">{sub.body}</p>}
 
+                {sub.quote && (
+                  <blockquote className="course-quote-box p-3.5 my-3 rounded-3 border-start border-4 border-success bg-surface-elevated">
+                    <p className="fst-italic mb-1 body-text">"{sub.quote.text}"</p>
+                    {sub.quote.author && (
+                      <footer className="text-muted small fw-semibold">— {sub.quote.author}</footer>
+                    )}
+                  </blockquote>
+                )}
+
+                {sub.table && (
+                  <div className="table-responsive my-3">
+                    <table className="table table-hover align-middle course-content-table border rounded-3 overflow-hidden shadow-sm mb-0">
+                      <thead className="table-light">
+                        <tr>
+                          {sub.table.headers.map((h, hIdx) => (
+                            <th key={hIdx} className="fw-bold text-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sub.table.rows.map((row, rIdx) => (
+                          <tr key={rIdx}>
+                            {row.map((cell, cIdx) => (
+                              <td
+                                key={cIdx}
+                                dangerouslySetInnerHTML={{
+                                  __html: cell.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                }}
+                              />
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {sub.codeBlock && <CodeBlockBox snippet={sub.codeBlock} />}
+
+                {sub.codeBlocks && (
+                  <div className="d-flex flex-column gap-3 my-3">
+                    {sub.codeBlocks.map((cb, cbIdx) => (
+                      <CodeBlockBox key={cbIdx} snippet={cb} />
+                    ))}
+                  </div>
+                )}
+
                 {sub.formula && (
                   <div className="formula-container p-4 rounded-3 text-center my-3 border">
                     <span className="formula-badge d-inline-block px-3 py-1.5 rounded-pill small fw-bold mb-2">
@@ -124,6 +337,37 @@ export default function ModuleRenderer({ activeTopic, speech, childSections = []
                     <div>
                       <strong className="callout-title d-block mb-1">Impacto Metodológico para QA:</strong>
                       <span className="callout-body">{sub.impactQA}</span>
+                    </div>
+                  </div>
+                )}
+
+                {sub.callout && (
+                  <div
+                    className={`qa-callout callout-${
+                      sub.callout.type === 'tip'
+                        ? 'success'
+                        : sub.callout.type === 'warning'
+                        ? 'warning'
+                        : 'info'
+                    } p-3.5 rounded-3 d-flex align-items-start gap-3 mt-3`}
+                  >
+                    <i
+                      className={`bi ${sub.callout.icon || 'bi-info-circle-fill'} fs-4 mt-0.5 text-${
+                        sub.callout.type === 'tip'
+                          ? 'success'
+                          : sub.callout.type === 'warning'
+                          ? 'warning'
+                          : 'primary'
+                      }`}
+                    ></i>
+                    <div>
+                      <strong className="callout-title d-block mb-1">{sub.callout.title}</strong>
+                      <span
+                        className="callout-body"
+                        dangerouslySetInnerHTML={{
+                          __html: sub.callout.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        }}
+                      ></span>
                     </div>
                   </div>
                 )}
@@ -173,6 +417,20 @@ export default function ModuleRenderer({ activeTopic, speech, childSections = []
                         </div>
                       );
                     })}
+                  </div>
+                )}
+
+                {sub.workedExamples && (
+                  <div className="worked-examples-wrapper d-flex flex-column gap-3 my-3">
+                    {sub.workedExamples.map((we, weIdx) => (
+                      <WorkedExampleCard
+                        key={weIdx}
+                        example={we}
+                        exampleId={`example-${idx}-${weIdx}`}
+                        speech={speech}
+                        activeSectionId={activeSectionId}
+                      />
+                    ))}
                   </div>
                 )}
               </div>

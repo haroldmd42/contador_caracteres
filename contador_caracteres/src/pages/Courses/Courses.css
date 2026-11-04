@@ -852,3 +852,141 @@
 .featured-course-card:hover .graphic-icon-ring {
   transform: scale(1.08) rotate(4deg);
 }
+
+/* 📊 Course Content Table Styling */
+.course-content-table {
+  font-size: 0.94rem;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .course-content-table {
+  border-color: #334155 !important;
+  color: #f1f5f9;
+}
+
+.course-content-table thead th {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-bottom: 2px solid #cbd5e1;
+  padding: 12px 16px;
+}
+
+[data-theme="dark"] .course-content-table thead th {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-bottom-color: #334155;
+}
+
+.course-content-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme="dark"] .course-content-table tbody td {
+  border-bottom-color: #1e293b;
+}
+
+/* 💬 Course Quote Box */
+.course-quote-box {
+  background: rgba(22, 163, 74, 0.08);
+  border-color: #16a34a !important;
+}
+
+[data-theme="dark"] .course-quote-box {
+  background: rgba(22, 163, 74, 0.15);
+}
+
+/* 💻 Terminal Command Box */
+.terminal-command-wrapper {
+  background: #0f172a;
+  border-color: #334155 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.terminal-command-header {
+  background: #0b0f19 !important;
+  user-select: none;
+}
+
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+}
+
+.terminal-command-pre {
+  background: #0f172a !important;
+  color: #38bdf8 !important; /* Cyan glow */
+  overflow-x: auto;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.copy-btn {
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  color: #38bdf8 !important;
+}
+
+/* 🛠️ Worked Examples Cards */
+.worked-example-card {
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+}
+
+[data-theme="dark"] .worked-example-card {
+  border-color: #334155;
+  background: #111827;
+}
+
+.step-number-pill {
+  width: 26px;
+  height: 26px;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+.example-step-item {
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+[data-theme="dark"] .example-step-item {
+  border-color: #1e293b;
+  background: #0b0f19;
+}
+
+.step-options-box {
+  border-color: #cbd5e1 !important;
+  background: #ffffff;
+}
+
+[data-theme="dark"] .step-options-box {
+  border-color: #334155 !important;
+  background: #161e2e;
+}
+
+/* 📝 Course Code Snippet Box */
+.course-code-box {
+  background: #0f172a;
+  border: 1.5px solid #334155 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.course-code-header {
+  background: #0b0f19 !important;
+  user-select: none;
+}
+
+.course-code-pre {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  overflow-x: auto;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+

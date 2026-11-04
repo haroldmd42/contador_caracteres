@@ -160,6 +160,15 @@ export default function CourseViewer() {
               });
             });
           }
+          if (sub.workedExamples) {
+            sub.workedExamples.forEach((we, weIdx) => {
+              list.push({
+                id: `example-${idx}-${weIdx}`,
+                title: we.title,
+                speechText: `${we.title}. ${we.description || ''}. ${we.steps ? we.steps.map(s => `Paso ${s.stepNumber || s.step}: ${s.title}. ${s.explanation || ''} ${s.command ? 'Comando: ' + s.command : ''}`).join('. ') : ''}`
+              });
+            });
+          }
         });
       } else if (c.type === 'four_dimensions') {
         c.dimensions.forEach((dim) => {
@@ -233,15 +242,34 @@ export default function CourseViewer() {
         });
       }
 
-      if (list.length === 0 && activeTopic.speechText) {
-        list.push({
-          id: `topic-${activeTopic.id}`,
-          title: activeTopic.title,
-          speechText: activeTopic.speechText
-        });
+      if (list.length === 0) {
+        const fallbackText = activeTopic.speechText || activeTopic.title || '';
+        if (fallbackText) {
+          list.push({
+            id: `topic-${activeTopic.id}`,
+            title: activeTopic.title,
+            speechText: fallbackText
+          });
+        }
       }
 
       return list;
+    }
+
+    if (activeTab === 'glossary' && course.glossary) {
+      return course.glossary.map((item, idx) => ({
+        id: `glossary-${item.id || idx}`,
+        title: item.term,
+        speechText: `Término: ${item.term}. Definición técnica: ${item.definition}`
+      }));
+    }
+
+    if (activeTab === 'exam' && course.exam) {
+      return course.exam.map((q, idx) => ({
+        id: `exam-${q.id || idx}`,
+        title: `Pregunta ${idx + 1}`,
+        speechText: `Pregunta ${idx + 1}: ${q.question}. Opciones: ${q.options ? q.options.join('. ') : ''}`
+      }));
     }
 
     return [];
