@@ -206,3 +206,41 @@
     width: 100%;
   }
 }
+
+/* Framework Target Selector Bar */
+.framework-target-bar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  max-width: fit-content;
+  transition: all 0.25s ease;
+}
+
+.framework-target-bar:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
+}
+
+.framework-target-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.framework-select-wrapper {
+  min-width: 250px;
+}
+
+.framework-select-control {
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+}

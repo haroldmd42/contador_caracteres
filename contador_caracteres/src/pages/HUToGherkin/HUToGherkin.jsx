@@ -5,6 +5,7 @@ import Toast from "../../components/ui/Toast/Toast";
 import useClipboard from "../../hooks/useClipboard";
 import { exportToExcel } from "../../utils/exportExcel";
 import AzureDevOpsModal from "../../components/AzureDevOpsModal/AzureDevOpsModal";
+import CustomSelect from "../../components/common/CustomSelect";
 
 export default function HUToGherkin() {
     const [userStory, setUserStory] = useState("");
@@ -133,21 +134,26 @@ export default function HUToGherkin() {
             </div>
 
             {mode === 'automation' && (
-                <div className="d-flex justify-content-center align-items-center gap-3 mb-4">
-                    <label className="fw-bold mb-0">Framework Target:</label>
-                    <select
-                        className="form-select"
-                        style={{ maxWidth: '260px' }}
-                        value={framework}
-
-                        onChange={(e) => {
-                            setFramework(e.target.value);
-                            clearResult();
-                        }}
-                    >
-                        <option value="cypress">Cypress (JavaScript)</option>
-                        <option value="playwright">Playwright (TypeScript)</option>
-                    </select>
+                <div className="d-flex justify-content-center mb-4">
+                    <div className="framework-target-bar">
+                        <div className="framework-target-badge">
+                            <i className="bi bi-cpu-fill text-primary"></i>
+                            <span className="fw-bold">Framework Target:</span>
+                        </div>
+                        <div className="framework-select-wrapper">
+                            <CustomSelect
+                                value={framework}
+                                onChange={(val) => {
+                                    setFramework(val);
+                                    clearResult();
+                                }}
+                                options={[
+                                    { value: 'cypress', label: 'Cypress (JavaScript)', icon: 'bi-code-slash' },
+                                    { value: 'playwright', label: 'Playwright (TypeScript)', icon: 'bi-play-circle-fill' }
+                                ]}
+                            />
+                        </div>
+                    </div>
                 </div>
             )}
 

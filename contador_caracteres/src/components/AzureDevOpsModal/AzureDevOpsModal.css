@@ -10,8 +10,68 @@
 }
 
 .modal-content-custom {
-  background-color: var(--bg-surface-elevated, #1e293b);
-  color: var(--text-primary, #f8fafc);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-  border-radius: 16px;
+  background-color: var(--bg-surface-elevated, #ffffff);
+  color: var(--text-primary, #0f172a);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+/* Prominent Close Button */
+.btn-modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  background-color: var(--input-bg, #f1f5f9);
+  color: var(--text-primary, #0f172a);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.btn-modal-close:hover {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #dc2626;
+  transform: rotate(90deg) scale(1.08);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+.btn-modal-close:active {
+  transform: rotate(90deg) scale(0.96);
+}
+
+/* Theme-aware Team & Sprint Container */
+.ado-selectors-container {
+  background-color: var(--bg-surface, rgba(15, 23, 42, 0.03));
+  border-color: var(--border-color, rgba(0, 0, 0, 0.1)) !important;
+}
+
+/* Stories list item */
+.ado-story-item {
+  background-color: var(--bg-surface, #ffffff) !important;
+  color: var(--text-primary, #0f172a) !important;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08)) !important;
+  transition: all 0.18s ease;
+}
+
+.ado-story-item:hover {
+  background-color: rgba(99, 102, 241, 0.06) !important;
+  border-color: var(--accent-primary, #6366f1) !important;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .ado-story-item {
+  background-color: rgba(30, 41, 59, 0.75) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .ado-story-item:hover {
+  background-color: rgba(99, 102, 241, 0.15) !important;
 }

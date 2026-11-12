@@ -6,6 +6,7 @@ import {
   fetchTeamIterations,
   queryWorkItemsByIterationPath
 } from '../../services/azureDevOpsService';
+import CustomSelect from '../common/CustomSelect';
 import './AzureDevOpsModal.css';
 
 export default function AzureDevOpsModal({ isOpen, onClose, onImportUserStory }) {
@@ -168,7 +169,15 @@ export default function AzureDevOpsModal({ isOpen, onClose, onImportUserStory })
           <h4 className="fw-bold mb-0 text-primary">
             <i className="bi bi-microsoft me-2"></i>Navegador de Boards y Sprints - Azure DevOps
           </h4>
-          <button className="btn-close btn-close-white" onClick={onClose} aria-label="Cerrar"></button>
+          <button
+            type="button"
+            className="btn-modal-close"
+            onClick={onClose}
+            aria-label="Cerrar ventana"
+            title="Cerrar"
+          >
+            <i className="bi bi-x-lg"></i>
+          </button>
         </div>
 
         <div className="alert alert-info py-2 small mb-3 border-0">
@@ -215,39 +224,45 @@ export default function AzureDevOpsModal({ isOpen, onClose, onImportUserStory })
 
         {/* Team & Sprint Selectors */}
         {teams.length > 0 && (
-          <div className="row g-2 mb-3 bg-dark p-3 rounded border border-secondary">
+          <div className="ado-selectors-container row g-3 mb-3 p-3 rounded-3 border">
             <div className="col-md-6">
-              <label className="small fw-bold text-warning mb-1"><i className="bi bi-people-fill me-1"></i>Seleccionar Equipo / Board:</label>
-              <select
-                className="form-select form-select-sm"
+              <label className="small fw-bold text-primary mb-1 d-flex align-items-center">
+                <i className="bi bi-people-fill me-1.5 text-primary"></i>Seleccionar Equipo / Board:
+              </label>
+              <CustomSelect
                 value={selectedTeam}
-                onChange={(e) => {
-                  setSelectedTeam(e.target.value);
-                  handleLoadIterations(e.target.value);
+                onChange={(val) => {
+                  setSelectedTeam(val);
+                  handleLoadIterations(val);
                 }}
-              >
-                {teams.map(t => (
-                  <option key={t.id} value={t.name}>{t.name}</option>
-                ))}
-              </select>
+                options={teams.map((t) => ({
+                  value: t.name,
+                  label: t.name,
+                  icon: 'bi-people'
+                }))}
+                placeholder="Selecciona un equipo..."
+              />
             </div>
 
             <div className="col-md-6">
-              <label className="small fw-bold text-info mb-1"><i className="bi bi-calendar-event me-1"></i>Seleccionar Sprint / Iteración:</label>
-              <select
-                className="form-select form-select-sm"
+              <label className="small fw-bold text-primary mb-1 d-flex align-items-center">
+                <i className="bi bi-calendar-event me-1.5 text-primary"></i>Seleccionar Sprint / Iteración:
+              </label>
+              <CustomSelect
                 value={selectedIteration}
-                onChange={(e) => {
-                  setSelectedIteration(e.target.value);
-                  handleLoadSprintWorkItems(e.target.value);
+                onChange={(val) => {
+                  setSelectedIteration(val);
+                  handleLoadSprintWorkItems(val);
                 }}
-              >
-                {iterations.map(iter => (
-                  <option key={iter.id} value={iter.path}>
-                    {iter.timeFrame === 'current' ? '⚡ [SPRINT ACTUAL] ' : ''}{iter.name} ({iter.startDate || ''} - {iter.finishDate || ''})
-                  </option>
-                ))}
-              </select>
+                options={iterations.map((iter) => ({
+                  value: iter.path,
+                  label: iter.name,
+                  badge: iter.timeFrame === 'current' ? 'Sprint Actual' : null,
+                  subtitle: iter.startDate && iter.finishDate ? `${iter.startDate} - ${iter.finishDate}` : null,
+                  icon: iter.timeFrame === 'current' ? 'bi-lightning-charge-fill text-warning' : 'bi-calendar3'
+                }))}
+                placeholder="Selecciona una iteración..."
+              />
             </div>
           </div>
         )}
@@ -275,14 +290,14 @@ export default function AzureDevOpsModal({ isOpen, onClose, onImportUserStory })
               {stories.map((story) => (
                 <button
                   key={story.id}
-                  className="list-group-item list-group-item-action bg-dark text-white border-secondary d-flex justify-content-between align-items-center mb-1 rounded"
+                  className="list-group-item list-group-item-action ado-story-item d-flex justify-content-between align-items-center mb-1 rounded"
                   onClick={() => importItemToIa(story)}
                 >
                   <div>
                     <span className="badge bg-primary me-2">#{story.id}</span>
                     <strong className="text-info me-2">[{story.type}]</strong>
                     <span>{story.title}</span>
-                    <div className="small text-muted mt-1">Estado: <span className="text-warning">{story.state}</span></div>
+                    <div className="small text-muted mt-1">Estado: <span className="badge bg-secondary">{story.state}</span></div>
                   </div>
                   <span className="btn btn-sm btn-outline-success">
                     Importar <i className="bi bi-arrow-right me-0 ms-1"></i>
@@ -298,6 +313,13 @@ export default function AzureDevOpsModal({ isOpen, onClose, onImportUserStory })
             </div>
           )
         )}
+
+        {/* Modal Footer with explicit close button */}
+        <div className="d-flex justify-content-end mt-3 pt-3 border-top">
+          <button type="button" className="btn btn-secondary btn-sm px-3" onClick={onClose}>
+            <i className="bi bi-x-circle me-1.5"></i>Cerrar Ventana
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import {
 } from '../../utils/azureExcelExport';
 import useClipboard from '../../hooks/useClipboard';
 import Toast from '../../components/ui/Toast/Toast';
+import CustomSelect from '../../components/common/CustomSelect';
 import './AzureExtractor.css';
 
 export default function AzureExtractor() {
@@ -657,19 +658,16 @@ export default function AzureExtractor() {
                     <label className="field-label mb-1">
                       <i className="bi bi-people-fill me-1 text-primary"></i>Board / Equipo:
                     </label>
-                    <select
-                      className="form-select form-select-sm modern-input"
+                    <CustomSelect
                       value={selectedTeam}
-                      onChange={(e) => {
-                        setSelectedTeam(e.target.value);
-                        handleLoadIterations(e.target.value);
+                      onChange={(val) => {
+                        setSelectedTeam(val);
+                        handleLoadIterations(val);
                       }}
                       disabled={loadingIterations}
-                    >
-                      {teams.map(t => (
-                        <option key={t.id} value={t.name}>{t.name}</option>
-                      ))}
-                    </select>
+                      options={teams.map(t => ({ value: t.name, label: t.name, icon: 'bi-people' }))}
+                      placeholder="Seleccionar equipo..."
+                    />
                   </div>
 
                   {/* Sprint Quick Presets: Balanced 2x2 Grid with zero text wrapping */}
@@ -805,49 +803,68 @@ export default function AzureExtractor() {
 
           {/* ==================== RIGHT COLUMN (STORY BROWSER) ==================== */}
           <main className="extractor-main-panel">
-            <div className="card panel-card h-100 d-flex flex-column">
-              {/* Header Strip with Direct ID Input */}
+            <div className="card panel-card d-flex flex-column">
+              {/* Header Strip with Direct ID Input & Header Extract CTA */}
               <div className="browser-header-strip">
-                <div>
+                <div className="browser-header-titles">
                   <h2 className="panel-title">Historias de Usuario Disponibles</h2>
                   <p className="panel-subtitle">
                     Marca las historias que deseas incluir en esta extracción para procesarlas y exportarlas.
                   </p>
                 </div>
 
-                {/* Direct ID Loader: Unified Seamless Single-Border Control */}
-                <div className="direct-id-adder-box">
-                  <div className="direct-id-unified-control">
-                    <span className="direct-id-prefix" title="Identificador Work Item de Azure DevOps">
-                      <i className="bi bi-hash"></i>
-                    </span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      className="direct-id-input"
-                      placeholder="ID directo (12345)..."
-                      value={manualWorkItemId}
-                      onChange={(e) => setManualWorkItemId(e.target.value.replace(/\D/g, ''))}
-                      onKeyDown={(e) => e.key === 'Enter' && handleAddManualId()}
-                    />
-                    <button
-                      type="button"
-                      className="direct-id-btn-submit"
-                      onClick={handleAddManualId}
-                      disabled={loadingManualId || !manualWorkItemId.trim()}
-                      title="Cargar Work Item por ID específico"
-                    >
-                      {loadingManualId ? (
-                        <span className="spinner-border spinner-border-sm"></span>
-                      ) : (
-                        <>
-                          <i className="bi bi-plus-lg me-1"></i>
-                          <span>Agregar</span>
-                        </>
-                      )}
-                    </button>
+                <div className="browser-header-actions d-flex align-items-center gap-2.5 flex-wrap">
+                  {/* Direct ID Loader: Unified Seamless Single-Border Control */}
+                  <div className="direct-id-adder-box">
+                    <div className="direct-id-unified-control">
+                      <span className="direct-id-prefix" title="Identificador Work Item de Azure DevOps">
+                        <i className="bi bi-hash"></i>
+                      </span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        className="direct-id-input"
+                        placeholder="ID directo (12345)..."
+                        value={manualWorkItemId}
+                        onChange={(e) => setManualWorkItemId(e.target.value.replace(/\D/g, ''))}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddManualId()}
+                      />
+                      <button
+                        type="button"
+                        className="direct-id-btn-submit"
+                        onClick={handleAddManualId}
+                        disabled={loadingManualId || !manualWorkItemId.trim()}
+                        title="Cargar Work Item por ID específico"
+                      >
+                        {loadingManualId ? (
+                          <span className="spinner-border spinner-border-sm"></span>
+                        ) : (
+                          <>
+                            <i className="bi bi-plus-lg me-1"></i>
+                            <span>Agregar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Extract Button in Header */}
+                  {availableStories.length > 0 && (
+                    <button
+                      className="btn btn-primary btn-extract-cta-header d-flex align-items-center gap-2 shadow-sm"
+                      onClick={handleExecuteExtraction}
+                      disabled={selectedStoryIds.length === 0}
+                      title={
+                        selectedStoryIds.length === 0
+                          ? 'Selecciona al menos una historia para extraer'
+                          : `Extraer ${selectedStoryIds.length} historias seleccionadas`
+                      }
+                    >
+                      <i className="bi bi-cloud-download-fill"></i>
+                      <span>Extraer Historias ({selectedStoryIds.length})</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -882,48 +899,42 @@ export default function AzureExtractor() {
                     {/* Sprint Filter */}
                     {uniqueStorySprints.length > 1 && (
                       <div className="filter-select-col">
-                        <select
-                          className="form-select form-select-sm"
+                        <CustomSelect
                           value={selectedSprintFilter}
-                          onChange={(e) => setSelectedSprintFilter(e.target.value)}
-                        >
-                          <option value="ALL">Todos los Sprints</option>
-                          {uniqueStorySprints.map(s => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
+                          onChange={(val) => setSelectedSprintFilter(val)}
+                          options={[
+                            { value: 'ALL', label: 'Todos los Sprints' },
+                            ...uniqueStorySprints.map(s => ({ value: s, label: s }))
+                          ]}
+                        />
                       </div>
                     )}
 
                     {/* Type Filter */}
                     {uniqueStoryTypes.length > 1 && (
                       <div className="filter-select-col">
-                        <select
-                          className="form-select form-select-sm"
+                        <CustomSelect
                           value={selectedTypeFilter}
-                          onChange={(e) => setSelectedTypeFilter(e.target.value)}
-                        >
-                          <option value="ALL">Todos los Tipos</option>
-                          {uniqueStoryTypes.map(t => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
-                        </select>
+                          onChange={(val) => setSelectedTypeFilter(val)}
+                          options={[
+                            { value: 'ALL', label: 'Todos los Tipos' },
+                            ...uniqueStoryTypes.map(t => ({ value: t, label: t }))
+                          ]}
+                        />
                       </div>
                     )}
 
                     {/* State Filter */}
                     {uniqueStoryStates.length > 1 && (
                       <div className="filter-select-col">
-                        <select
-                          className="form-select form-select-sm"
+                        <CustomSelect
                           value={selectedStateFilter}
-                          onChange={(e) => setSelectedStateFilter(e.target.value)}
-                        >
-                          <option value="ALL">Todos los Estados</option>
-                          {uniqueStoryStates.map(s => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
+                          onChange={(val) => setSelectedStateFilter(val)}
+                          options={[
+                            { value: 'ALL', label: 'Todos los Estados' },
+                            ...uniqueStoryStates.map(s => ({ value: s, label: s }))
+                          ]}
+                        />
                       </div>
                     )}
 
@@ -1080,11 +1091,11 @@ export default function AzureExtractor() {
 
               {/* Bottom Sticky Action Strip */}
               {availableStories.length > 0 && (
-                <div className="stories-docked-footer mt-auto pt-3 border-top border-subtle">
+                <div className="stories-docked-footer pt-3 border-top border-subtle">
                   <div className="dock-meta">
                     <i className="bi bi-layers-fill text-primary me-1.5"></i>
                     <span>
-                      <strong>{selectedStoryIds.length}</strong> historias seleccionadas para la extracción.
+                      <strong>{selectedStoryIds.length}</strong> de {availableStories.length} historias seleccionadas para la extracción.
                     </span>
                   </div>
 

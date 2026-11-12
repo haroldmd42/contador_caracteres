@@ -132,29 +132,150 @@ body {
   transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-/* 📝 Global Form Control Overrides */
-.form-control, .form-select {
+/* 📝 Global Form Input Overrides */
+.form-control {
   background-color: var(--input-bg) !important;
   color: var(--input-text) !important;
-  border: 1px solid var(--input-border) !important;
+  border: 1.5px solid var(--input-border) !important;
   border-radius: 12px !important;
-  padding: 12px 16px;
-  transition: all 0.25s ease;
+  padding: 10px 16px !important;
+  min-height: 44px;
+  transition: all 0.22s ease;
 }
-
-.form-select {
-  padding-right: 40px !important;
-}
-
 
 .form-control::placeholder {
   color: var(--text-muted) !important;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus {
   border-color: var(--accent-primary) !important;
-  box-shadow: 0 0 0 4px var(--border-focus) !important;
+  box-shadow: 0 0 0 3.5px var(--border-focus) !important;
   color: var(--input-text) !important;
+}
+
+/* 🎯 Modern Universal Select & Dropdown Styling System */
+select,
+.form-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary, var(--input-text)) !important;
+  border: 1.5px solid var(--input-border) !important;
+  border-radius: 10px !important;
+  padding: 0 40px 0 14px !important;
+  font-size: 0.915rem !important;
+  font-weight: 500 !important;
+  line-height: 42px !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23475569' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 7.5 10 12.5 15 7.5'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px 16px !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+}
+
+[data-theme="dark"] select,
+[data-theme="dark"] .form-select {
+  background-color: var(--bg-surface-elevated, #1e293b) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2338bdf8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 7.5 10 12.5 15 7.5'/%3E%3C/svg%3E") !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Hover state */
+select:hover:not(:disabled),
+.form-select:hover:not(:disabled) {
+  border-color: rgba(56, 189, 248, 0.55) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(56, 189, 248, 0.2) !important;
+}
+
+[data-theme="dark"] select:hover:not(:disabled),
+[data-theme="dark"] .form-select:hover:not(:disabled) {
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(56, 189, 248, 0.25) !important;
+  background-color: #27354f !important;
+}
+
+/* Focus state */
+select:focus,
+.form-select:focus {
+  outline: none !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3.5px rgba(56, 189, 248, 0.25), 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%230284c7' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 12.5 10 7.5 15 12.5'/%3E%3C/svg%3E") !important;
+}
+
+[data-theme="dark"] select:focus,
+[data-theme="dark"] .form-select:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3.5px rgba(56, 189, 248, 0.3), 0 6px 18px rgba(0, 0, 0, 0.45) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2338bdf8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 12.5 10 7.5 15 12.5'/%3E%3C/svg%3E") !important;
+}
+
+/* Disabled state */
+select:disabled,
+.form-select:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  background-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+/* Small select variant (.form-select-sm) */
+select.form-select-sm,
+.form-select-sm {
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 0 32px 0 12px !important;
+  line-height: 38px !important;
+  font-size: 0.86rem !important;
+  border-radius: 9px !important;
+  background-size: 14px 14px !important;
+  background-position: right 10px center !important;
+}
+
+/* Large select variant (.form-select-lg) */
+select.form-select-lg,
+.form-select-lg {
+  min-height: 50px !important;
+  height: 50px !important;
+  padding: 12px 46px 12px 16px !important;
+  font-size: 1rem !important;
+  border-radius: 14px !important;
+  background-size: 18px 18px !important;
+  background-position: right 16px center !important;
+}
+
+/* Option tags styling across Chromium/Firefox/Safari */
+select option,
+.form-select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  padding: 11px 14px !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="dark"] select option,
+[data-theme="dark"] .form-select option {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+select option:checked,
+.form-select option:checked {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] select option:checked,
+[data-theme="dark"] .form-select option:checked {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
 }
 
 /* 🔘 Universal Button Rules (Ensures 100% border-radius & padding consistency) */
